@@ -1,15 +1,18 @@
 /*
- * Mi RAM-HQ.h
+ * servidor.h
  *
- *  Created on: 18 abr. 2021
+ *  Created on: 3 mar. 2019
  *      Author: utnso
  */
 
-#ifndef MI_RAM_HQ_MI_RAM_HQ_H_
-#define MI_RAM_HQ_MI_RAM_HQ_H_
+#ifndef MI-RAM-HQ_H_
+#define MI-RAM-HQ_H
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<commons/log.h>
+#include "utils.h"
 
 
-
-
-
-#endif /* MI_RAM_HQ_MI_RAM_HQ_H_ */
+#endif /* MI-RAM-HQ_H_ */

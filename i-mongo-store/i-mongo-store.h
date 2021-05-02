@@ -1,15 +1,18 @@
 /*
- * i-mongo-store.h
+ * servidor.h
  *
- *  Created on: 18 abr. 2021
+ *  Created on: 3 mar. 2019
  *      Author: utnso
  */
 
-#ifndef I_MONGO_STORE_I_MONGO_STORE_H_
-#define I_MONGO_STORE_I_MONGO_STORE_H_
+#ifndef I-MONGO-STORE_H_
+#define I-MONGO-STORE_H
+
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#include<commons/log.h>
+#include "utils.h"
 
 
-
-
-
-#endif /* I_MONGO_STORE_I_MONGO_STORE_H_ */
+#endif /* I-MONGO-STORE_H_ */
