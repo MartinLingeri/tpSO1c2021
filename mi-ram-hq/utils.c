@@ -7,6 +7,11 @@
 
 #include"utils.h"
 
+t_config* leer_config(void)
+{
+	config_create("mi-ram-hq.config");
+}
+
 int iniciar_servidor(void)
 {
 	int socket_servidor;
@@ -18,7 +23,11 @@ int iniciar_servidor(void)
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    getaddrinfo(IP, PUERTO, &hints, &servinfo);
+    t_config* config = leer_config();
+	char* ip = config_get_string_value(config, "IP");
+	char* puerto = config_get_string_value(config, "PUERTO");
+
+    getaddrinfo(ip, puerto, &hints, &servinfo);
 
     for (p=servinfo; p != NULL; p = p->ai_next)
     {

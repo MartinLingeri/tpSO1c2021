@@ -3,3 +3,7 @@
 [INFO] 14:54:00:564 Servidor/(4969:4969): Se conecto un cliente!
 [INFO] 14:54:00:564 Servidor/(4969:4969): Me llego el mensaje Hola, soy un valor
 [ERROR] 14:54:05:488 Servidor/(4969:4969): el cliente se desconecto. Terminando servidor
+[INFO] 15:13:53:833 Servidor/(5779:5779): Servidor listo para recibir al cliente
+[INFO] 15:14:03:479 Servidor/(5779:5779): Se conecto un cliente!
+[INFO] 15:14:03:479 Servidor/(5779:5779): Me llego el mensaje Hola, soy un valor
+[ERROR] 15:14:10:426 Servidor/(5779:5779): el cliente se desconecto. Terminando servidor

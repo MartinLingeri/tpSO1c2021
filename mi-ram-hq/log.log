@@ -15,3 +15,7 @@
 [INFO] 14:53:05:848 Servidor/(4944:4944): Se conecto un cliente!
 [INFO] 14:53:05:848 Servidor/(4944:4944): Me llego el mensaje Hola, soy un valor
 [ERROR] 14:53:10:668 Servidor/(4944:4944): el cliente se desconecto. Terminando servidor
+[INFO] 15:15:51:675 Servidor/(5852:5852): Servidor listo para recibir al cliente
+[INFO] 15:16:01:983 Servidor/(5852:5852): Se conecto un cliente!
+[INFO] 15:16:01:984 Servidor/(5852:5852): Me llego el mensaje Hola, soy un valor
+[ERROR] 15:16:09:689 Servidor/(5852:5852): el cliente se desconecto. Terminando servidor
