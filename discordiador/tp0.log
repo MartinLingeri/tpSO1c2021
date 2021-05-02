@@ -23,3 +23,6 @@
 [INFO] 15:14:03:478 tp0/(5795:5795): Hola, soy un valor
 [INFO] 15:16:01:976 tp0/(5872:5872): soy un log
 [INFO] 15:16:01:977 tp0/(5872:5872): Hola, soy un valor
+[INFO] 15:19:31:890 tp0/(5980:5980): soy un log
+[INFO] 15:19:31:921 tp0/(5980:5980): Hola, soy un valor
+[ERROR] 15:19:31:922 tp0/(5980:5980): error en la conexion

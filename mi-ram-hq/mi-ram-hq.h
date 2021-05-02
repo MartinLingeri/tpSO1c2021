@@ -1,10 +1,3 @@
-/*
- * servidor.h
- *
- *  Created on: 3 mar. 2019
- *      Author: utnso
- */
-
 #ifndef MI-RAM-HQ_H_
 #define MI-RAM-HQ_H
 

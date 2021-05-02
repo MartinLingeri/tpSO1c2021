@@ -1,10 +1,3 @@
-/*
- * servidor.h
- *
- *  Created on: 3 mar. 2019
- *      Author: utnso
- */
-
 #ifndef I-MONGO-STORE_H_
 #define I-MONGO-STORE_H
 

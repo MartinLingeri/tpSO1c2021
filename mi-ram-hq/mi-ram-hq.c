@@ -1,10 +1,3 @@
-/*
- * servidor.c
- *
- *  Created on: 3 mar. 2019
- *      Author: utnso
- */
-
 #include "mi-ram-hq.h"
 
 int main(void)
@@ -14,7 +7,7 @@ int main(void)
 		printf("%s\n", value);
 	}
 
-	logger = log_create("log.log", "Servidor", 1, LOG_LEVEL_DEBUG);
+	logger = log_create("log.log", "Mi-Ram-HQ", 1, LOG_LEVEL_DEBUG);
 
 	int server_fd = iniciar_servidor();
 	log_info(logger, "Servidor listo para recibir al cliente");

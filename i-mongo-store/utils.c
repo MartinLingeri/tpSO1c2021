@@ -1,10 +1,3 @@
-/*
- * conexiones.c
- *
- *  Created on: 3 mar. 2019
- *      Author: utnso
- */
-
 #include"utils.h"
 
 t_config* leer_config(void)

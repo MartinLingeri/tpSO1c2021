@@ -1,10 +1,3 @@
-/*
- * main.c
- *
- *  Created on: 28 feb. 2019
- *      Author: utnso
- */
-
 #include "discordiador.h"
 
 int main(void)
@@ -35,7 +28,7 @@ int main(void)
 	conexion = crear_conexion(ip, puerto);
 
 	if(conexion == -1) {
-		puts("error en la conexion");
+		log_error(logger, "error en la conexion");
 		return EXIT_FAILURE;
 	}
 
@@ -50,7 +43,7 @@ int main(void)
 
 t_log* iniciar_logger(void)
 {
-	return log_create("tp0.log", "tp0", true, LOG_LEVEL_INFO);
+	return log_create("discordiador.log", "discordiador", true, LOG_LEVEL_INFO);
 }
 
 t_config* leer_config(void)
