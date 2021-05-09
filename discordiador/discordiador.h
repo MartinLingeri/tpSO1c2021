@@ -3,7 +3,6 @@
 
 #include<stdio.h>
 #include<stdlib.h>
-#include<commons/log.h>
 #include<commons/string.h>
 #include<commons/config.h>
 #include<readline/readline.h>
@@ -22,7 +21,7 @@ t_config* leer_config(void);
 void leer_consola(t_log*);
 void paquete(int);
 void terminar_programa(int, t_log*, t_config*);
-void iniciar_patota(char** instruccion);
+void iniciar_patota(char** instruccion, char* leido);
 void iniciar_patota_en_hq();
 t_tripulante* inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int longitud, int id_patota);
 int longitud_instr(char** instruccion);

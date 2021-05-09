@@ -2,26 +2,20 @@
 
 int id_ultimo_tripulante = 0;
 int id_ultima_patota = 0;
-
+int conexion = -1;
+t_log* logger;
 int main(void)
 {
-	int conexion;
-	/*char* ip;
-	char* puerto;
-	ip = config_get_string_value(config, "IP");
-	puerto = config_get_string_value(config, "PUERTO");
-	puts(puerto);
-	conexion = crear_conexion(ip, puerto);
+	logger = iniciar_logger();
+	t_config* config = leer_config();
+	conexion = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
+
 	if(conexion == -1) {
-		log_error(logger, "error en la conexion");
+		puts("error en conexion");
 		return EXIT_FAILURE;
 	}
-	enviar_mensaje(valor, conexion);
-	paquete(conexion);*/
-	t_log* logger;
-	t_config* config;
-	logger = iniciar_logger();
-	config = leer_config();
+
+	//paquete(conexion);
 	leer_consola(logger);
 	terminar_programa(conexion, logger, config);
 
@@ -48,7 +42,7 @@ void leer_consola(t_log* logger)
 		char** instruccion = string_split(leido, " ");
 
 		if(strcmp(instruccion[0], "INICIAR_PATOTA") == 0) {
-			iniciar_patota(instruccion);
+			iniciar_patota(instruccion, leido);
 
 		} else if (strcmp(instruccion[0], "LISTAR_TRIPULANTES") == 0) {
 
@@ -103,12 +97,17 @@ int longitud_instr(char** instruccion){
 	return largo;
 }
 
-void iniciar_patota(char** instruccion) {
+void iniciar_patota(char** instruccion, char* leido) {
 	int cantidad = atoi(instruccion[1]);
 	char* tareas = instruccion[2];
 	int longitud = longitud_instr(instruccion);
 	int id_patota = id_ultima_patota++;
 	id_ultima_patota++;
+	enviar_mensaje(leido, conexion);
+	int cod_op = recibir_operacion(conexion);
+	if(cod_op == MENSAJE) {
+		recibir_mensaje(conexion, logger);
+	}
 	for(int i = 0; i < cantidad; i++) {
 		inicializar_tripulante(instruccion, i, longitud, id_patota);
 	}

@@ -8,6 +8,7 @@
 #include<sys/socket.h>
 #include<netdb.h>
 #include<string.h>
+#include<commons/log.h>
 
 typedef enum
 {
@@ -35,5 +36,8 @@ void agregar_a_paquete(t_paquete* paquete, void* valor, int tamanio);
 void enviar_paquete(t_paquete* paquete, int socket_cliente);
 void liberar_conexion(int socket_cliente);
 void eliminar_paquete(t_paquete* paquete);
+void* recibir_buffer(int*, int);
+void recibir_mensaje(int, t_log*);
+int recibir_operacion(int socket_cliente);
 
 #endif /* UTILS_H_ */

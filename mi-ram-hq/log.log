@@ -19,3 +19,11 @@
 [INFO] 15:16:01:983 Servidor/(5852:5852): Se conecto un cliente!
 [INFO] 15:16:01:984 Servidor/(5852:5852): Me llego el mensaje Hola, soy un valor
 [ERROR] 15:16:09:689 Servidor/(5852:5852): el cliente se desconecto. Terminando servidor
+[INFO] 17:23:51:726 Mi-Ram-HQ/(3857:3857): Servidor listo para recibir al cliente
+[INFO] 17:23:56:519 Mi-Ram-HQ/(3857:3857): Se conecto un cliente!
+[INFO] 17:24:40:192 Mi-Ram-HQ/(3857:3857): Me llego el mensaje INICIAR_PATOTA 5 /home/utnso/tareas/tareasPatota5.txt 1|1 3|4
+[ERROR] 17:25:14:731 Mi-Ram-HQ/(3857:3857): el cliente se desconecto. Terminando servidor
+[INFO] 17:50:24:502 Mi-Ram-HQ/(4610:4610): Servidor listo para recibir al cliente
+[INFO] 17:50:27:975 Mi-Ram-HQ/(4610:4610): Se conecto un cliente!
+[INFO] 17:50:42:237 Mi-Ram-HQ/(4610:4610): Me llego el mensaje INICIAR_PATOTA 5 /home/utnso/tareas/tareasPatota5.txt 1|1 3|4
+[ERROR] 18:03:49:450 Mi-Ram-HQ/(4610:4610): el cliente se desconecto. Terminando servidor
