@@ -17,6 +17,20 @@ typedef enum
 	PAQUETE
 }op_code;
 
+typedef struct{
+	uint32_t pid;
+	uint32_t* tareas;
+}t_pcb;
+
+typedef struct{
+	uint32_t pid;
+	char estado;
+	uint32_t pos_x;
+	uint32_t pos_y;
+	uint32_t proxima_instruccion;
+	uint32_t* pcb;
+}t_tcb;
+
 t_log* logger;
 
 void* recibir_buffer(int*, int);
