@@ -4,16 +4,26 @@ int id_ultimo_tripulante = 0;
 int id_ultima_patota = 0;
 int conexion = -1;
 t_log* logger;
+
+t_list* llegada;
+t_list*listo;
+t_list* fin;
+t_list*trabajando;
+t_list*bloqueado_IO;
+t_list* bloqueado_emergencia;
+int process_id = -1;
+pthread_t hilo;
 int main(void)
 {
 	logger = iniciar_logger();
 	t_config* config = leer_config();
-	conexion = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
 
-	if(conexion == -1) {
-		puts("error en conexion");
-		return EXIT_FAILURE;
-	}
+	//conexion = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
+
+	//if(conexion == -1) {
+	//	puts("error en conexion");
+	//	return EXIT_FAILURE;
+	//}
 
 	//paquete(conexion);
 	leer_consola(logger);
@@ -34,33 +44,41 @@ t_config* leer_config(void)
 
 void leer_consola(t_log* logger)
 {
-	char* leido;
-	leido = readline(">");
-	while (strcmp(leido, "") != 0) {
-		log_info(logger, leido);
-
-		char** instruccion = string_split(leido, " ");
-
-		if(strcmp(instruccion[0], "INICIAR_PATOTA") == 0) {
-			iniciar_patota(instruccion, leido);
-
-		} else if (strcmp(instruccion[0], "LISTAR_TRIPULANTES") == 0) {
-
-		} else if (strcmp(instruccion[0], "EXPULSAR_TRIPULANTE") == 0) {
-
-		} else if (strcmp(instruccion[0], "INICIAR_PLANIFICACION") == 0) {
-
-		} else if (strcmp(instruccion[0], "PAUSAR_PLANIFICACION") == 0) {
-
-		} else if (strcmp(instruccion[0], "OBTENER_BITACORA") == 0) {
-
-		} else {
-			log_info(logger, "no se reconocio la instruccion");
-		}
-
+	if(process_id != 0) {
+		char* leido;
 		leido = readline(">");
+		while (strcmp(leido, "") != 0) {
+			int a = getppid();
+			int aa = getpid();
+
+			char** instruccion = string_split(leido, " ");
+
+			if(strcmp(instruccion[0], "INICIAR_PATOTA") == 0) {
+
+				process_id = fork();
+				if(process_id == 0) {
+					iniciar_patota(instruccion, leido);
+				}
+
+			} else if (strcmp(instruccion[0], "LISTAR_TRIPULANTES") == 0) {
+
+			} else if (strcmp(instruccion[0], "EXPULSAR_TRIPULANTE") == 0) {
+
+			} else if (strcmp(instruccion[0], "INICIAR_PLANIFICACION") == 0) {
+
+			} else if (strcmp(instruccion[0], "PAUSAR_PLANIFICACION") == 0) {
+
+			} else if (strcmp(instruccion[0], "OBTENER_BITACORA") == 0) {
+
+			} else {
+				log_info(logger, "no se reconocio la instruccion");
+			}
+
+			leido = readline(">");
+		}
+		free(leido);
 	}
-	free(leido);
+
 }
 
 void paquete(int conexion)
@@ -109,6 +127,7 @@ void iniciar_patota(char** instruccion, char* leido) {
 		recibir_mensaje(conexion, logger);
 	}
 	for(int i = 0; i < cantidad; i++) {
+
 		inicializar_tripulante(instruccion, i, longitud, id_patota);
 	}
 }
@@ -123,7 +142,6 @@ t_tripulante* inicializar_tripulante(char** instruccion, int cantidad_ya_iniciad
 	id_ultimo_tripulante++;
 	tripulante->PID = id_patota;
 	char** posicion;
-
 	if(instruccion[3] == NULL || 3 + cantidad_ya_iniciada >= longitud) {
 		tripulante->pos_x = 0;
 		tripulante->pos_y = 0;
@@ -132,6 +150,20 @@ t_tripulante* inicializar_tripulante(char** instruccion, int cantidad_ya_iniciad
 		 tripulante->pos_x = atoi(posicion[0]);
 		 tripulante->pos_y = atoi(posicion[1]);
 	}
-
+	int error = pthread_create(&hilo, NULL, funcionParaTripulante, NULL);
+	printf("error: %d", error);
+	pthread_detach(hilo);
+	t_tripulante_hilo* tripulante_hilo = malloc(sizeof(t_tripulante_hilo));
+	tripulante_hilo->hilo = hilo;
+	tripulante_hilo->tripulante = tripulante;
+	list_add(llegada, tripulante_hilo);
 	return tripulante;
 }
+
+void* funcionParaTripulante(void* vargp)
+{
+    printf("Printing GeeksQuiz from Thread \n");
+    return NULL;
+}
+
+
