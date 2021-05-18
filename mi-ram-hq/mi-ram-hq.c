@@ -13,26 +13,26 @@ int main(void)
 	log_info(logger, "Servidor listo para recibir al cliente");
 	int cliente_fd = esperar_cliente(server_fd);
 
-	t_list* lista;
 	while(1)
 	{
 		int cod_op = recibir_operacion(cliente_fd);
 		switch(cod_op)
 		{
-		case MENSAJE:
-			recibir_mensaje(cliente_fd);
-			enviar_mensaje("te devuelvo algo", cliente_fd);
+		case TCB_MENSAJE:
+			t_tcb tripulante = recibir_tcb(cliente_fd);
+			mostrar_tcb(tripulante);
+			free(tripulante);
 			break;
-		case PAQUETE:
-			lista = recibir_paquete(cliente_fd);
-			printf("Me llegaron los siguientes valores:\n");
-			list_iterate(lista, (void*) iterator);
+		case PCB_MENSAJE:
+			t_pcb patota = recibir_pcb(cliente_fd);
+			mostrar_tcb(patota);
+			free(patota);
 			break;
 		case -1:
-			log_error(logger, "el cliente se desconecto. Terminando servidor");
+			log_error(logger, "El cliente se desconecto. Terminando servidor");
 			return EXIT_FAILURE;
 		default:
-			log_warning(logger, "Operacion desconocida. No quieras meter la pata");
+			log_warning(logger, "Operacion desconocida.");
 			break;
 		}
 	}

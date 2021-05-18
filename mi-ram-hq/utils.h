@@ -11,24 +11,34 @@
 #include<commons/collections/list.h>
 #include<string.h>
 
+typedef struct{
+	uint32_t size;
+	void* stream;
+} t_buffer;
+
+typedef struct{
+	uint8_t codigo_operacion;
+	t_buffer* buffer;
+} t_paquete;
+
 typedef enum
 {
-	MENSAJE,
-	PAQUETE
+	PCB_MENSAJE,
+	TCB_MENSAJE
 }op_code;
 
 typedef struct{
 	uint32_t pid;
-	uint32_t* tareas;
+	uint32_t tareas;
 }t_pcb;
 
 typedef struct{
-	uint32_t pid;
+	uint32_t tid;
 	char estado;
 	uint32_t pos_x;
 	uint32_t pos_y;
 	uint32_t proxima_instruccion;
-	uint32_t* pcb;
+	uint32_t pcb;
 }t_tcb;
 
 t_log* logger;

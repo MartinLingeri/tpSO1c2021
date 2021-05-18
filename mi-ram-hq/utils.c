@@ -69,21 +69,13 @@ int recibir_operacion(int socket_cliente)
 
 void* recibir_buffer(int* size, int socket_cliente)
 {
-	void * buffer;
+	void* buffer;
 
 	recv(socket_cliente, size, sizeof(int), MSG_WAITALL);
 	buffer = malloc(*size);
 	recv(socket_cliente, buffer, *size, MSG_WAITALL);
 
 	return buffer;
-}
-
-void recibir_mensaje(int socket_cliente)
-{
-	int size;
-	char* buffer = recibir_buffer(&size, socket_cliente);
-	log_info(logger, "Me llego el mensaje %s", buffer);
-	free(buffer);
 }
 
 t_list* recibir_paquete(int socket_cliente)
@@ -107,4 +99,50 @@ t_list* recibir_paquete(int socket_cliente)
 	free(buffer);
 	return valores;
 	return NULL;
+}
+
+t_tcb recibir_tcb(int socket_cliente){
+	int size;
+	int desplazamiento = 0;
+	void* buffer;
+	t_tcb* tripulante = malloc(sizeof(t_tcb));
+
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	memcpy(&(tripulante->tid), buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
+	memcpy(&(tripulante->estado), buffer+desplazamiento, sizeof(char));
+	desplazamiento+=sizeof(char);
+
+	memcpy(&(tripulante->pos_x), buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
+	memcpy(&(tripulante->pos_y), buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
+	memcpy(&(tripulante->proxima_instruccion), buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
+	memcpy(&(tripulante->pcb), buffer+desplazamiento, sizeof(uint32_t));
+
+	free(buffer);
+	return tripulante;
+}
+
+t_tcb recibir_pcb(int socket_cliente){
+	int size;
+	int desplazamiento = 0;
+	void* buffer;
+	t_pcb* patota = malloc(sizeof(t_pcb));
+
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	memcpy(&(patota->pid), buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
+	memcpy(&(patota->tareas), buffer+desplazamiento, sizeof(char));
+
+	free(buffer);
+	return patota;
 }
