@@ -12,9 +12,20 @@
 
 typedef enum
 {
+	PCB_MENSAJE,
+	TCB_MENSAJE,
 	MENSAJE,
-	PAQUETE
 }op_code;
+
+typedef enum
+{
+	e_llegada,
+	e_listo,
+	e_fin,
+	e_trabajando,
+	e_bloqueado_IO,
+	e_bloqueado_emergencia,
+}estado;
 
 typedef struct
 {
@@ -30,8 +41,8 @@ typedef struct
 
 int crear_conexion(char* ip, char* puerto);
 void enviar_mensaje(char* mensaje, int socket_cliente);
-t_paquete* crear_paquete(void);
-t_paquete* crear_super_paquete(void);
+t_paquete* crear_pcb_mensaje(void);
+t_paquete* crear_tcb_mensaje(void);
 void agregar_a_paquete(t_paquete* paquete, void* valor, int tamanio);
 void enviar_paquete(t_paquete* paquete, int socket_cliente);
 void liberar_conexion(int socket_cliente);

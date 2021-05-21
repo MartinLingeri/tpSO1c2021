@@ -16,6 +16,7 @@ int TID;
 int PID;
 int pos_x;
 int pos_y;
+estado estado;
 }t_tripulante;
 
 typedef struct {
@@ -32,6 +33,5 @@ void iniciar_patota(char** instruccion, char* leido);
 void iniciar_patota_en_hq();
 t_tripulante* inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int longitud, int id_patota);
 int longitud_instr(char** instruccion);
-void* funcionParaTripulante(void *vargp);
 
 #endif /* DISCORDIADOR_H_ */

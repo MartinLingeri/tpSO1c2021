@@ -1,20 +1,24 @@
 #include "discordiador.h"
 
-int id_ultimo_tripulante = 0;
-int id_ultima_patota = 0;
 int conexion = -1;
 t_log* logger;
 
 t_list* llegada;
-t_list*listo;
+t_list* listo;
 t_list* fin;
-t_list*trabajando;
-t_list*bloqueado_IO;
+t_list* trabajando;
+t_list* bloqueado_IO;
 t_list* bloqueado_emergencia;
-int process_id = -1;
-pthread_t hilo;
+
 int main(void)
 {
+	llegada = list_create();
+	listo = list_create();
+	fin = list_create();
+	trabajando = list_create();
+	bloqueado_IO = list_create();
+	bloqueado_emergencia = list_create();
+
 	logger = iniciar_logger();
 	t_config* config = leer_config();
 
@@ -24,8 +28,6 @@ int main(void)
 	//	puts("error en conexion");
 	//	return EXIT_FAILURE;
 	//}
-
-	//paquete(conexion);
 	leer_consola(logger);
 	terminar_programa(conexion, logger, config);
 
@@ -44,58 +46,34 @@ t_config* leer_config(void)
 
 void leer_consola(t_log* logger)
 {
-	if(process_id != 0) {
-		char* leido;
-		leido = readline(">");
-		while (strcmp(leido, "") != 0) {
-			int a = getppid();
-			int aa = getpid();
-
-			char** instruccion = string_split(leido, " ");
-
-			if(strcmp(instruccion[0], "INICIAR_PATOTA") == 0) {
-
-				process_id = fork();
-				if(process_id == 0) {
-					iniciar_patota(instruccion, leido);
-				}
-
-			} else if (strcmp(instruccion[0], "LISTAR_TRIPULANTES") == 0) {
-
-			} else if (strcmp(instruccion[0], "EXPULSAR_TRIPULANTE") == 0) {
-
-			} else if (strcmp(instruccion[0], "INICIAR_PLANIFICACION") == 0) {
-
-			} else if (strcmp(instruccion[0], "PAUSAR_PLANIFICACION") == 0) {
-
-			} else if (strcmp(instruccion[0], "OBTENER_BITACORA") == 0) {
-
-			} else {
-				log_info(logger, "no se reconocio la instruccion");
-			}
-
-			leido = readline(">");
-		}
-		free(leido);
-	}
-
-}
-
-void paquete(int conexion)
-{
 	char* leido;
-	t_paquete* paquete = crear_paquete();
 	leido = readline(">");
 	while (strcmp(leido, "") != 0) {
-		agregar_a_paquete(paquete, leido, strlen(leido) + 1);
+		int a = getppid();
+		int aa = getpid();
+
+		char** instruccion = string_split(leido, " ");
+
+		if(strcmp(instruccion[0], "INICIAR_PATOTA") == 0) {
+			iniciar_patota(instruccion, leido);
+
+		} else if (strcmp(instruccion[0], "LISTAR_TRIPULANTES") == 0) {
+
+		} else if (strcmp(instruccion[0], "EXPULSAR_TRIPULANTE") == 0) {
+
+		} else if (strcmp(instruccion[0], "INICIAR_PLANIFICACION") == 0) {
+
+		} else if (strcmp(instruccion[0], "PAUSAR_PLANIFICACION") == 0) {
+
+		} else if (strcmp(instruccion[0], "OBTENER_BITACORA") == 0) {
+
+		} else {
+			log_info(logger, "no se reconocio la instruccion");
+		}
 
 		leido = readline(">");
 	}
-
-	enviar_paquete(paquete, conexion);
-
 	free(leido);
-	eliminar_paquete(paquete);
 }
 
 void terminar_programa(int conexion, t_log* logger, t_config* config)
@@ -119,15 +97,14 @@ void iniciar_patota(char** instruccion, char* leido) {
 	int cantidad = atoi(instruccion[1]);
 	char* tareas = instruccion[2];
 	int longitud = longitud_instr(instruccion);
-	int id_patota = id_ultima_patota++;
-	id_ultima_patota++;
-	enviar_mensaje(leido, conexion);
-	int cod_op = recibir_operacion(conexion);
-	if(cod_op == MENSAJE) {
-		recibir_mensaje(conexion, logger);
-	}
-	for(int i = 0; i < cantidad; i++) {
 
+	t_paquete* paquete_pcb = crear_pcb_mensaje();
+	agregar_a_paquete(paquete_pcb, tareas,  strlen(tareas) + 1);
+	//enviar paquete pcb y esperar pid de respuesta
+	//int id_patota = la respuesta de enviar la patota
+	int id_patota = 0;
+
+	for(int i = 0; i < cantidad; i++) {
 		inicializar_tripulante(instruccion, i, longitud, id_patota);
 	}
 }
@@ -138,8 +115,6 @@ void iniciar_patota_en_hq() {
 
 t_tripulante* inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int longitud, int id_patota){
 	t_tripulante* tripulante = malloc(sizeof(t_tripulante));
-	tripulante->TID = id_ultimo_tripulante++;
-	id_ultimo_tripulante++;
 	tripulante->PID = id_patota;
 	char** posicion;
 	if(instruccion[3] == NULL || 3 + cantidad_ya_iniciada >= longitud) {
@@ -150,20 +125,19 @@ t_tripulante* inicializar_tripulante(char** instruccion, int cantidad_ya_iniciad
 		 tripulante->pos_x = atoi(posicion[0]);
 		 tripulante->pos_y = atoi(posicion[1]);
 	}
-	int error = pthread_create(&hilo, NULL, funcionParaTripulante, NULL);
-	printf("error: %d", error);
-	pthread_detach(hilo);
-	t_tripulante_hilo* tripulante_hilo = malloc(sizeof(t_tripulante_hilo));
-	tripulante_hilo->hilo = hilo;
-	tripulante_hilo->tripulante = tripulante;
-	list_add(llegada, tripulante_hilo);
+	tripulante->estado = e_llegada;
+
+	t_paquete* paquete_tcb = crear_tcb_mensaje();
+	agregar_a_paquete(paquete_tcb, tripulante->PID, sizeof(int));
+	agregar_a_paquete(paquete_tcb, tripulante->pos_x, sizeof(int));
+	agregar_a_paquete(paquete_tcb, tripulante->pos_y, sizeof(int));
+	agregar_a_paquete(paquete_tcb, (void*)tripulante->estado, sizeof(int));
+	//enviar paquete tcb y esperar tid de respuesta
+	//tripulante->TID = la respuesta del envio del tripulante
+	list_add(llegada, tripulante);
+	//pide 1er tarea
+	//se le retorna la 1er tarea
+	list_add(listo, tripulante);
 	return tripulante;
 }
-
-void* funcionParaTripulante(void* vargp)
-{
-    printf("Printing GeeksQuiz from Thread \n");
-    return NULL;
-}
-
 

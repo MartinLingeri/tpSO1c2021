@@ -3,17 +3,17 @@
 
 void* serializar_paquete(t_paquete* paquete, int bytes)
 {
-	void * magic = malloc(bytes);
+	void * buffer_serializado = malloc(bytes);
 	int desplazamiento = 0;
 
-	memcpy(magic + desplazamiento, &(paquete->codigo_operacion), sizeof(int));
+	memcpy(buffer_serializado + desplazamiento, &(paquete->codigo_operacion), sizeof(int));
 	desplazamiento+= sizeof(int);
-	memcpy(magic + desplazamiento, &(paquete->buffer->size), sizeof(int));
+	memcpy(buffer_serializado + desplazamiento, &(paquete->buffer->size), sizeof(int));
 	desplazamiento+= sizeof(int);
-	memcpy(magic + desplazamiento, paquete->buffer->stream, paquete->buffer->size);
+	memcpy(buffer_serializado + desplazamiento, paquete->buffer->stream, paquete->buffer->size);
 	desplazamiento+= paquete->buffer->size;
 
-	return magic;
+	return buffer_serializado;
 }
 
 int crear_conexion(char *ip, char* puerto)
@@ -68,21 +68,18 @@ void crear_buffer(t_paquete* paquete)
 	paquete->buffer->stream = NULL;
 }
 
-t_paquete* crear_super_paquete(void)
+t_paquete* crear_tcb_mensaje(void)
 {
-	//me falta un malloc!
-	t_paquete* paquete;
-
-	//descomentar despues de arreglar
-	paquete->codigo_operacion = PAQUETE;
+	t_paquete* paquete = malloc(sizeof(t_paquete));
+	paquete->codigo_operacion = TCB_MENSAJE;
 	crear_buffer(paquete);
 	return paquete;
 }
 
-t_paquete* crear_paquete(void)
+t_paquete* crear_pcb_mensaje(void)
 {
 	t_paquete* paquete = malloc(sizeof(t_paquete));
-	paquete->codigo_operacion = PAQUETE;
+	paquete->codigo_operacion = PCB_MENSAJE;
 	crear_buffer(paquete);
 	return paquete;
 }
@@ -148,4 +145,44 @@ int recibir_operacion(int socket_cliente)
 		close(socket_cliente);
 		return -1;
 	}
+}
+
+void* leer_tareas(t_tripulante* tripulante, char* tarea){
+
+    char** parametros_tarea = string_split(tarea, ";");
+	char** nombre_tarea = string_split(parametros_tarea[0], " ");
+	char* pos_x = tarea[1];
+	char* pos_y = tarea[2];
+	char* duracion = tarea[3];
+
+	mover_a(tripulante,'x',pos_x);
+	mover_a(tripulante,'y',pos_y);
+	//como controlar quantum en caso de RR sleep(atoi(duracion));
+
+	if(strcmp(nombre_tarea[0], "GENERAR_OXIGENO") == 0) {
+		//generar_oxigeno(nombre_tarea[1]);
+	} else if (strcmp(nombre_tarea[0], "CONSUMIR_OXIGENO") == 0) {
+		//consumir_oxigeno(nombre_tarea[1]);
+	} else if (strcmp(nombre_tarea[0], "GENERAR_COMIDA") == 0) {
+		//generar_comida(nombre_tarea[1]);
+	} else if (strcmp(nombre_tarea[0], "CONSUMIR_COMIDA") == 0) {
+		//consumir_comida(nombre_tarea[1]);
+	} else if (strcmp(nombre_tarea[0], "GENERAR_BASURA") == 0) {
+		//generar_basura(nombre_tarea[1]);
+	} else if (strcmp(nombre_tarea[0], "DESCARTAR_BASURA") == 0) {
+		//destruir_basura();
+	} else {
+		//log_info(logger, "no se reconocio la tarea");
+	}
+	//actualizar_bitacora(tripulante);
+	return 0;
+}
+
+void mover_a(t_tripulante* tripulante, char xOy, char valor_nuevo){
+      if(xOy == 'x'){
+            tripulante->pos_x = valor_nuevo;
+      }else{
+            tripulante->pos_y = valor_nuevo;
+      }
+      registrar_movimiento(tripulante);
 }
