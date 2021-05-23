@@ -24,12 +24,13 @@ typedef struct{
 typedef enum
 {
 	PCB_MENSAJE,
-	TCB_MENSAJE
+	TCB_MENSAJE,
+	MENSAJE,
 }op_code;
 
 typedef struct{
 	uint32_t pid;
-	uint32_t tareas;
+	char* tareas;
 }t_pcb;
 
 typedef struct{
@@ -50,5 +51,7 @@ int esperar_cliente(int);
 t_list* recibir_paquete(int);
 void recibir_mensaje(int);
 int recibir_operacion(int);
+t_pcb* recibir_pcb(int socket_cliente);
+t_tcb* recibir_tcb(int socket_cliente);
 
 #endif /* CONEXIONES_H_ */

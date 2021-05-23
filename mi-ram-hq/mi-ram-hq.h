@@ -6,7 +6,7 @@
 #include<string.h>
 #include<commons/log.h>
 #include "utils.h"
-typedef struct
+/*typedef struct
 {
 	int size;
 	void* stream;
@@ -16,7 +16,7 @@ typedef struct
 {
 	op_code codigo_operacion;
 	t_buffer* buffer;
-} t_paquete;
+} t_paquete;*/
 
 void eliminar_paquete(t_paquete* paquete);
 void enviar_mensaje(char* mensaje, int socket_cliente);

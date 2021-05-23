@@ -68,30 +68,61 @@ void crear_buffer(t_paquete* paquete)
 	paquete->buffer->stream = NULL;
 }
 
-t_paquete* crear_tcb_mensaje(void)
+t_paquete* crear_tcb_mensaje(t_buffer* buffer)
 {
 	t_paquete* paquete = malloc(sizeof(t_paquete));
 	paquete->codigo_operacion = TCB_MENSAJE;
-	crear_buffer(paquete);
+	paquete->buffer = buffer;
 	return paquete;
 }
 
-t_paquete* crear_pcb_mensaje(void)
+t_paquete* crear_pcb_mensaje(t_buffer* buffer)
 {
 	t_paquete* paquete = malloc(sizeof(t_paquete));
 	paquete->codigo_operacion = PCB_MENSAJE;
-	crear_buffer(paquete);
+	paquete->buffer = buffer;
 	return paquete;
 }
 
 void agregar_a_paquete(t_paquete* paquete, void* valor, int tamanio)
 {
 	paquete->buffer->stream = realloc(paquete->buffer->stream, paquete->buffer->size + tamanio + sizeof(int));
-
 	memcpy(paquete->buffer->stream + paquete->buffer->size, &tamanio, sizeof(int));
 	memcpy(paquete->buffer->stream + paquete->buffer->size + sizeof(int), valor, tamanio);
-
 	paquete->buffer->size += tamanio + sizeof(int);
+}
+
+t_buffer* serilizar_patota(uint32_t id, char* tareas)
+{
+	puts("2");
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	puts("3");
+	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + strlen(tareas) + 1);
+	puts("4");
+	int desplazamiento = 0;
+	puts("5");
+	printf("id es: %d", id);
+	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
+	puts("6");
+	desplazamiento += sizeof(uint32_t);
+	puts("7");
+	void* tareas_len = malloc(sizeof(uint32_t));
+	tareas_len = strlen(tareas) + 1;
+	printf("el tareas len: %d\n", tareas_len);
+	memcpy(stream + desplazamiento, (void*)(&tareas_len), sizeof(uint32_t));
+	puts("8");
+	desplazamiento += sizeof(strlen(tareas) + 1);
+	puts("9");
+	memcpy(stream + desplazamiento, tareas, strlen(tareas) + 1);
+	puts("10");
+	desplazamiento += strlen(tareas) + 1;
+	puts("11");
+	buffer->size = desplazamiento;
+	puts("12");
+	buffer->stream = stream;
+	puts("13");
+	printf("el size del buffer: %d\n", desplazamiento);
+	return buffer;
 }
 
 void enviar_paquete(t_paquete* paquete, int socket_cliente)

@@ -12,30 +12,30 @@ int main(void)
 	int server_fd = iniciar_servidor();
 	log_info(logger, "Servidor listo para recibir al cliente");
 	int cliente_fd = esperar_cliente(server_fd);
-
+	t_tcb* tripulante = malloc(sizeof(t_tcb));
+	t_pcb* patota = malloc(sizeof(t_pcb));
 	while(1)
 	{
 		int cod_op = recibir_operacion(cliente_fd);
 		switch(cod_op)
 		{
 		case TCB_MENSAJE:
-			t_tcb tripulante = recibir_tcb(cliente_fd);
-			mostrar_tcb(tripulante);
-			free(tripulante);
+			tripulante = recibir_tcb(cliente_fd);
+			//mostrar_tcb(tripulante);
 			break;
 		case PCB_MENSAJE:
-			t_pcb patota = recibir_pcb(cliente_fd);
-			mostrar_tcb(patota);
-			free(patota);
+			patota = recibir_pcb(cliente_fd);
+			//mostrar_tcb(patota);
 			break;
 		case -1:
 			log_error(logger, "El cliente se desconecto. Terminando servidor");
 			return EXIT_FAILURE;
 		default:
-			log_warning(logger, "Operacion desconocida.");
 			break;
 		}
 	}
+	free(tripulante);
+	free(patota);
 	return EXIT_SUCCESS;
 }
 
