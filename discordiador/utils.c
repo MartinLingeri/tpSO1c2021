@@ -184,5 +184,5 @@ void mover_a(t_tripulante* tripulante, char xOy, char valor_nuevo){
       }else{
             tripulante->pos_y = valor_nuevo;
       }
-      registrar_movimiento(tripulante);
+      //registrar_movimiento(tripulante);
 }

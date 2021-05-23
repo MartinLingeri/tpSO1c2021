@@ -30,7 +30,7 @@ int main(void)
 	//}
 	leer_consola(logger);
 	terminar_programa(conexion, logger, config);
-
+	sleep(30);
 	return EXIT_SUCCESS;
 }
 
@@ -48,10 +48,6 @@ void leer_consola(t_log* logger)
 {
 	char* leido;
 	leido = readline(">");
-	while (strcmp(leido, "") != 0) {
-		int a = getppid();
-		int aa = getpid();
-
 		char** instruccion = string_split(leido, " ");
 
 		if(strcmp(instruccion[0], "INICIAR_PATOTA") == 0) {
@@ -71,8 +67,8 @@ void leer_consola(t_log* logger)
 			log_info(logger, "no se reconocio la instruccion");
 		}
 
-		leido = readline(">");
-	}
+		//leido = readline(">");
+
 	free(leido);
 }
 
@@ -103,9 +99,16 @@ void iniciar_patota(char** instruccion, char* leido) {
 	//enviar paquete pcb y esperar pid de respuesta
 	//int id_patota = la respuesta de enviar la patota
 	int id_patota = 0;
+	pthread_t hilos[longitud];
 
-	for(int i = 0; i < cantidad; i++) {
-		inicializar_tripulante(instruccion, i, longitud, id_patota);
+	for(int i = 0 ; i<cantidad ; i++) {
+		t_iniciar_tripulante_args* args = malloc(sizeof(t_iniciar_tripulante_args));
+		args->instruccion = instruccion;
+		args->cantidad_ya_iniciada = i;
+		args->longitud = longitud;
+		args->id_patota = id_patota;
+		pthread_create(&hilos[i], NULL, inicializar_tripulante, args);
+		pthread_detach((pthread_t) hilos[i]);
 	}
 }
 
@@ -113,31 +116,29 @@ void iniciar_patota_en_hq() {
 
 }
 
-t_tripulante* inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int longitud, int id_patota){
+void inicializar_tripulante(void* args){
+	t_iniciar_tripulante_args* argumentos = args;
+	printf("cant ya iniciada: %d\n", argumentos->cantidad_ya_iniciada);
 	t_tripulante* tripulante = malloc(sizeof(t_tripulante));
-	tripulante->PID = id_patota;
+	tripulante->PID = argumentos->id_patota;
 	char** posicion;
-	if(instruccion[3] == NULL || 3 + cantidad_ya_iniciada >= longitud) {
+	if(argumentos->instruccion[3] == NULL || 3 + argumentos->cantidad_ya_iniciada >= argumentos->longitud) {
 		tripulante->pos_x = 0;
 		tripulante->pos_y = 0;
 	} else {
-		 posicion = string_split(instruccion[3+cantidad_ya_iniciada], "|");
+		 posicion = string_split(argumentos->instruccion[3+argumentos->cantidad_ya_iniciada], "|");
 		 tripulante->pos_x = atoi(posicion[0]);
 		 tripulante->pos_y = atoi(posicion[1]);
 	}
+	printf("pos x: %d.......pox y: %d\n",  tripulante->pos_x,  tripulante->pos_y);
 	tripulante->estado = e_llegada;
 
-	t_paquete* paquete_tcb = crear_tcb_mensaje();
-	agregar_a_paquete(paquete_tcb, tripulante->PID, sizeof(int));
-	agregar_a_paquete(paquete_tcb, tripulante->pos_x, sizeof(int));
-	agregar_a_paquete(paquete_tcb, tripulante->pos_y, sizeof(int));
-	agregar_a_paquete(paquete_tcb, (void*)tripulante->estado, sizeof(int));
 	//enviar paquete tcb y esperar tid de respuesta
 	//tripulante->TID = la respuesta del envio del tripulante
 	list_add(llegada, tripulante);
 	//pide 1er tarea
 	//se le retorna la 1er tarea
 	list_add(listo, tripulante);
-	return tripulante;
+	//return tripulante;
 }
 

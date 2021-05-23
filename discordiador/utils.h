@@ -27,6 +27,14 @@ typedef enum
 	e_bloqueado_emergencia,
 }estado;
 
+typedef struct {
+int TID;
+int PID;
+int pos_x;
+int pos_y;
+estado estado;
+}t_tripulante;
+
 typedef struct
 {
 	int size;
