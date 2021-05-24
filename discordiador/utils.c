@@ -104,12 +104,26 @@ t_buffer* serilizar_tripulante(uint32_t id, uint32_t pid, uint32_t pos_x, uint32
 t_buffer* serilizar_cambio_estado(uint32_t id, uint32_t estado)
 {
 	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t) * 5);
+	void* stream = malloc(sizeof(uint32_t) * 2);
 	int desplazamiento = 0;
 	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
 	memcpy(stream + desplazamiento, &estado, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}
+
+t_buffer* serilizar_pedir_tarea(uint32_t id)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(sizeof(uint32_t));
+	int desplazamiento = 0;
+
+	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
 	buffer->size = desplazamiento;
@@ -140,14 +154,6 @@ void* recibir_buffer(int* size, int socket_cliente)
 	return buffer;
 }
 
-void recibir_mensaje(int socket_cliente, t_log* logger)
-{
-	int size;
-	char* buffer = recibir_buffer(&size, socket_cliente);
-	log_info(logger, "DISCORDIADIADOR Me llego el mensaje %s", buffer);
-	free(buffer);
-}
-
 int recibir_operacion(int socket_cliente)
 {
 	int cod_op;
@@ -158,6 +164,23 @@ int recibir_operacion(int socket_cliente)
 		close(socket_cliente);
 		return -1;
 	}
+}
+
+char* recibir_tarea(int socket_cliente){
+	int size;
+	int desplazamiento = 0;
+	void* buffer;
+
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	void* tarea_len = malloc(sizeof(uint32_t));
+	memcpy(&tarea_len, buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	char* tarea = malloc(tarea_len);
+	memcpy(tarea, buffer+desplazamiento, tarea_len);
+
+	return tarea;
 }
 
 void* leer_tareas(t_tripulante* tripulante, char* tarea){

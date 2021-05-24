@@ -13,6 +13,8 @@ t_list* trabajando;
 t_list* bloqueado_IO;
 t_list* bloqueado_emergencia;
 
+bool planificiacion_activada = false;
+
 int main(void)
 {
 	llegada = list_create();
@@ -154,13 +156,21 @@ void circular(void* args) {
 	t_circular_args* argumentos = args;
 	//iniciar_tripulante_en_hq(argumentos->tripulante);
 	//enviar paquete tcb y esperar ok de respuesta
+	t_buffer* buffer = serilizar_pedir_tarea(argumentos->tripulante->TID);
+	t_paquete* paquete_pedir_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
+	enviar_paquete(paquete_pedir_tarea, conexion);
 	//pide 1er tarea
+	op_code codigo = recibir_operacion(conexion);
+	char* tarea = NULL;
+	if(codigo == PEDIR_SIGUIENTE_TAREA) {
+		tarea = recibir_tarea(conexion);
+	}
 	//se le retorna la 1er tarea
 	cambiar_estado(argumentos->tripulante->estado , e_listo, argumentos->tripulante);
+
 }
 
 void cambiar_estado(estado estado_anterior, estado estado_nuevo, t_tripulante* tripulante){
-
    bool es_el_tripulante(void* tripulante_en_lista) {
 		return ((t_tripulante*)tripulante_en_lista)->TID == tripulante->TID;
 	}
@@ -208,5 +218,5 @@ void cambiar_estado(estado estado_anterior, estado estado_nuevo, t_tripulante* t
         list_add(bloqueado_emergencia, tripulante);
         return;
     }
-   //enviar_cambio_estado_hq(argumentos->tripulante);
+   //enviar_cambio_estado_hq(tripulante);
 }
