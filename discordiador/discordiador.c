@@ -3,6 +3,9 @@
 int conexion = -1;
 t_log* logger;
 
+uint32_t id_ultima_patota = -1;
+uint32_t id_ultimo_tripulante = -1;
+
 t_list* llegada;
 t_list* listo;
 t_list* fin;
@@ -41,15 +44,15 @@ t_log* iniciar_logger(void)
 
 t_config* leer_config(void)
 {
-	config_create("discordiador.config");
+	return config_create("discordiador.config");
 }
 
 void leer_consola(t_log* logger)
 {
-	char* leido = malloc(sizeof( "INICIAR_PATOTA 5 /home/utnso/tareas/tareasPatota5.txt 1|1 3|4"));
-	leido = "INICIAR_PATOTA 5 /home/utnso/tareas/tareasPatota5.txt 1|1 3|4";
+	char* leido;
+	leido = readline(">");
+	while (strcmp(leido, "") != 0) {
 		char** instruccion = string_split(leido, " ");
-
 		if(strcmp(instruccion[0], "INICIAR_PATOTA") == 0) {
 			iniciar_patota(instruccion, leido);
 
@@ -66,9 +69,8 @@ void leer_consola(t_log* logger)
 		} else {
 			log_info(logger, "no se reconocio la instruccion");
 		}
-
-		//leido = readline(">");
-
+		leido = readline(">");
+	}
 	free(leido);
 }
 
@@ -93,17 +95,15 @@ void iniciar_patota(char** instruccion, char* leido) {
 	int cantidad = atoi(instruccion[1]);
 	char* tareas = instruccion[2];
 	int longitud = longitud_instr(instruccion);
-	uint32_t id = 1;
-	puts("1");
-	t_buffer* buffer = serilizar_patota(id, tareas);
+	id_ultima_patota++;
+	uint32_t id_patota = id_ultima_patota;
+	t_buffer* buffer = serilizar_patota(id_patota, tareas);
 	t_paquete* paquete_pcb = crear_pcb_mensaje(buffer);
 	enviar_paquete(paquete_pcb, conexion);
-	//enviar paquete pcb y esperar pid de respuesta
-	//int id_patota = la respuesta de enviar la patota
-	int id_patota = 0;
+	//enviar paquete pcb y esperar ok de respuesta
 	pthread_t hilos[longitud];
 
-	/*for(int i = 0 ; i<cantidad ; i++) {
+	for(int i = 0 ; i<cantidad ; i++) {
 		t_iniciar_tripulante_args* args = malloc(sizeof(t_iniciar_tripulante_args));
 		args->instruccion = instruccion;
 		args->cantidad_ya_iniciada = i;
@@ -111,7 +111,7 @@ void iniciar_patota(char** instruccion, char* leido) {
 		args->id_patota = id_patota;
 		pthread_create(&hilos[i], NULL, inicializar_tripulante, args);
 		pthread_detach((pthread_t) hilos[i]);
-	}*/
+	}
 }
 
 void iniciar_patota_en_hq() {
@@ -120,7 +120,6 @@ void iniciar_patota_en_hq() {
 
 void inicializar_tripulante(void* args){
 	t_iniciar_tripulante_args* argumentos = args;
-	printf("cant ya iniciada: %d\n", argumentos->cantidad_ya_iniciada);
 	t_tripulante* tripulante = malloc(sizeof(t_tripulante));
 	tripulante->PID = argumentos->id_patota;
 	char** posicion;
@@ -132,15 +131,14 @@ void inicializar_tripulante(void* args){
 		 tripulante->pos_x = atoi(posicion[0]);
 		 tripulante->pos_y = atoi(posicion[1]);
 	}
-	printf("pos x: %d.......pox y: %d\n",  tripulante->pos_x,  tripulante->pos_y);
 	tripulante->estado = e_llegada;
 
-	//enviar paquete tcb y esperar tid de respuesta
-	//tripulante->TID = la respuesta del envio del tripulante
+	//enviar paquete tcb y esperar ok de respuesta
+	id_ultimo_tripulante++;
+	tripulante->TID = id_ultimo_tripulante;
 	list_add(llegada, tripulante);
 	//pide 1er tarea
 	//se le retorna la 1er tarea
 	list_add(listo, tripulante);
-	//return tripulante;
 }
 
