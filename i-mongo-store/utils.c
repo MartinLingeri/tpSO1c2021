@@ -1,8 +1,8 @@
 #include"utils.h"
 
-t_config* leer_config(void)
+t_config* leer_config(char* path)
 {
-	config_create("i-mongo-store.config");
+	return config_create(path);
 }
 
 int iniciar_servidor(void)
@@ -16,7 +16,7 @@ int iniciar_servidor(void)
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
 
-    t_config* config = leer_config();
+    t_config* config = leer_config("/home/utnso/workspace/tp-2021-1c-Mexico86/i-mongo-store/i-mongo-store.config");
     char* ip = config_get_string_value(config, "IP");
     char* puerto = config_get_string_value(config, "PUERTO");
 
