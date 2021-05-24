@@ -16,6 +16,16 @@ void* serializar_paquete(t_paquete* paquete, int bytes)
 	return buffer_serializado;
 }
 
+void enviar_paquete(t_paquete* paquete, int socket_cliente)
+{
+	int bytes = paquete->buffer->size + 2*sizeof(int);
+	void* a_enviar = serializar_paquete(paquete, bytes);
+
+	send(socket_cliente, a_enviar, bytes, 0);
+
+	free(a_enviar);
+}
+
 int crear_conexion(char *ip, char* puerto)
 {
 	struct addrinfo hints;
@@ -40,56 +50,12 @@ int crear_conexion(char *ip, char* puerto)
 	return socket_cliente;
 }
 
-void enviar_mensaje(char* mensaje, int socket_cliente)
+t_paquete* crear_mensaje(t_buffer* buffer, op_code codigo)
 {
 	t_paquete* paquete = malloc(sizeof(t_paquete));
-
-	paquete->codigo_operacion = MENSAJE;
-	paquete->buffer = malloc(sizeof(t_buffer));
-	paquete->buffer->size = strlen(mensaje) + 1;
-	paquete->buffer->stream = malloc(paquete->buffer->size);
-	memcpy(paquete->buffer->stream, mensaje, paquete->buffer->size);
-
-	int bytes = paquete->buffer->size + 2*sizeof(int);
-
-	void* a_enviar = serializar_paquete(paquete, bytes);
-
-	send(socket_cliente, a_enviar, bytes, 0);
-
-	free(a_enviar);
-	eliminar_paquete(paquete);
-}
-
-
-void crear_buffer(t_paquete* paquete)
-{
-	paquete->buffer = malloc(sizeof(t_buffer));
-	paquete->buffer->size = 0;
-	paquete->buffer->stream = NULL;
-}
-
-t_paquete* crear_tcb_mensaje(t_buffer* buffer)
-{
-	t_paquete* paquete = malloc(sizeof(t_paquete));
-	paquete->codigo_operacion = TCB_MENSAJE;
+	paquete->codigo_operacion = codigo;
 	paquete->buffer = buffer;
 	return paquete;
-}
-
-t_paquete* crear_pcb_mensaje(t_buffer* buffer)
-{
-	t_paquete* paquete = malloc(sizeof(t_paquete));
-	paquete->codigo_operacion = PCB_MENSAJE;
-	paquete->buffer = buffer;
-	return paquete;
-}
-
-void agregar_a_paquete(t_paquete* paquete, void* valor, int tamanio)
-{
-	paquete->buffer->stream = realloc(paquete->buffer->stream, paquete->buffer->size + tamanio + sizeof(int));
-	memcpy(paquete->buffer->stream + paquete->buffer->size, &tamanio, sizeof(int));
-	memcpy(paquete->buffer->stream + paquete->buffer->size + sizeof(int), valor, tamanio);
-	paquete->buffer->size += tamanio + sizeof(int);
 }
 
 t_buffer* serilizar_patota(uint32_t id, char* tareas)
@@ -110,14 +76,45 @@ t_buffer* serilizar_patota(uint32_t id, char* tareas)
 	return buffer;
 }
 
-void enviar_paquete(t_paquete* paquete, int socket_cliente)
+t_buffer* serilizar_tripulante(uint32_t id, uint32_t pid, uint32_t pos_x, uint32_t pos_y, uint32_t estado)
 {
-	int bytes = paquete->buffer->size + 2*sizeof(int);
-	void* a_enviar = serializar_paquete(paquete, bytes);
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(sizeof(uint32_t) * 5);
+	int desplazamiento = 0;
+	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-	send(socket_cliente, a_enviar, bytes, 0);
+	memcpy(stream + desplazamiento, &pid, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-	free(a_enviar);
+	memcpy(stream + desplazamiento, &pos_x, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(stream + desplazamiento, &pos_y, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(stream + desplazamiento, &estado, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}
+
+t_buffer* serilizar_cambio_estado(uint32_t id, uint32_t estado)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(sizeof(uint32_t) * 5);
+	int desplazamiento = 0;
+	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(stream + desplazamiento, &estado, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
 }
 
 void eliminar_paquete(t_paquete* paquete)

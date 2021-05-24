@@ -99,7 +99,7 @@ void iniciar_patota(char** instruccion, char* leido) {
 	id_ultima_patota++;
 	uint32_t id_patota = id_ultima_patota;
 	//t_buffer* buffer = serilizar_patota(id_patota, tareas);
-	//t_paquete* paquete_pcb = crear_pcb_mensaje(buffer);
+	//t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
 	//enviar_paquete(paquete_pcb, conexion);
 	//enviar paquete pcb y esperar ok de respuesta
 	pthread_t hilos[longitud];
@@ -109,8 +109,16 @@ void iniciar_patota(char** instruccion, char* leido) {
 	}
 }
 
-void iniciar_patota_en_hq() {
+void iniciar_patota_en_hq(t_tripulante* tripulante) {
+	t_buffer* buffer = serilizar_tripulante(tripulante->TID, tripulante->PID, tripulante->pos_x, tripulante->pos_y, tripulante->estado);
+	t_paquete* paquete_tcb = crear_mensaje(buffer, TCB_MENSAJE);
+	enviar_paquete(paquete_tcb, conexion);
+}
 
+void enviar_cambio_estado_hq(t_tripulante* tripulante) {
+	t_buffer* buffer = serilizar_cambio_estado(tripulante->TID, tripulante->estado);
+	t_paquete* paquete_cambio_estado = crear_mensaje(buffer, CAMBIO_ESTADO_MENSAJE);
+	enviar_paquete(paquete_cambio_estado, conexion);
 }
 
 void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int longitud, int id_patota, pthread_t hilo){
@@ -138,6 +146,7 @@ void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int lo
 
 void circular(void* args) {
 	t_circular_args* argumentos = args;
+	iniciar_patota_en_hq(argumentos->tripulante);
 	//enviar paquete tcb y esperar ok de respuesta
 	//pide 1er tarea
 	//se le retorna la 1er tarea
@@ -146,5 +155,6 @@ void circular(void* args) {
 	}
 	list_remove_by_condition(llegada, es_el_tripulante);
 	argumentos->tripulante->estado = e_listo;
+	enviar_cambio_estado_hq(argumentos->tripulante);
 	list_add(listo, argumentos->tripulante);
 }
