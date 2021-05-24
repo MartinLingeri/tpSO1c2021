@@ -12,11 +12,8 @@
 #include "utils.h"
 
 typedef struct {
-char** instruccion;
-int cantidad_ya_iniciada;
-int longitud;
-int id_patota;
-}t_iniciar_tripulante_args;
+t_tripulante* tripulante;
+}t_circular_args;
 
 t_log* iniciar_logger(void);
 t_config* leer_config(void);
@@ -25,7 +22,8 @@ void paquete(int);
 void terminar_programa(int, t_log*, t_config*);
 void iniciar_patota(char** instruccion, char* leido);
 void iniciar_patota_en_hq();
-void inicializar_tripulante(void*);
+void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int longitud, int id_patota, pthread_t hilo);
 int longitud_instr(char** instruccion);
+void circular(void* args);
 
 #endif /* DISCORDIADOR_H_ */

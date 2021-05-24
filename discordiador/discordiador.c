@@ -25,7 +25,7 @@ int main(void)
 	logger = iniciar_logger();
 	t_config* config = leer_config();
 
-	conexion = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
+	//conexion = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
 
 	//if(conexion == -1) {
 	//	puts("error en conexion");
@@ -33,7 +33,7 @@ int main(void)
 	//}
 	leer_consola(logger);
 	terminar_programa(conexion, logger, config);
-	sleep(30);
+	sleep(10);
 	return EXIT_SUCCESS;
 }
 
@@ -61,6 +61,7 @@ void leer_consola(t_log* logger)
 		} else if (strcmp(instruccion[0], "EXPULSAR_TRIPULANTE") == 0) {
 
 		} else if (strcmp(instruccion[0], "INICIAR_PLANIFICACION") == 0) {
+			//
 
 		} else if (strcmp(instruccion[0], "PAUSAR_PLANIFICACION") == 0) {
 
@@ -97,20 +98,14 @@ void iniciar_patota(char** instruccion, char* leido) {
 	int longitud = longitud_instr(instruccion);
 	id_ultima_patota++;
 	uint32_t id_patota = id_ultima_patota;
-	t_buffer* buffer = serilizar_patota(id_patota, tareas);
-	t_paquete* paquete_pcb = crear_pcb_mensaje(buffer);
-	enviar_paquete(paquete_pcb, conexion);
+	//t_buffer* buffer = serilizar_patota(id_patota, tareas);
+	//t_paquete* paquete_pcb = crear_pcb_mensaje(buffer);
+	//enviar_paquete(paquete_pcb, conexion);
 	//enviar paquete pcb y esperar ok de respuesta
 	pthread_t hilos[longitud];
 
 	for(int i = 0 ; i<cantidad ; i++) {
-		t_iniciar_tripulante_args* args = malloc(sizeof(t_iniciar_tripulante_args));
-		args->instruccion = instruccion;
-		args->cantidad_ya_iniciada = i;
-		args->longitud = longitud;
-		args->id_patota = id_patota;
-		pthread_create(&hilos[i], NULL, inicializar_tripulante, args);
-		pthread_detach((pthread_t) hilos[i]);
+		inicializar_tripulante(instruccion, i, longitud, id_patota, hilos[i]);
 	}
 }
 
@@ -118,27 +113,38 @@ void iniciar_patota_en_hq() {
 
 }
 
-void inicializar_tripulante(void* args){
-	t_iniciar_tripulante_args* argumentos = args;
+void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int longitud, int id_patota, pthread_t hilo){
 	t_tripulante* tripulante = malloc(sizeof(t_tripulante));
-	tripulante->PID = argumentos->id_patota;
+	tripulante->PID = id_patota;
 	char** posicion;
-	if(argumentos->instruccion[3] == NULL || 3 + argumentos->cantidad_ya_iniciada >= argumentos->longitud) {
+	if(instruccion[3] == NULL || 3 + cantidad_ya_iniciada >= longitud) {
 		tripulante->pos_x = 0;
 		tripulante->pos_y = 0;
 	} else {
-		 posicion = string_split(argumentos->instruccion[3+argumentos->cantidad_ya_iniciada], "|");
+		 posicion = string_split(instruccion[3+cantidad_ya_iniciada], "|");
 		 tripulante->pos_x = atoi(posicion[0]);
 		 tripulante->pos_y = atoi(posicion[1]);
 	}
 	tripulante->estado = e_llegada;
-
-	//enviar paquete tcb y esperar ok de respuesta
 	id_ultimo_tripulante++;
 	tripulante->TID = id_ultimo_tripulante;
 	list_add(llegada, tripulante);
-	//pide 1er tarea
-	//se le retorna la 1er tarea
-	list_add(listo, tripulante);
+
+	t_circular_args* args = malloc(sizeof(t_circular_args));
+	args->tripulante = tripulante;
+	pthread_create(&hilo, NULL, circular, args);
+	pthread_detach((pthread_t) hilo);
 }
 
+void circular(void* args) {
+	t_circular_args* argumentos = args;
+	//enviar paquete tcb y esperar ok de respuesta
+	//pide 1er tarea
+	//se le retorna la 1er tarea
+	bool es_el_tripulante(void* tripulante_en_lista) {
+		return ((t_tripulante*)tripulante_en_lista)->TID == argumentos->tripulante->TID;
+	}
+	list_remove_by_condition(llegada, es_el_tripulante);
+	argumentos->tripulante->estado = e_listo;
+	list_add(listo, argumentos->tripulante);
+}
