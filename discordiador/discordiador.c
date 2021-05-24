@@ -34,6 +34,12 @@ int main(void)
 	leer_consola(logger);
 	terminar_programa(conexion, logger, config);
 	sleep(10);
+	void printear(void* t) {
+		printf("el tid es: %d\n", ((t_tripulante*) t)->TID);
+	}
+	list_iterate(listo, printear);
+	puts("en llegada:");
+	list_iterate(llegada, printear);
 	return EXIT_SUCCESS;
 }
 
@@ -109,7 +115,7 @@ void iniciar_patota(char** instruccion, char* leido) {
 	}
 }
 
-void iniciar_patota_en_hq(t_tripulante* tripulante) {
+void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
 	t_buffer* buffer = serilizar_tripulante(tripulante->TID, tripulante->PID, tripulante->pos_x, tripulante->pos_y, tripulante->estado);
 	t_paquete* paquete_tcb = crear_mensaje(buffer, TCB_MENSAJE);
 	enviar_paquete(paquete_tcb, conexion);
@@ -146,15 +152,61 @@ void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int lo
 
 void circular(void* args) {
 	t_circular_args* argumentos = args;
-	iniciar_patota_en_hq(argumentos->tripulante);
+	//iniciar_tripulante_en_hq(argumentos->tripulante);
 	//enviar paquete tcb y esperar ok de respuesta
 	//pide 1er tarea
 	//se le retorna la 1er tarea
-	bool es_el_tripulante(void* tripulante_en_lista) {
-		return ((t_tripulante*)tripulante_en_lista)->TID == argumentos->tripulante->TID;
+	cambiar_estado(argumentos->tripulante->estado , e_listo, argumentos->tripulante);
+}
+
+void cambiar_estado(estado estado_anterior, estado estado_nuevo, t_tripulante* tripulante){
+
+   bool es_el_tripulante(void* tripulante_en_lista) {
+		return ((t_tripulante*)tripulante_en_lista)->TID == tripulante->TID;
 	}
-	list_remove_by_condition(llegada, es_el_tripulante);
-	argumentos->tripulante->estado = e_listo;
-	enviar_cambio_estado_hq(argumentos->tripulante);
-	list_add(listo, argumentos->tripulante);
+
+   switch(estado_anterior){
+    case e_llegada:
+        list_remove_by_condition(llegada, es_el_tripulante);
+        break;
+    case e_listo:
+        list_remove_by_condition(listo, es_el_tripulante);
+        break;
+    case e_fin:
+        list_remove_by_condition(fin, es_el_tripulante);
+        break;
+    case e_trabajando:
+        list_remove_by_condition(trabajando, es_el_tripulante);
+        break;
+    case e_bloqueado_IO:
+        list_remove_by_condition(bloqueado_IO, es_el_tripulante);
+        break;
+    case e_bloqueado_emergencia:
+        list_remove_by_condition(bloqueado_emergencia, es_el_tripulante);
+        break;
+   }
+
+   tripulante->estado = estado_nuevo;
+
+   switch(estado_nuevo){
+    case e_llegada:
+        list_add(llegada, tripulante);
+        return;
+    case e_listo:
+        list_add(listo, tripulante);
+        return;
+    case e_fin:
+        list_add(fin, tripulante);
+        return;
+    case e_trabajando:
+        list_add(trabajando, tripulante);
+        return;
+    case e_bloqueado_IO:
+        list_add(bloqueado_IO, tripulante);
+        return;
+    case e_bloqueado_emergencia:
+        list_add(bloqueado_emergencia, tripulante);
+        return;
+    }
+   //enviar_cambio_estado_hq(argumentos->tripulante);
 }
