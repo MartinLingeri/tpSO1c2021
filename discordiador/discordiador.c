@@ -2,6 +2,7 @@
 
 int conexion = -1;
 t_log* logger;
+t_config* config;
 
 uint32_t id_ultima_patota = -1;
 uint32_t id_ultimo_tripulante = -1;
@@ -13,7 +14,7 @@ t_list* trabajando;
 t_list* bloqueado_IO;
 t_list* bloqueado_emergencia;
 
-bool planificiacion_activada = false;
+bool planificacion_activada = false;
 
 int main(void)
 {
@@ -25,7 +26,7 @@ int main(void)
 	bloqueado_emergencia = list_create();
 
 	logger = iniciar_logger();
-	t_config* config = leer_config();
+	config = leer_config();
 
 	//conexion = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
 
@@ -36,12 +37,12 @@ int main(void)
 	leer_consola(logger);
 	terminar_programa(conexion, logger, config);
 	sleep(10);
-	void printear(void* t) {
+	/*void printear(void* t) {
 		printf("el tid es: %d\n", ((t_tripulante*) t)->TID);
 	}
 	list_iterate(listo, printear);
 	puts("en llegada:");
-	list_iterate(llegada, printear);
+	list_iterate(llegada, printear);*/
 	return EXIT_SUCCESS;
 }
 
@@ -69,9 +70,16 @@ void leer_consola(t_log* logger)
 		} else if (strcmp(instruccion[0], "EXPULSAR_TRIPULANTE") == 0) {
 
 		} else if (strcmp(instruccion[0], "INICIAR_PLANIFICACION") == 0) {
-			//
+			if(planificacion_activada == false) {
+				planificacion_activada = true;
+				while(list_size(trabajando) < config_get_int_value(config, "GRADO_MULTITAREA")) {
 
+				}
+			}
 		} else if (strcmp(instruccion[0], "PAUSAR_PLANIFICACION") == 0) {
+			if(planificacion_activada == true) {
+				planificacion_activada = false;
+			}
 
 		} else if (strcmp(instruccion[0], "OBTENER_BITACORA") == 0) {
 
@@ -154,9 +162,13 @@ void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int lo
 
 void circular(void* args) {
 	t_circular_args* argumentos = args;
+
+	printf("soy de la patota: %d\n", argumentos->tripulante->PID);
+	printf("mi tid es: %d\n", argumentos->tripulante->TID);
+
 	//iniciar_tripulante_en_hq(argumentos->tripulante);
 	//enviar paquete tcb y esperar ok de respuesta
-	t_buffer* buffer = serilizar_pedir_tarea(argumentos->tripulante->TID);
+	/*t_buffer* buffer = serilizar_pedir_tarea(argumentos->tripulante->TID);
 	t_paquete* paquete_pedir_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
 	enviar_paquete(paquete_pedir_tarea, conexion);
 	//pide 1er tarea
@@ -164,7 +176,7 @@ void circular(void* args) {
 	char* tarea = NULL;
 	if(codigo == PEDIR_SIGUIENTE_TAREA) {
 		tarea = recibir_tarea(conexion);
-	}
+	}*/
 	//se le retorna la 1er tarea
 	cambiar_estado(argumentos->tripulante->estado , e_listo, argumentos->tripulante);
 
