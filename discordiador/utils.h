@@ -64,7 +64,6 @@ void liberar_conexion(int socket_cliente);
 void* recibir_buffer(int* size, int socket_cliente);
 int recibir_operacion(int socket_cliente);
 char* recibir_tarea(int socket_cliente);
-void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu);
 void mover_a(t_tripulante* tripulante, bool xOy, int valor_nuevo, int retardo_ciclo_cpu);
 
 #endif /* UTILS_H_ */

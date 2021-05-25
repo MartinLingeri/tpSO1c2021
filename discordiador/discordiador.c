@@ -73,14 +73,17 @@ void leer_consola(t_log* logger)
 		} else if (strcmp(instruccion[0], "INICIAR_PLANIFICACION") == 0) {
 			if(planificacion_activada == false) {
 				planificacion_activada = true;
-				while(list_size(trabajando) < config_get_int_value(config, "GRADO_MULTITAREA")) {
-					if(strcmp(config_get_string_value(config, "ALGORITMO"), "FIFO") == 0) {
-						t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
-						cambiar_estado(tripulante->estado, e_trabajando, tripulante);
-						//aca se desbloquearia el semaforo del tripulante a ejecutar
-						//con post o wait o algo
-						sem_post(&tripulante->semaforo);
+				while(1) {
+					if(list_size(trabajando) < config_get_int_value(config, "GRADO_MULTITAREA")) {
+						if(strcmp(config_get_string_value(config, "ALGORITMO"), "FIFO") == 0) {
+							t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
+							cambiar_estado(tripulante->estado, e_trabajando, tripulante);
+							//aca se desbloquearia el semaforo del tripulante a ejecutar
+							//con post o wait o algo
+							sem_post(&tripulante->semaforo);
+						}
 					}
+
 				}
 			}
 		} else if (strcmp(instruccion[0], "PAUSAR_PLANIFICACION") == 0) {
@@ -190,11 +193,15 @@ void circular(void* args) {
 	cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
 
 	//PARTE CON BLOQUEOS PORQUE TIENE QUE ESTAR PLANIFICADO
-	//INICIAR_PATOTA 2 /home/utnso/tareas/tareasPatota5.txt
+	//INICIAR_PATOTA 3 /home/utnso/tareas/tareasPatota5.txt
 	sem_init(&argumentos->tripulante->semaforo, 0, 0);
 
-	sem_wait(&argumentos->tripulante->semaforo);
-	leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
+	while(1) {
+		sem_wait(&argumentos->tripulante->semaforo);
+		leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
+		//ir a buscar tarea, si se responde con una tarea vacia, tiene q cambiar de estado a fin
+		cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
+	}
 }
 
 void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripulante) {
@@ -246,4 +253,36 @@ void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripula
         break;
     }
    //enviar_cambio_estado_hq(tripulante);
+}
+
+void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
+
+    char** parametros_tarea = string_split(tarea, ";");
+	char** nombre_tarea = string_split(parametros_tarea[0], " ");
+	int pos_x = atoi(parametros_tarea[1]);
+	int pos_y = atoi(parametros_tarea[2]);
+	int duracion = atoi(parametros_tarea[3]);
+
+	mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
+	mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
+	//como controlar quantum en caso de RR sleep(atoi(duracion));
+
+	if(strcmp(nombre_tarea[0], "GENERAR_OXIGENO") == 0) {
+		//generar_oxigeno(nombre_tarea[1]); //sleep(1) x ser tarea e/s
+		puts("genera oxigeno");
+	} else if (strcmp(nombre_tarea[0], "CONSUMIR_OXIGENO") == 0) {
+		//consumir_oxigeno(nombre_tarea[1]);
+	} else if (strcmp(nombre_tarea[0], "GENERAR_COMIDA") == 0) {
+		//generar_comida(nombre_tarea[1]);
+	} else if (strcmp(nombre_tarea[0], "CONSUMIR_COMIDA") == 0) {
+		//consumir_comida(nombre_tarea[1]);
+	} else if (strcmp(nombre_tarea[0], "GENERAR_BASURA") == 0) {
+		//generar_basura(nombre_tarea[1]);
+	} else if (strcmp(nombre_tarea[0], "DESCARTAR_BASURA") == 0) {
+		//destruir_basura();
+	} else {
+		//log_info(logger, "no se reconocio la tarea");
+	}
+	sleep(duracion * retardo_ciclo_cpu);
+	//actualizar_bitacora(tripulante);
 }

@@ -183,38 +183,6 @@ char* recibir_tarea(int socket_cliente) {
 	return tarea;
 }
 
-void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
-
-    char** parametros_tarea = string_split(tarea, ";");
-	char** nombre_tarea = string_split(parametros_tarea[0], " ");
-	int pos_x = atoi(parametros_tarea[1]);
-	int pos_y = atoi(parametros_tarea[2]);
-	int duracion = atoi(parametros_tarea[3]);
-
-	mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
-	mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
-	//como controlar quantum en caso de RR sleep(atoi(duracion));
-
-	if(strcmp(nombre_tarea[0], "GENERAR_OXIGENO") == 0) {
-		//generar_oxigeno(nombre_tarea[1]); //sleep(1) x ser tarea e/s
-		puts("genera oxigeno");
-	} else if (strcmp(nombre_tarea[0], "CONSUMIR_OXIGENO") == 0) {
-		//consumir_oxigeno(nombre_tarea[1]);
-	} else if (strcmp(nombre_tarea[0], "GENERAR_COMIDA") == 0) {
-		//generar_comida(nombre_tarea[1]);
-	} else if (strcmp(nombre_tarea[0], "CONSUMIR_COMIDA") == 0) {
-		//consumir_comida(nombre_tarea[1]);
-	} else if (strcmp(nombre_tarea[0], "GENERAR_BASURA") == 0) {
-		//generar_basura(nombre_tarea[1]);
-	} else if (strcmp(nombre_tarea[0], "DESCARTAR_BASURA") == 0) {
-		//destruir_basura();
-	} else {
-		//log_info(logger, "no se reconocio la tarea");
-	}
-	sleep(duracion * retardo_ciclo_cpu);
-	//actualizar_bitacora(tripulante);
-}
-
 void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_ciclo_cpu) {
       if(es_x) {
 		while(tripulante->pos_x != valor_nuevo) {

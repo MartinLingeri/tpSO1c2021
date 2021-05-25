@@ -26,5 +26,6 @@ void enviar_cambio_estado_hq(t_tripulante* tripulante);
 void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int longitud, int id_patota, pthread_t hilo);
 void circular(void* args);
 void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripulante);
+void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu);
 
 #endif /* DISCORDIADOR_H_ */
