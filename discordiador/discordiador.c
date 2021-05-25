@@ -15,6 +15,7 @@ t_list* bloqueado_IO;
 t_list* bloqueado_emergencia;
 
 bool planificacion_activada = false;
+sem_t semaforo;
 
 int main(void)
 {
@@ -36,7 +37,7 @@ int main(void)
 	//}
 	leer_consola(logger);
 	terminar_programa(conexion, logger, config);
-	sleep(10);
+	sleep(5);
 	/*void printear(void* t) {
 		printf("el tid es: %d\n", ((t_tripulante*) t)->TID);
 	}
@@ -73,7 +74,13 @@ void leer_consola(t_log* logger)
 			if(planificacion_activada == false) {
 				planificacion_activada = true;
 				while(list_size(trabajando) < config_get_int_value(config, "GRADO_MULTITAREA")) {
-
+					if(strcmp(config_get_string_value(config, "ALGORITMO"), "FIFO") == 0) {
+						t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
+						cambiar_estado(tripulante->estado, e_trabajando, tripulante);
+						//aca se desbloquearia el semaforo del tripulante a ejecutar
+						//con post o wait o algo
+						sem_post(&tripulante->semaforo);
+					}
 				}
 			}
 		} else if (strcmp(instruccion[0], "PAUSAR_PLANIFICACION") == 0) {
@@ -98,7 +105,7 @@ void terminar_programa(int conexion, t_log* logger, t_config* config)
 	config_destroy(config);
 }
 
-int longitud_instr(char** instruccion){
+int longitud_instr(char** instruccion) {
 	int largo = 0;
 	int i = 0;
 	while(instruccion[i] != NULL){
@@ -137,7 +144,7 @@ void enviar_cambio_estado_hq(t_tripulante* tripulante) {
 	enviar_paquete(paquete_cambio_estado, conexion);
 }
 
-void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int longitud, int id_patota, pthread_t hilo){
+void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int longitud, int id_patota, pthread_t hilo) {
 	t_tripulante* tripulante = malloc(sizeof(t_tripulante));
 	tripulante->PID = id_patota;
 	char** posicion;
@@ -152,18 +159,21 @@ void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int lo
 	tripulante->estado = e_llegada;
 	id_ultimo_tripulante++;
 	tripulante->TID = id_ultimo_tripulante;
+
+	sem_t semaforo_tripulante;
+	tripulante->semaforo = semaforo_tripulante;
+
 	list_add(llegada, tripulante);
 
 	t_circular_args* args = malloc(sizeof(t_circular_args));
 	args->tripulante = tripulante;
-	pthread_create(&hilo, NULL, circular, args);
+	pthread_create(&hilo, NULL, (void*) circular, args);
 	pthread_detach((pthread_t) hilo);
 }
 
 void circular(void* args) {
 	t_circular_args* argumentos = args;
 
-	printf("soy de la patota: %d\n", argumentos->tripulante->PID);
 	printf("mi tid es: %d\n", argumentos->tripulante->TID);
 
 	//iniciar_tripulante_en_hq(argumentos->tripulante);
@@ -178,11 +188,20 @@ void circular(void* args) {
 		tarea = recibir_tarea(conexion);
 	}*/
 	//se le retorna la 1er tarea
-	cambiar_estado(argumentos->tripulante->estado , e_listo, argumentos->tripulante);
 
+	cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
+
+	//PARTE CON BLOQUEOS PORQUE TIENE QUE ESTAR PLANIFICADO
+	//INICIAR_PATOTA 2 /home/utnso/tareas/tareasPatota5.txt
+	sem_init(&argumentos->tripulante->semaforo, 0, 0);
+
+
+	//sem_post(&argumentos->tripulante->semaforo);
+	sem_wait(&argumentos->tripulante->semaforo);
+	printf("trabaja el tripulante: %d\n", argumentos->tripulante->TID);
 }
 
-void cambiar_estado(estado estado_anterior, estado estado_nuevo, t_tripulante* tripulante){
+void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripulante) {
    bool es_el_tripulante(void* tripulante_en_lista) {
 		return ((t_tripulante*)tripulante_en_lista)->TID == tripulante->TID;
 	}
@@ -213,22 +232,22 @@ void cambiar_estado(estado estado_anterior, estado estado_nuevo, t_tripulante* t
    switch(estado_nuevo){
     case e_llegada:
         list_add(llegada, tripulante);
-        return;
+        break;
     case e_listo:
         list_add(listo, tripulante);
-        return;
+        break;
     case e_fin:
         list_add(fin, tripulante);
-        return;
+        break;
     case e_trabajando:
         list_add(trabajando, tripulante);
-        return;
+        break;
     case e_bloqueado_IO:
         list_add(bloqueado_IO, tripulante);
-        return;
+        break;
     case e_bloqueado_emergencia:
         list_add(bloqueado_emergencia, tripulante);
-        return;
+        break;
     }
    //enviar_cambio_estado_hq(tripulante);
 }

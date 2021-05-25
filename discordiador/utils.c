@@ -166,7 +166,7 @@ int recibir_operacion(int socket_cliente)
 	}
 }
 
-char* recibir_tarea(int socket_cliente){
+char* recibir_tarea(int socket_cliente) {
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
@@ -183,7 +183,7 @@ char* recibir_tarea(int socket_cliente){
 	return tarea;
 }
 
-void* leer_tareas(t_tripulante* tripulante, char* tarea){
+void* leer_tareas(t_tripulante* tripulante, char* tarea) {
 
     char** parametros_tarea = string_split(tarea, ";");
 	char** nombre_tarea = string_split(parametros_tarea[0], " ");
@@ -214,7 +214,7 @@ void* leer_tareas(t_tripulante* tripulante, char* tarea){
 	return 0;
 }
 
-void mover_a(t_tripulante* tripulante, char xOy, char valor_nuevo){
+void mover_a(t_tripulante* tripulante, char xOy, char valor_nuevo) {
       if(xOy == 'x'){
             tripulante->pos_x = valor_nuevo;
       }else{
