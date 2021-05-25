@@ -183,20 +183,20 @@ char* recibir_tarea(int socket_cliente) {
 	return tarea;
 }
 
-void* leer_tareas(t_tripulante* tripulante, char* tarea) {
+void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 
     char** parametros_tarea = string_split(tarea, ";");
 	char** nombre_tarea = string_split(parametros_tarea[0], " ");
-	char* pos_x = tarea[1];
-	char* pos_y = tarea[2];
-	char* duracion = tarea[3];
+	int pos_x = atoi(parametros_tarea[1]);
+	int pos_y = atoi(parametros_tarea[2]);
+	int duracion = atoi(parametros_tarea[3]);
 
-	mover_a(tripulante,'x',pos_x);
-	mover_a(tripulante,'y',pos_y);
+	mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
+	mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
 	//como controlar quantum en caso de RR sleep(atoi(duracion));
 
 	if(strcmp(nombre_tarea[0], "GENERAR_OXIGENO") == 0) {
-		//generar_oxigeno(nombre_tarea[1]);
+		//generar_oxigeno(nombre_tarea[1]); //sleep(1) x ser tarea e/s
 	} else if (strcmp(nombre_tarea[0], "CONSUMIR_OXIGENO") == 0) {
 		//consumir_oxigeno(nombre_tarea[1]);
 	} else if (strcmp(nombre_tarea[0], "GENERAR_COMIDA") == 0) {
@@ -210,15 +210,29 @@ void* leer_tareas(t_tripulante* tripulante, char* tarea) {
 	} else {
 		//log_info(logger, "no se reconocio la tarea");
 	}
+	sleep(duracion * retardo_ciclo_cpu);
 	//actualizar_bitacora(tripulante);
-	return 0;
 }
 
-void mover_a(t_tripulante* tripulante, char xOy, char valor_nuevo) {
-      if(xOy == 'x'){
-            tripulante->pos_x = valor_nuevo;
-      }else{
-            tripulante->pos_y = valor_nuevo;
+void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_ciclo_cpu) {
+      if(es_x) {
+		while(tripulante->pos_x != valor_nuevo) {
+			if(tripulante->pos_x < valor_nuevo) {
+				tripulante->pos_x++;
+			} else {
+				tripulante->pos_x--;
+			}
+			sleep(retardo_ciclo_cpu);
+		}
+      } else {
+  		while(tripulante->pos_y != valor_nuevo) {
+  			if(tripulante->pos_y < valor_nuevo) {
+  				tripulante->pos_y++;
+  			} else {
+  				tripulante->pos_y--;
+  			}
+  			sleep(retardo_ciclo_cpu);
+  		}
       }
       //registrar_movimiento(tripulante);
 }

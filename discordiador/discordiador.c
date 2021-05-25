@@ -188,17 +188,16 @@ void circular(void* args) {
 		tarea = recibir_tarea(conexion);
 	}*/
 	//se le retorna la 1er tarea
-
+	char* tarea = "GENERAR_OXIGENO 12;2;3;5";
 	cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
 
 	//PARTE CON BLOQUEOS PORQUE TIENE QUE ESTAR PLANIFICADO
 	//INICIAR_PATOTA 2 /home/utnso/tareas/tareasPatota5.txt
 	sem_init(&argumentos->tripulante->semaforo, 0, 0);
 
-
-	//sem_post(&argumentos->tripulante->semaforo);
 	sem_wait(&argumentos->tripulante->semaforo);
 	printf("trabaja el tripulante: %d\n", argumentos->tripulante->TID);
+	leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
 }
 
 void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripulante) {
