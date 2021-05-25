@@ -197,6 +197,7 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 
 	if(strcmp(nombre_tarea[0], "GENERAR_OXIGENO") == 0) {
 		//generar_oxigeno(nombre_tarea[1]); //sleep(1) x ser tarea e/s
+		puts("genera oxigeno");
 	} else if (strcmp(nombre_tarea[0], "CONSUMIR_OXIGENO") == 0) {
 		//consumir_oxigeno(nombre_tarea[1]);
 	} else if (strcmp(nombre_tarea[0], "GENERAR_COMIDA") == 0) {
@@ -224,6 +225,7 @@ void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_c
 			}
 			sleep(retardo_ciclo_cpu);
 		}
+		printf("x: %d\n", tripulante->pos_x);
       } else {
   		while(tripulante->pos_y != valor_nuevo) {
   			if(tripulante->pos_y < valor_nuevo) {
@@ -233,6 +235,7 @@ void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_c
   			}
   			sleep(retardo_ciclo_cpu);
   		}
+  		printf("y: %d\n", tripulante->pos_y);
       }
       //registrar_movimiento(tripulante);
 }

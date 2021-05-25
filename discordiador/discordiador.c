@@ -174,8 +174,6 @@ void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int lo
 void circular(void* args) {
 	t_circular_args* argumentos = args;
 
-	printf("mi tid es: %d\n", argumentos->tripulante->TID);
-
 	//iniciar_tripulante_en_hq(argumentos->tripulante);
 	//enviar paquete tcb y esperar ok de respuesta
 	/*t_buffer* buffer = serilizar_pedir_tarea(argumentos->tripulante->TID);
@@ -196,7 +194,6 @@ void circular(void* args) {
 	sem_init(&argumentos->tripulante->semaforo, 0, 0);
 
 	sem_wait(&argumentos->tripulante->semaforo);
-	printf("trabaja el tripulante: %d\n", argumentos->tripulante->TID);
 	leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
 }
 
