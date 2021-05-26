@@ -8,6 +8,8 @@
 #include<commons/collections/list.h>
 #include<readline/readline.h>
 #include<pthread.h>
+#include<time.h>
+#include<locale.h>
 
 #include "utils.h"
 
@@ -27,5 +29,6 @@ void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int lo
 void circular(void* args);
 void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripulante);
 void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu);
+void listar_tripulantes();
 
 #endif /* DISCORDIADOR_H_ */
