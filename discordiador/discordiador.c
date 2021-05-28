@@ -26,6 +26,8 @@ int main(void)
 	bloqueado_IO = list_create();
 	bloqueado_emergencia = list_create();
 
+	setlocale(LC_ALL,"spanish");
+
 	logger = iniciar_logger();
 	config = leer_config();
 
@@ -77,6 +79,7 @@ void leer_consola(t_log* logger)
 			iniciar_patota(instruccion, leido);
 
 		} else if (strcmp(instruccion[0], "LISTAR_TRIPULANTES") == 0) {
+			listar_tripulantes();
 
 		} else if (strcmp(instruccion[0], "EXPULSAR_TRIPULANTE") == 0) {
 
@@ -296,3 +299,38 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	sleep(duracion * retardo_ciclo_cpu);
 	//actualizar_bitacora(tripulante);
 }
+
+void listar_tripulantes(){
+    void listar(void* t) {
+    	char* estados_texto[] = {"Llegada", "Listo", "Fin", "Trabajando", "Bloqueado en I/O", "Bloqueado en emergencia"};
+        printf("Tripulante: %3d    Patota: %3d    Estado: %3s \n",
+        		((t_tripulante*)t)->TID, ((t_tripulante*)t)->PID, estados_texto[((t_tripulante*)t)->estado]);
+
+	}
+
+    int hours, minutes, seconds, day, month, year;
+    time_t now;
+    time(&now);
+
+    struct tm *local = localtime(&now);
+
+    hours = local->tm_hour;
+    minutes = local->tm_min;
+    seconds = local->tm_sec;
+    day = local->tm_mday;
+    month = local->tm_mon + 1;
+    year = local->tm_year + 1900;
+    char* mes[] = {" ","Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
+
+	printf("---------------------------------------------------------------------------- \n");
+    printf("Estado de la nave al día %02d de %02s del año %d a la hora %02d:%02d:%02d \n", day, mes[month], year, hours, minutes, seconds);
+    list_iterate(llegada,listar);
+    list_iterate(listo,listar);
+    list_iterate(trabajando,listar);
+    list_iterate(bloqueado_emergencia,listar);
+    list_iterate(bloqueado_IO,listar);
+    list_iterate(fin,listar);
+    printf("---------------------------------------------------------------------------- \n");
+}
+
+
