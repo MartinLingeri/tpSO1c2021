@@ -27,5 +27,6 @@ void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int lo
 void circular(void* args);
 void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripulante);
 void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu);
+void planificador(void* args);
 
 #endif /* DISCORDIADOR_H_ */

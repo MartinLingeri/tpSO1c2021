@@ -1,6 +1,7 @@
 #include "discordiador.h"
 
-int conexion = -1;
+int conexion_hq = -1;
+int conexion_store = -1;
 t_log* logger;
 t_config* config;
 
@@ -15,7 +16,6 @@ t_list* bloqueado_IO;
 t_list* bloqueado_emergencia;
 
 bool planificacion_activada = false;
-sem_t semaforo;
 
 int main(void)
 {
@@ -29,14 +29,12 @@ int main(void)
 	logger = iniciar_logger();
 	config = leer_config();
 
-	//conexion = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
 
-	//if(conexion == -1) {
-	//	puts("error en conexion");
-	//	return EXIT_FAILURE;
-	//}
+	pthread_t hilo_planificador;
+	pthread_create(&hilo_planificador, NULL, (void*) planificador, NULL);
+	pthread_detach((pthread_t) hilo_planificador);
 	leer_consola(logger);
-	terminar_programa(conexion, logger, config);
+	terminar_programa(conexion_hq, logger, config);
 	sleep(5);
 	/*void printear(void* t) {
 		printf("el tid es: %d\n", ((t_tripulante*) t)->TID);
@@ -45,6 +43,18 @@ int main(void)
 	puts("en llegada:");
 	list_iterate(llegada, printear);*/
 	return EXIT_SUCCESS;
+}
+
+void conexion_con_hq() {
+	while(conexion_hq != 1) {
+		conexion_hq = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
+	}
+}
+
+void conexion_con_store() {
+	while(conexion_store != 1) {
+		conexion_store = crear_conexion(config_get_string_value(config, "IP_I_MONGO_STORE"), config_get_string_value(config, "PUERTO_I_MONGO_STORE"));
+	}
 }
 
 t_log* iniciar_logger(void)
@@ -73,24 +83,11 @@ void leer_consola(t_log* logger)
 		} else if (strcmp(instruccion[0], "INICIAR_PLANIFICACION") == 0) {
 			if(planificacion_activada == false) {
 				planificacion_activada = true;
-				while(1) {
-					if(list_size(trabajando) < config_get_int_value(config, "GRADO_MULTITAREA")) {
-						if(strcmp(config_get_string_value(config, "ALGORITMO"), "FIFO") == 0) {
-							t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
-							cambiar_estado(tripulante->estado, e_trabajando, tripulante);
-							//aca se desbloquearia el semaforo del tripulante a ejecutar
-							//con post o wait o algo
-							sem_post(&tripulante->semaforo);
-						}
-					}
-
-				}
 			}
 		} else if (strcmp(instruccion[0], "PAUSAR_PLANIFICACION") == 0) {
 			if(planificacion_activada == true) {
 				planificacion_activada = false;
 			}
-
 		} else if (strcmp(instruccion[0], "OBTENER_BITACORA") == 0) {
 
 		} else {
@@ -101,9 +98,22 @@ void leer_consola(t_log* logger)
 	free(leido);
 }
 
-void terminar_programa(int conexion, t_log* logger, t_config* config)
+void planificador(void* args) {
+	while(1) {
+		if(planificacion_activada == true && list_size(trabajando) < config_get_int_value(config, "GRADO_MULTITAREA")) {
+			if(strcmp(config_get_string_value(config, "ALGORITMO"), "FIFO") == 0) {
+				t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
+				cambiar_estado(tripulante->estado, e_trabajando, tripulante);
+				sem_post(&tripulante->semaforo);
+			}
+		}
+
+	}
+}
+
+void terminar_programa(int conexion_hq, t_log* logger, t_config* config)
 {
-	liberar_conexion(conexion);
+	liberar_conexion(conexion_hq);
 	log_destroy(logger);
 	config_destroy(config);
 }
@@ -126,7 +136,7 @@ void iniciar_patota(char** instruccion, char* leido) {
 	uint32_t id_patota = id_ultima_patota;
 	//t_buffer* buffer = serilizar_patota(id_patota, tareas);
 	//t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
-	//enviar_paquete(paquete_pcb, conexion);
+	//enviar_paquete(paquete_pcb, conexion_hq);
 	//enviar paquete pcb y esperar ok de respuesta
 	pthread_t hilos[longitud];
 
@@ -138,13 +148,13 @@ void iniciar_patota(char** instruccion, char* leido) {
 void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
 	t_buffer* buffer = serilizar_tripulante(tripulante->TID, tripulante->PID, tripulante->pos_x, tripulante->pos_y, tripulante->estado);
 	t_paquete* paquete_tcb = crear_mensaje(buffer, TCB_MENSAJE);
-	enviar_paquete(paquete_tcb, conexion);
+	enviar_paquete(paquete_tcb, conexion_hq);
 }
 
 void enviar_cambio_estado_hq(t_tripulante* tripulante) {
 	t_buffer* buffer = serilizar_cambio_estado(tripulante->TID, tripulante->estado);
 	t_paquete* paquete_cambio_estado = crear_mensaje(buffer, CAMBIO_ESTADO_MENSAJE);
-	enviar_paquete(paquete_cambio_estado, conexion);
+	enviar_paquete(paquete_cambio_estado, conexion_hq);
 }
 
 void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int longitud, int id_patota, pthread_t hilo) {
@@ -181,12 +191,12 @@ void circular(void* args) {
 	//enviar paquete tcb y esperar ok de respuesta
 	/*t_buffer* buffer = serilizar_pedir_tarea(argumentos->tripulante->TID);
 	t_paquete* paquete_pedir_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
-	enviar_paquete(paquete_pedir_tarea, conexion);
+	enviar_paquete(paquete_pedir_tarea, conexion_hq);
 	//pide 1er tarea
-	op_code codigo = recibir_operacion(conexion);
+	op_code codigo = recibir_operacion(conexion_hq);
 	char* tarea = NULL;
 	if(codigo == PEDIR_SIGUIENTE_TAREA) {
-		tarea = recibir_tarea(conexion);
+		tarea = recibir_tarea(conexion_hq);
 	}*/
 	//se le retorna la 1er tarea
 	char* tarea = "GENERAR_OXIGENO 12;2;3;5";
