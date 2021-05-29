@@ -121,7 +121,7 @@ t_tcb* recibir_tcb(int socket_cliente){
 	memcpy(&(tripulante->pos_y), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
 
-	memcpy(&(tripulante->proxima_instruccion), buffer+desplazamiento, sizeof(uint32_t));
+	memcpy(&(tripulante->proxima_instruccion), buffer+desplazamiento, sizeof(uint32_t));//DISCORDIADOR: creemos que esto no se lo mandamos nosotros
 	desplazamiento+=sizeof(uint32_t);
 
 	memcpy(&(tripulante->pcb), buffer+desplazamiento, sizeof(uint32_t));
