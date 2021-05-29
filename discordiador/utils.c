@@ -21,8 +21,7 @@ void enviar_paquete(t_paquete* paquete, int socket_cliente)
 	int bytes = paquete->buffer->size + 2*sizeof(int);
 	void* a_enviar = serializar_paquete(paquete, bytes);
 
-	int err = send(socket_cliente, a_enviar, bytes, 0);
-	printf("error del send: %d \n", err);
+	send(socket_cliente, a_enviar, bytes, 0);
 
 	free(a_enviar);
 }
@@ -42,7 +41,6 @@ int crear_conexion(char *ip, char* puerto)
 	int socket_cliente = socket(server_info->ai_family, server_info->ai_socktype, server_info->ai_protocol);
 
 	if(connect(socket_cliente, server_info->ai_addr, server_info->ai_addrlen) == -1) {
-		puts("error");
 		return -1;
 	}
 
@@ -85,7 +83,7 @@ t_buffer* serilizar_tripulante(uint32_t id, uint32_t pid, uint32_t pos_x, uint32
 	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	memcpy(stream + desplazamiento, &pid, sizeof(uint32_t));
+	memcpy(stream + desplazamiento, &estado, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
 	memcpy(stream + desplazamiento, &pos_x, sizeof(uint32_t));
@@ -94,7 +92,7 @@ t_buffer* serilizar_tripulante(uint32_t id, uint32_t pid, uint32_t pos_x, uint32
 	memcpy(stream + desplazamiento, &pos_y, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	memcpy(stream + desplazamiento, &estado, sizeof(uint32_t));
+	memcpy(stream + desplazamiento, &pid, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
 	buffer->size = desplazamiento;

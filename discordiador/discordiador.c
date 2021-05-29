@@ -50,11 +50,16 @@ int main(void)
 }
 
 void conexion_con_hq() {
-	conexion_hq = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
+	while(conexion_hq == -1) {
+		conexion_hq = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
+		sleep(2);
+	}
 }
 
 void conexion_con_store() {
-	conexion_store = crear_conexion(config_get_string_value(config, "IP_I_MONGO_STORE"), config_get_string_value(config, "PUERTO_I_MONGO_STORE"));
+	while(conexion_store == -1) {
+		conexion_store = crear_conexion(config_get_string_value(config, "IP_I_MONGO_STORE"), config_get_string_value(config, "PUERTO_I_MONGO_STORE"));
+	}
 }
 
 t_log* iniciar_logger(void)
@@ -147,14 +152,13 @@ void iniciar_patota(char** instruccion, char* leido) {
 	int longitud = longitud_instr(instruccion);
 	id_ultima_patota++;
 	uint32_t id_patota = id_ultima_patota;
-	if(conexion_hq != -1) {
-		t_buffer* buffer = serilizar_patota(id_patota, contenido_tareas);
-		t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
-		enviar_paquete(paquete_pcb, conexion_hq);
-		printf("la conexion: %d", conexion_hq);
+	while (conexion_hq == -1) {
+		sleep(2);
 	}
+	t_buffer* buffer = serilizar_patota(id_patota, contenido_tareas);
+	t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
+	enviar_paquete(paquete_pcb, conexion_hq);
 
-	//enviar paquete pcb y esperar ok de respuesta
 	pthread_t hilos[longitud];
 
 	for(int i = 0 ; i<cantidad ; i++) {
@@ -163,12 +167,18 @@ void iniciar_patota(char** instruccion, char* leido) {
 }
 
 void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
+	while (conexion_hq == -1) {
+		sleep(2);
+	}
 	t_buffer* buffer = serilizar_tripulante(tripulante->TID, tripulante->PID, tripulante->pos_x, tripulante->pos_y, tripulante->estado);
 	t_paquete* paquete_tcb = crear_mensaje(buffer, TCB_MENSAJE);
 	enviar_paquete(paquete_tcb, conexion_hq);
 }
 
 void enviar_cambio_estado_hq(t_tripulante* tripulante) {
+	while (conexion_hq == -1) {
+		sleep(2);
+	}
 	t_buffer* buffer = serilizar_cambio_estado(tripulante->TID, tripulante->estado);
 	t_paquete* paquete_cambio_estado = crear_mensaje(buffer, CAMBIO_ESTADO_MENSAJE);
 	enviar_paquete(paquete_cambio_estado, conexion_hq);
@@ -204,9 +214,13 @@ void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int lo
 void circular(void* args) {
 	t_circular_args* argumentos = args;
 
-	//iniciar_tripulante_en_hq(argumentos->tripulante);
-	//enviar paquete tcb y esperar ok de respuesta
-	/*t_buffer* buffer = serilizar_pedir_tarea(argumentos->tripulante->TID);
+	iniciar_tripulante_en_hq(argumentos->tripulante);
+
+	/*
+	while (conexion_hq == -1) {
+		sleep(2);
+	}
+	t_buffer* buffer = serilizar_pedir_tarea(argumentos->tripulante->TID);
 	t_paquete* paquete_pedir_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
 	enviar_paquete(paquete_pedir_tarea, conexion_hq);
 	//pide 1er tarea
