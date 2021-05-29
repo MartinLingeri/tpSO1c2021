@@ -31,32 +31,30 @@ int main(void)
 	logger = iniciar_logger();
 	config = leer_config();
 
+	pthread_t hilo_conexion_hq;
+	pthread_create(&hilo_conexion_hq, NULL, (void*) conexion_con_hq, NULL);
+	pthread_detach((pthread_t) hilo_conexion_hq);
+	/*pthread_t hilo_conexion_store;
+	pthread_create(&hilo_conexion_store, NULL, (void*) conexion_con_store, NULL);
+	pthread_detach((pthread_t) hilo_conexion_store);*/
 
 	pthread_t hilo_planificador;
 	pthread_create(&hilo_planificador, NULL, (void*) planificador, NULL);
 	pthread_detach((pthread_t) hilo_planificador);
+
 	leer_consola(logger);
-	terminar_programa(conexion_hq, logger, config);
+	terminar_programa(conexion_hq, conexion_store, logger, config);
+
 	sleep(5);
-	/*void printear(void* t) {
-		printf("el tid es: %d\n", ((t_tripulante*) t)->TID);
-	}
-	list_iterate(listo, printear);
-	puts("en llegada:");
-	list_iterate(llegada, printear);*/
 	return EXIT_SUCCESS;
 }
 
 void conexion_con_hq() {
-	while(conexion_hq != 1) {
-		conexion_hq = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
-	}
+	conexion_hq = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
 }
 
 void conexion_con_store() {
-	while(conexion_store != 1) {
-		conexion_store = crear_conexion(config_get_string_value(config, "IP_I_MONGO_STORE"), config_get_string_value(config, "PUERTO_I_MONGO_STORE"));
-	}
+	conexion_store = crear_conexion(config_get_string_value(config, "IP_I_MONGO_STORE"), config_get_string_value(config, "PUERTO_I_MONGO_STORE"));
 }
 
 t_log* iniciar_logger(void)
@@ -114,7 +112,7 @@ void planificador(void* args) {
 	}
 }
 
-void terminar_programa(int conexion_hq, t_log* logger, t_config* config)
+void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_config* config)
 {
 	liberar_conexion(conexion_hq);
 	log_destroy(logger);
@@ -134,12 +132,28 @@ int longitud_instr(char** instruccion) {
 void iniciar_patota(char** instruccion, char* leido) {
 	int cantidad = atoi(instruccion[1]);
 	char* tareas = instruccion[2];
+	FILE* archivo_tareas =  fopen(tareas, "r");
+	char* contenido_tareas = string_new();
+	if (archivo_tareas != NULL) {
+
+		char buffer[200];
+
+		while (fgets(buffer, sizeof buffer, archivo_tareas) != NULL) {
+			string_append(&contenido_tareas, buffer);
+		}
+
+		fclose(archivo_tareas);
+	}
 	int longitud = longitud_instr(instruccion);
 	id_ultima_patota++;
 	uint32_t id_patota = id_ultima_patota;
-	//t_buffer* buffer = serilizar_patota(id_patota, tareas);
-	//t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
-	//enviar_paquete(paquete_pcb, conexion_hq);
+	if(conexion_hq != -1) {
+		t_buffer* buffer = serilizar_patota(id_patota, contenido_tareas);
+		t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
+		enviar_paquete(paquete_pcb, conexion_hq);
+		printf("la conexion: %d", conexion_hq);
+	}
+
 	//enviar paquete pcb y esperar ok de respuesta
 	pthread_t hilos[longitud];
 

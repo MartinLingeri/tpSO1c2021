@@ -20,7 +20,7 @@ t_tripulante* tripulante;
 t_log* iniciar_logger(void);
 t_config* leer_config(void);
 void leer_consola(t_log* logger);
-void terminar_programa(int conexion, t_log* logger, t_config* config);
+void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_config* config);
 int longitud_instr(char** instruccion);
 void iniciar_patota(char** instruccion, char* leido);
 void iniciar_tripulante_en_hq(t_tripulante* tripulante);
@@ -31,5 +31,7 @@ void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripula
 void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu);
 void planificador(void* args);
 void listar_tripulantes();
+void conexion_con_hq();
+void conexion_con_store();
 
 #endif /* DISCORDIADOR_H_ */

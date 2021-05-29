@@ -21,7 +21,8 @@ void enviar_paquete(t_paquete* paquete, int socket_cliente)
 	int bytes = paquete->buffer->size + 2*sizeof(int);
 	void* a_enviar = serializar_paquete(paquete, bytes);
 
-	send(socket_cliente, a_enviar, bytes, 0);
+	int err = send(socket_cliente, a_enviar, bytes, 0);
+	printf("error del send: %d \n", err);
 
 	free(a_enviar);
 }
