@@ -206,3 +206,105 @@ void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_c
       }
       //registrar_movimiento(tripulante);
 }
+
+t_buffer* serilizar_reporte_bitacora(uint32_t id, char* reporte)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + strlen(reporte) + 1);
+	int desplazamiento = 0;
+
+	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	void* reporte_len = malloc(sizeof(uint32_t));
+	reporte_len = strlen(reporte) + 1;
+	memcpy(stream + desplazamiento, (void*)(&reporte_len), sizeof(uint32_t));
+	desplazamiento += sizeof(strlen(reporte) + 1);
+	memcpy(stream + desplazamiento, reporte, strlen(reporte) + 1);
+	desplazamiento += strlen(reporte) + 1;
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}
+
+t_buffer* serilizar_desplazamiento(uint32_t tid, uint32_t x_nuevo, uint32_t y_nuevo)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(sizeof(uint32_t)*3;
+	int desplazamiento = 0;
+
+	memcpy(stream + desplazamiento, &tid, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(stream + desplazamiento, &x_nuevo, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(stream + desplazamiento, &y_nuevo, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}
+
+t_buffer* serilizar_hacer_tarea(uint32_t cantidad, char* tarea)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + strlen(tarea) + 1);
+	int desplazamiento = 0;
+
+	memcpy(stream + desplazamiento, &cantidad, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	void* tarea_len = malloc(sizeof(uint32_t));
+	tarea_len = strlen(tarea) + 1;
+	memcpy(stream + desplazamiento, (void*)(&tarea_len), sizeof(uint32_t));
+	desplazamiento += sizeof(strlen(tarea) + 1);
+	memcpy(stream + desplazamiento, tarea, strlen(tarea) + 1);
+	desplazamiento += strlen(tarea) + 1;
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}
+
+char* logs_bitacora(regs_bitacora asunto, t_tripulante tripulante, char* dato1, char* dato2){
+switch(asunto){
+    case DESPLAZAMIENTO:  //dato 1 posicion inicial en formato x|y, dato 2 posicion final en igual formato
+        int size = strlen(dato1) + strlen(dato2) + strlen("Se mueve de ") + strlen(" a ") + 1;
+        char *reporte = malloc(size);
+        strcpy (reporte, "Se mueve de ");
+        strcat (reporte, dato1);
+        strcat (reporte, " a ");
+        strcat (reporte, dato2);
+        return reporte;
+        break;
+
+    case INICIO_TAREA: //dato 1 nombre de tarea como string, dato 2 nada
+        int size = strlen(dato1) + strlen("Comienza ejecucion de la tarea ") + 1;
+        char *reporte = malloc(size);
+        strcpy (reporte, "Comienza ejecucion de la tarea ");
+        strcat (reporte, dato1);
+        return reporte;
+        break;
+
+    case FIN_TAREA: //dato 1 nombre de tarea, dato 2 nada
+        int size = strlen(dato1) + strlen("Se finaliza la tarea ") + 1;
+        char *reporte = malloc(size);
+        strcpy (reporte, "Se finaliza la tarea ");
+        strcat (reporte, dato1);
+        return reporte;
+        break;
+
+    case SABOTAJE:
+        return "Se corre en pánico a la ubicación del sabotaje";
+        break;
+
+    case SABOTAJE_RESUELTO:
+        return "Se resuelve el sabotaje";
+        break;
+
+   default:
+        return "Situación desconocida";
+}
