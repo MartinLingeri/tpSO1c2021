@@ -17,6 +17,9 @@ t_list* bloqueado_emergencia;
 
 bool planificacion_activada = false;
 
+int quantum = 0;
+char* algoritmo;
+
 int main(void)
 {
 	llegada = list_create();
@@ -30,6 +33,7 @@ int main(void)
 
 	logger = iniciar_logger();
 	config = leer_config();
+	algoritmo = config_get_string_value(config, "ALGORITMO");
 
 	pthread_t hilo_conexion_hq;
 	pthread_create(&hilo_conexion_hq, NULL, (void*) conexion_con_hq, NULL);
@@ -105,13 +109,12 @@ void leer_consola(t_log* logger)
 }
 
 void planificador(void* args) {
+	quantum = config_get_int_value(config, "QUANTUM");
 	while(1) {
 		if(planificacion_activada == true && list_size(trabajando) < config_get_int_value(config, "GRADO_MULTITAREA")) {
-			if(strcmp(config_get_string_value(config, "ALGORITMO"), "FIFO") == 0) {
-				t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
-				cambiar_estado(tripulante->estado, e_trabajando, tripulante);
-				sem_post(&tripulante->semaforo);
-			}
+			t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
+			cambiar_estado(tripulante->estado, e_trabajando, tripulante);
+			sem_post(&tripulante->semaforo);
 		}
 
 	}
@@ -297,7 +300,7 @@ void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripula
 }
 
 void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
-
+	int quantum_ejec = 0;
     char** parametros_tarea = string_split(tarea, ";");
 	char** nombre_tarea = string_split(parametros_tarea[0], " ");
 	int pos_x = atoi(parametros_tarea[1]);
@@ -307,7 +310,35 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
 	mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
 	//como controlar quantum en caso de RR sleep(atoi(duracion));
+	if(algoritmo == "RR") {
+		if(pos_x != tripulante->pos_x) {
+			quantum_ejec++;
+			sleep(1);
+		}
+		if(quantum_ejec == quantum) {
+			cambiar_estado(tripulante->estado, e_listo, tripulante);
+			sem_wait(&tripulante->semaforo);
+		}
+		if(pos_y != tripulante->pos_y) {
+			quantum_ejec++;
+			sleep(1);
+		}
+		if(quantum_ejec == quantum) {
+			cambiar_estado(tripulante->estado, e_listo, tripulante);
+			sem_wait(&tripulante->semaforo);
+		}
+	}
 
+	for(int i = 0; i < duracion; i++) {
+		sleep(retardo_ciclo_cpu);
+		if(algoritmo == "RR") {
+			quantum_ejec++;
+			if(quantum_ejec == quantum) {
+				cambiar_estado(tripulante->estado, e_listo, tripulante);
+				sem_wait(&tripulante->semaforo);
+			}
+		}
+	}
 	if(strcmp(nombre_tarea[0], "GENERAR_OXIGENO") == 0) {
 		//generar_oxigeno(nombre_tarea[1]); //sleep(1) x ser tarea e/s
 		puts("genera oxigeno");
@@ -324,7 +355,6 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	} else {
 		//log_info(logger, "no se reconocio la tarea");
 	}
-	sleep(duracion * retardo_ciclo_cpu);
 	//actualizar_bitacora(tripulante);
 }
 

@@ -44,7 +44,7 @@ sem_t semaforo;
 
 typedef enum
 {
-    DESPLAZAMIENTO,
+    B_DESPLAZAMIENTO,
     INICIO_TAREA,
     FIN_TAREA,
     SABOTAJE,

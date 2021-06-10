@@ -231,7 +231,7 @@ t_buffer* serilizar_reporte_bitacora(uint32_t id, char* reporte)
 t_buffer* serilizar_desplazamiento(uint32_t tid, uint32_t x_nuevo, uint32_t y_nuevo)
 {
 	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t)*3;
+	void* stream = malloc(sizeof(uint32_t)*3);
 	int desplazamiento = 0;
 
 	memcpy(stream + desplazamiento, &tid, sizeof(uint32_t));
@@ -270,41 +270,45 @@ t_buffer* serilizar_hacer_tarea(uint32_t cantidad, char* tarea)
 }
 
 char* logs_bitacora(regs_bitacora asunto, t_tripulante tripulante, char* dato1, char* dato2){
-switch(asunto){
-    case DESPLAZAMIENTO:  //dato 1 posicion inicial en formato x|y, dato 2 posicion final en igual formato
-        int size = strlen(dato1) + strlen(dato2) + strlen("Se mueve de ") + strlen(" a ") + 1;
-        char *reporte = malloc(size);
-        strcpy (reporte, "Se mueve de ");
-        strcat (reporte, dato1);
-        strcat (reporte, " a ");
-        strcat (reporte, dato2);
-        return reporte;
-        break;
+	int size;
+	char* reporte;
+	switch(asunto) {
+		case B_DESPLAZAMIENTO:  //dato 1 posicion inicial en formato x|y, dato 2 posicion final en igual formato
+			size = strlen(dato1) + strlen(dato2) + strlen("Se mueve de ") + strlen(" a ") + 1;
+			reporte = malloc(size);
+			strcpy (reporte, "Se mueve de ");
+			strcat (reporte, dato1);
+			strcat (reporte, " a ");
+			strcat (reporte, dato2);
+			return reporte;
+			break;
 
-    case INICIO_TAREA: //dato 1 nombre de tarea como string, dato 2 nada
-        int size = strlen(dato1) + strlen("Comienza ejecucion de la tarea ") + 1;
-        char *reporte = malloc(size);
-        strcpy (reporte, "Comienza ejecucion de la tarea ");
-        strcat (reporte, dato1);
-        return reporte;
-        break;
+		case INICIO_TAREA: //dato 1 nombre de tarea como string, dato 2 nada
+			size = strlen(dato1) + strlen("Comienza ejecucion de la tarea ") + 1;
+			reporte = malloc(size);
+			strcpy (reporte, "Comienza ejecucion de la tarea ");
+			strcat (reporte, dato1);
+			return reporte;
+			break;
 
-    case FIN_TAREA: //dato 1 nombre de tarea, dato 2 nada
-        int size = strlen(dato1) + strlen("Se finaliza la tarea ") + 1;
-        char *reporte = malloc(size);
-        strcpy (reporte, "Se finaliza la tarea ");
-        strcat (reporte, dato1);
-        return reporte;
-        break;
+		case FIN_TAREA: //dato 1 nombre de tarea, dato 2 nada
+			size = strlen(dato1) + strlen("Se finaliza la tarea ") + 1;
+			reporte = malloc(size);
+			strcpy (reporte, "Se finaliza la tarea ");
+			strcat (reporte, dato1);
+			return reporte;
+			break;
 
-    case SABOTAJE:
-        return "Se corre en pánico a la ubicación del sabotaje";
-        break;
+		case SABOTAJE:
+			return "Se corre en pánico a la ubicación del sabotaje";
+			break;
 
-    case SABOTAJE_RESUELTO:
-        return "Se resuelve el sabotaje";
-        break;
+		case SABOTAJE_RESUELTO:
+			return "Se resuelve el sabotaje";
+			break;
 
-   default:
-        return "Situación desconocida";
+	   default:
+			return "Situación desconocida";
+			break;
+	}
 }
