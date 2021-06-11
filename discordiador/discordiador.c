@@ -307,9 +307,8 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	int pos_y = atoi(parametros_tarea[2]);
 	int duracion = atoi(parametros_tarea[3]);
 
-	mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
-	mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
-	//como controlar quantum en caso de RR sleep(atoi(duracion));
+	reportar_bitacora(logs_bitacora(INICIO_TAREA, tripulante->TID, nombre_tarea[0], " "), tripulante->TID);
+
 	if(algoritmo == "RR") {
 		if(pos_x != tripulante->pos_x) {
 			quantum_ejec++;
@@ -329,6 +328,13 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 		}
 	}
 
+	if(pos_x != tripulante->pos_x || pos_y != tripulante->pos_y){
+		logear_despl(tripulante->pos_x, tripulante->pos_y, parametros_tarea[1], parametros_tarea[2], tripulante->TID);
+	}
+
+	mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
+	mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
+
 	for(int i = 0; i < duracion; i++) {
 		sleep(retardo_ciclo_cpu);
 		if(algoritmo == "RR") {
@@ -339,8 +345,9 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 			}
 		}
 	}
+
 	if(strcmp(nombre_tarea[0], "GENERAR_OXIGENO") == 0) {
-		//generar_oxigeno(nombre_tarea[1]); //sleep(1) x ser tarea e/s
+		//generar_oxigeno(nombre_tarea[1]); //TODAS ESTAS FUNCIONES SON BASICAMENTE LA MISMA, cuando lo pensas el switch este no es necesario
 		puts("genera oxigeno");
 	} else if (strcmp(nombre_tarea[0], "CONSUMIR_OXIGENO") == 0) {
 		//consumir_oxigeno(nombre_tarea[1]);
@@ -351,11 +358,13 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	} else if (strcmp(nombre_tarea[0], "GENERAR_BASURA") == 0) {
 		//generar_basura(nombre_tarea[1]);
 	} else if (strcmp(nombre_tarea[0], "DESCARTAR_BASURA") == 0) {
-		//destruir_basura();
+		//destruir_basura(nombre_tarea[1]);
 	} else {
-		//log_info(logger, "no se reconocio la tarea");
+		//t_buffer* buffer = serilizar_hacer_tarea(duracion, nombre_tarea[0]);
+		//t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
+		//enviar_paquete(paquete_hacer_tarea, conexion_hq);
 	}
-	//actualizar_bitacora(tripulante);
+	reportar_bitacora(logs_bitacora(FIN_TAREA, tripulante->TID, nombre_tarea[0], " "), tripulante->TID);
 }
 
 void listar_tripulantes(){

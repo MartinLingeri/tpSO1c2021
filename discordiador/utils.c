@@ -312,3 +312,69 @@ char* logs_bitacora(regs_bitacora asunto, t_tripulante tripulante, char* dato1, 
 			break;
 	}
 }
+
+void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_x_nuevo, int id){
+	int size = sizeof(int)*2 + sizeof('|');
+	char *str_start = malloc(size);
+	char *str_end = malloc(size);
+
+	char *x = malloc(sizeof(pos_x));
+	char *y = malloc(sizeof(pos_y));
+
+	itoa(pos_x, x, 10);
+	itoa(pos_y, y, 10);
+
+	strcpy (str_start, x);
+	strcat (str_start, "|");
+	strcat (str_start, y);
+
+	strcpy (str_end, pos_x_nuevo);
+	strcat (str_end, "|");
+	strcat (str_end, pos_x_nuevo);
+
+	reportar_bitacora(logs_bitacora(B_DESPLAZAMIENTO, id, str_start, str_end), id);
+}
+
+
+void reportar_bitacora(char* log, int id){
+    t_buffer* buffer = serializar_reporte_bitacora(id, log);
+	t_paquete* paquete_bitacora = crear_mensaje(buffer, REPORTE_BITACORA);
+	enviar_paquete(paquete_bitacora, conexion_hq);
+}
+
+generar_oxigeno(int duracion){
+	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_OXIGENO);
+	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
+	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+}
+
+descartar_oxigeno(int duracion){
+	t_buffer* buffer = serilizar_hacer_tarea(duracion, CONSUMIR_OXIGENO);
+	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
+	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+}
+
+generar_comida(int duracion){
+	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_COMIDA);
+	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
+	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+}
+
+consumir_comida(int duracion){
+	t_buffer* buffer = serilizar_hacer_tarea(duracion, CONSUMIR_COMIDA);
+	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
+	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+}
+
+generar_basura(int duracion){
+	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_BASURA);
+	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
+	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+}
+
+descartar_basura(int duracion){
+	t_buffer* buffer = serilizar_hacer_tarea(duracion, DESCARTAR_BASURA);
+	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
+	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+}
+
