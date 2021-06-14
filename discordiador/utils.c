@@ -253,7 +253,7 @@ t_buffer* serilizar_desplazamiento(uint32_t tid, uint32_t x_nuevo, uint32_t y_nu
 t_buffer* serilizar_hacer_tarea(uint32_t cantidad, char* tarea, uint32_t tid)
 {
 	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + strlen(tarea) + 1);
+	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + strlen(tarea) + 1);
 	int desplazamiento = 0;
 
 	memcpy(stream + desplazamiento, &cantidad, sizeof(uint32_t));
