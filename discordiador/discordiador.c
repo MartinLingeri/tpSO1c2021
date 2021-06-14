@@ -158,14 +158,18 @@ void iniciar_patota(char** instruccion, char* leido) {
 	while (conexion_hq == -1) {
 		sleep(2);
 	}
-	t_buffer* buffer = serilizar_patota(id_patota, contenido_tareas);
+	t_buffer* buffer = serilizar_patota(id_patota, contenido_tareas, cantidad);
 	t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
 	enviar_paquete(paquete_pcb, conexion_hq);
 
-	pthread_t hilos[longitud];
+	if(/*hay lugar en memoria*/){
+		pthread_t hilos[longitud];
 
-	for(int i = 0 ; i<cantidad ; i++) {
-		inicializar_tripulante(instruccion, i, longitud, id_patota, hilos[i]);
+		for(int i = 0 ; i<cantidad ; i++) {
+			inicializar_tripulante(instruccion, i, longitud, id_patota, hilos[i]);
+		}
+	}else{
+		printf("No hay lugar en memoria"); //como tratar esto?
 	}
 }
 
@@ -347,20 +351,20 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	}
 
 	if(strcmp(nombre_tarea[0], "GENERAR_OXIGENO") == 0) {
-		//generar_oxigeno(nombre_tarea[1]); //TODAS ESTAS FUNCIONES SON BASICAMENTE LA MISMA, cuando lo pensas el switch este no es necesario
+		//generar_oxigeno(nombre_tarea[1], tripulante->TID); //TODAS ESTAS FUNCIONES SON BASICAMENTE LA MISMA, cuando lo pensas el switch este no es necesario
 		puts("genera oxigeno");
 	} else if (strcmp(nombre_tarea[0], "CONSUMIR_OXIGENO") == 0) {
-		//consumir_oxigeno(nombre_tarea[1]);
+		//consumir_oxigeno(nombre_tarea[1], tripulante->TID);
 	} else if (strcmp(nombre_tarea[0], "GENERAR_COMIDA") == 0) {
-		//generar_comida(nombre_tarea[1]);
+		//generar_comida(nombre_tarea[1], tripulante->TID);
 	} else if (strcmp(nombre_tarea[0], "CONSUMIR_COMIDA") == 0) {
-		//consumir_comida(nombre_tarea[1]);
+		//consumir_comida(nombre_tarea[1], tripulante->TID);
 	} else if (strcmp(nombre_tarea[0], "GENERAR_BASURA") == 0) {
-		//generar_basura(nombre_tarea[1]);
+		//generar_basura(nombre_tarea[1], tripulante->TID);
 	} else if (strcmp(nombre_tarea[0], "DESCARTAR_BASURA") == 0) {
-		//destruir_basura(nombre_tarea[1]);
+		//destruir_basura(nombre_tarea[1], tripulante->TID);
 	} else {
-		//t_buffer* buffer = serilizar_hacer_tarea(duracion, nombre_tarea[0]);
+		//t_buffer* buffer = serilizar_hacer_tarea(duracion, nombre_tarea[0], tripulante->TID);
 		//t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 		//enviar_paquete(paquete_hacer_tarea, conexion_hq);
 	}

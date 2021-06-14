@@ -57,10 +57,10 @@ t_paquete* crear_mensaje(t_buffer* buffer, op_code codigo)
 	return paquete;
 }
 
-t_buffer* serilizar_patota(uint32_t id, char* tareas)
+t_buffer* serilizar_patota(uint32_t id, char* tareas, uint32_t trips)
 {
 	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + strlen(tareas) + 1);
+	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + strlen(tareas) + 1);
 	int desplazamiento = 0;
 	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
@@ -70,6 +70,8 @@ t_buffer* serilizar_patota(uint32_t id, char* tareas)
 	desplazamiento += sizeof(strlen(tareas) + 1);
 	memcpy(stream + desplazamiento, tareas, strlen(tareas) + 1);
 	desplazamiento += strlen(tareas) + 1;
+	memcpy(stream + desplazamiento, &trips, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 	buffer->size = desplazamiento;
 	buffer->stream = stream;
 	return buffer;
@@ -193,6 +195,7 @@ void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_c
 			sleep(retardo_ciclo_cpu);
 		}
 		printf("x: %d\n", tripulante->pos_x);
+
       } else {
   		while(tripulante->pos_y != valor_nuevo) {
   			if(tripulante->pos_y < valor_nuevo) {
@@ -204,7 +207,6 @@ void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_c
   		}
   		printf("y: %d\n", tripulante->pos_y);
       }
-      //registrar_movimiento(tripulante);
 }
 
 t_buffer* serilizar_reporte_bitacora(uint32_t id, char* reporte)
@@ -248,7 +250,7 @@ t_buffer* serilizar_desplazamiento(uint32_t tid, uint32_t x_nuevo, uint32_t y_nu
 	return buffer;
 }
 
-t_buffer* serilizar_hacer_tarea(uint32_t cantidad, char* tarea)
+t_buffer* serilizar_hacer_tarea(uint32_t cantidad, char* tarea, uint32_t tid)
 {
 	t_buffer* buffer = malloc(sizeof(t_buffer));
 	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + strlen(tarea) + 1);
@@ -263,6 +265,9 @@ t_buffer* serilizar_hacer_tarea(uint32_t cantidad, char* tarea)
 	desplazamiento += sizeof(strlen(tarea) + 1);
 	memcpy(stream + desplazamiento, tarea, strlen(tarea) + 1);
 	desplazamiento += strlen(tarea) + 1;
+
+	memcpy(stream + desplazamiento, &tid, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
 	buffer->size = desplazamiento;
 	buffer->stream = stream;
@@ -342,38 +347,38 @@ void reportar_bitacora(char* log, int id){
 	enviar_paquete(paquete_bitacora, conexion_hq);
 }
 
-generar_oxigeno(int duracion){
-	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_OXIGENO);
+generar_oxigeno(int duracion, int id){  //ESTA BIEN IMPLEMENTADO ESTO CO N1 PAR. MAS? PAG 18 DE LA CONSIGNA
+	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_OXIGENO, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 	enviar_paquete(paquete_hacer_tarea, conexion_hq);
 }
 
-descartar_oxigeno(int duracion){
-	t_buffer* buffer = serilizar_hacer_tarea(duracion, CONSUMIR_OXIGENO);
+descartar_oxigeno(int duracion, int id){
+	t_buffer* buffer = serilizar_hacer_tarea(duracion, CONSUMIR_OXIGENO, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 	enviar_paquete(paquete_hacer_tarea, conexion_hq);
 }
 
-generar_comida(int duracion){
-	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_COMIDA);
+generar_comida(int duracion, int id){
+	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_COMIDA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 	enviar_paquete(paquete_hacer_tarea, conexion_hq);
 }
 
-consumir_comida(int duracion){
-	t_buffer* buffer = serilizar_hacer_tarea(duracion, CONSUMIR_COMIDA);
+consumir_comida(int duracion, int id){
+	t_buffer* buffer = serilizar_hacer_tarea(duracion, CONSUMIR_COMIDA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 	enviar_paquete(paquete_hacer_tarea, conexion_hq);
 }
 
-generar_basura(int duracion){
-	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_BASURA);
+generar_basura(int duracion, int id){
+	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_BASURA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 	enviar_paquete(paquete_hacer_tarea, conexion_hq);
 }
 
-descartar_basura(int duracion){
-	t_buffer* buffer = serilizar_hacer_tarea(duracion, DESCARTAR_BASURA);
+descartar_basura(int duracion, int id){
+	t_buffer* buffer = serilizar_hacer_tarea(duracion, DESCARTAR_BASURA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 	enviar_paquete(paquete_hacer_tarea, conexion_hq);
 }
