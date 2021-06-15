@@ -31,8 +31,11 @@ int main(void)
 
 	setlocale(LC_ALL,"spanish");
 
+	logger = malloc(sizeof(t_log));
 	logger = iniciar_logger();
+	config = malloc(sizeof(t_config));
 	config = leer_config();
+	algoritmo = malloc(strlen("FIFO")+1);
 	algoritmo = config_get_string_value(config, "ALGORITMO");
 
 	pthread_t hilo_conexion_hq;
@@ -55,8 +58,14 @@ int main(void)
 
 void conexion_con_hq() {
 	while(conexion_hq == -1) {
-		conexion_hq = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
+		char* ip = malloc(strlen("255.255.255.255")+1);
+		char* puerto = malloc(strlen("9999"));
+		ip = config_get_string_value(config, "IP_MI_RAM_HQ");
+		puerto = config_get_string_value(config, "PUERTO_MI_RAM_HQ");
+		conexion_hq = crear_conexion(ip, puerto);
 		sleep(2);
+		free(ip);
+		free(puerto);
 	}
 }
 
@@ -123,6 +132,7 @@ void planificador(void* args) {
 void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_config* config)
 {
 	liberar_conexion(conexion_hq);
+	liberar_conexion(conexion_store);
 	log_destroy(logger);
 	config_destroy(config);
 }

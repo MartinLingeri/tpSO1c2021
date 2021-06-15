@@ -74,6 +74,7 @@ t_buffer* serilizar_patota(uint32_t id, char* tareas, uint32_t trips)
 	desplazamiento += sizeof(uint32_t);
 	buffer->size = desplazamiento;
 	buffer->stream = stream;
+	printf("el tamano: %d", desplazamiento);
 	return buffer;
 }
 
