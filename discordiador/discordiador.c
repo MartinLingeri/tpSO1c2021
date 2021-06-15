@@ -162,7 +162,7 @@ void iniciar_patota(char** instruccion, char* leido) {
 	t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
 	enviar_paquete(paquete_pcb, conexion_hq);
 
-	if(/*hay lugar en memoria*/){
+	if(true){/*hay lugar en memoria*/
 		pthread_t hilos[longitud];
 
 		for(int i = 0 ; i<cantidad ; i++) {
@@ -311,7 +311,7 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	int pos_y = atoi(parametros_tarea[2]);
 	int duracion = atoi(parametros_tarea[3]);
 
-	reportar_bitacora(logs_bitacora(INICIO_TAREA, tripulante->TID, nombre_tarea[0], " "), tripulante->TID);
+	reportar_bitacora(logs_bitacora(INICIO_TAREA, nombre_tarea[0], " "), &tripulante->TID);
 
 	if(algoritmo == "RR") {
 		if(pos_x != tripulante->pos_x) {
@@ -333,7 +333,7 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	}
 
 	if(pos_x != tripulante->pos_x || pos_y != tripulante->pos_y){
-		logear_despl(tripulante->pos_x, tripulante->pos_y, parametros_tarea[1], parametros_tarea[2], tripulante->TID);
+		logear_despl(tripulante->pos_x, tripulante->pos_y, parametros_tarea[1], parametros_tarea[2], tripulante->TID, conexion_hq);
 	}
 
 	mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
@@ -368,7 +368,7 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 		//t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 		//enviar_paquete(paquete_hacer_tarea, conexion_hq);
 	}
-	reportar_bitacora(logs_bitacora(FIN_TAREA, tripulante->TID, nombre_tarea[0], " "), tripulante->TID);
+	reportar_bitacora(logs_bitacora(FIN_TAREA, nombre_tarea[0], " "), tripulante->TID);
 }
 
 void listar_tripulantes(){
@@ -403,5 +403,3 @@ void listar_tripulantes(){
     list_iterate(fin,listar);
     printf("---------------------------------------------------------------------------- \n");
 }
-
-

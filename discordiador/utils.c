@@ -214,7 +214,7 @@ void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_c
       }
 }
 
-t_buffer* serilizar_reporte_bitacora(uint32_t id, char* reporte)
+t_buffer* serializar_reporte_bitacora(uint32_t id, char* reporte)
 {
 	t_buffer* buffer = malloc(sizeof(t_buffer));
 	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + strlen(reporte) + 1);
@@ -279,7 +279,7 @@ t_buffer* serilizar_hacer_tarea(uint32_t cantidad, char* tarea, uint32_t tid)
 	return buffer;
 }
 
-char* logs_bitacora(regs_bitacora asunto, t_tripulante tripulante, char* dato1, char* dato2){
+char* logs_bitacora(regs_bitacora asunto, char* dato1, char* dato2){
 	int size;
 	char* reporte;
 	switch(asunto) {
@@ -323,35 +323,6 @@ char* logs_bitacora(regs_bitacora asunto, t_tripulante tripulante, char* dato1, 
 	}
 }
 
-void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_x_nuevo, int id){
-	int size = sizeof(int)*2 + sizeof('|');
-	char *str_start = malloc(size);
-	char *str_end = malloc(size);
-
-	char *x = malloc(sizeof(pos_x));
-	char *y = malloc(sizeof(pos_y));
-
-	itoa(pos_x, x, 10);
-	itoa(pos_y, y, 10);
-
-	strcpy (str_start, x);
-	strcat (str_start, "|");
-	strcat (str_start, y);
-
-	strcpy (str_end, pos_x_nuevo);
-	strcat (str_end, "|");
-	strcat (str_end, pos_x_nuevo);
-
-	reportar_bitacora(logs_bitacora(B_DESPLAZAMIENTO, id, str_start, str_end), id);
-}
-
-
-void reportar_bitacora(char* log, int id){
-    t_buffer* buffer = serializar_reporte_bitacora(id, log);
-	t_paquete* paquete_bitacora = crear_mensaje(buffer, REPORTE_BITACORA);
-	enviar_paquete(paquete_bitacora, conexion_hq);
-}
-
 char estado_a_char(int estado){
    switch(estado){
     case e_llegada:
@@ -376,39 +347,66 @@ char estado_a_char(int estado){
 
 }
 
-generar_oxigeno(int duracion, int id){  //ESTA BIEN IMPLEMENTADO ESTO CO N1 PAR. MAS? PAG 18 DE LA CONSIGNA
+void generar_oxigeno(int duracion, int id, int conexion_hq){  //ESTA BIEN IMPLEMENTADO ESTO CO N1 PAR. MAS? PAG 18 DE LA CONSIGNA
 	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_OXIGENO, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 	enviar_paquete(paquete_hacer_tarea, conexion_hq);
 }
 
-descartar_oxigeno(int duracion, int id){
+void descartar_oxigeno(int duracion, int id, int conexion_hq){
 	t_buffer* buffer = serilizar_hacer_tarea(duracion, CONSUMIR_OXIGENO, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 	enviar_paquete(paquete_hacer_tarea, conexion_hq);
 }
 
-generar_comida(int duracion, int id){
+void generar_comida(int duracion, int id, int conexion_hq){
 	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_COMIDA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 	enviar_paquete(paquete_hacer_tarea, conexion_hq);
 }
 
-consumir_comida(int duracion, int id){
+void consumir_comida(int duracion, int id, int conexion_hq){
 	t_buffer* buffer = serilizar_hacer_tarea(duracion, CONSUMIR_COMIDA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 	enviar_paquete(paquete_hacer_tarea, conexion_hq);
 }
 
-generar_basura(int duracion, int id){
+void generar_basura(int duracion, int id, int conexion_hq){
 	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_BASURA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 	enviar_paquete(paquete_hacer_tarea, conexion_hq);
 }
 
-descartar_basura(int duracion, int id){
+void descartar_basura(int duracion, int id, int conexion_hq){
 	t_buffer* buffer = serilizar_hacer_tarea(duracion, DESCARTAR_BASURA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 	enviar_paquete(paquete_hacer_tarea, conexion_hq);
 }
 
+void reportar_bitacora(char* log, int id, int conexion_hq){
+    t_buffer* buffer = serializar_reporte_bitacora(id, log);
+	t_paquete* paquete_bitacora = crear_mensaje(buffer, REPORTE_BITACORA);
+	enviar_paquete(paquete_bitacora, conexion_hq);
+}
+
+void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_y_nuevo, int id, int conexion_hq){
+	int size = sizeof(int)*2 + sizeof('|');
+	char *str_start = malloc(size);
+	char *str_end = malloc(size);
+
+	char *x = malloc(sizeof(pos_x));
+	char *y = malloc(sizeof(pos_y));
+
+	string_itoa(pos_x, x, 10);
+	string_itoa(pos_y, y, 10);
+
+	strcpy (str_start, x);
+	strcat (str_start, "|");
+	strcat (str_start, y);
+
+	strcpy (str_end, pos_x_nuevo);
+	strcat (str_end, "|");
+	strcat (str_end, pos_x_nuevo);
+
+	reportar_bitacora(logs_bitacora(B_DESPLAZAMIENTO, str_start, str_end), id, conexion_hq);
+}
