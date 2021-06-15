@@ -80,13 +80,15 @@ t_buffer* serilizar_patota(uint32_t id, char* tareas, uint32_t trips)
 t_buffer* serilizar_tripulante(uint32_t id, uint32_t pid, uint32_t pos_x, uint32_t pos_y, uint32_t estado)
 {
 	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t) * 5);
+	void* stream = malloc(sizeof(uint32_t) * + sizeof(char) );
 	int desplazamiento = 0;
 	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	memcpy(stream + desplazamiento, &estado, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
+	char e = estado_a_char(estado);
+
+	memcpy(stream + desplazamiento, &e, sizeof(char));
+	desplazamiento += sizeof(char);
 
 	memcpy(stream + desplazamiento, &pos_x, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
@@ -107,11 +109,14 @@ t_buffer* serilizar_cambio_estado(uint32_t id, uint32_t estado)
 	t_buffer* buffer = malloc(sizeof(t_buffer));
 	void* stream = malloc(sizeof(uint32_t) * 2);
 	int desplazamiento = 0;
+
 	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	memcpy(stream + desplazamiento, &estado, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
+	char e = estado_a_char(estado);
+
+	memcpy(stream + desplazamiento, &e, sizeof(char));
+	desplazamiento += sizeof(char);
 
 	buffer->size = desplazamiento;
 	buffer->stream = stream;
@@ -259,15 +264,15 @@ t_buffer* serilizar_hacer_tarea(uint32_t cantidad, char* tarea, uint32_t tid)
 	memcpy(stream + desplazamiento, &cantidad, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
+	memcpy(stream + desplazamiento, &tid, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
 	void* tarea_len = malloc(sizeof(uint32_t));
 	tarea_len = strlen(tarea) + 1;
 	memcpy(stream + desplazamiento, (void*)(&tarea_len), sizeof(uint32_t));
 	desplazamiento += sizeof(strlen(tarea) + 1);
 	memcpy(stream + desplazamiento, tarea, strlen(tarea) + 1);
 	desplazamiento += strlen(tarea) + 1;
-
-	memcpy(stream + desplazamiento, &tid, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
 
 	buffer->size = desplazamiento;
 	buffer->stream = stream;
@@ -345,6 +350,30 @@ void reportar_bitacora(char* log, int id){
     t_buffer* buffer = serializar_reporte_bitacora(id, log);
 	t_paquete* paquete_bitacora = crear_mensaje(buffer, REPORTE_BITACORA);
 	enviar_paquete(paquete_bitacora, conexion_hq);
+}
+
+char estado_a_char(int estado){
+   switch(estado){
+    case e_llegada:
+        return 'N';
+        break;
+    case e_listo:
+        return 'R';
+        break;
+    case e_fin:
+        return 'E';
+        break;
+    case e_trabajando:
+        return 'W';
+        break;
+    case e_bloqueado_IO:
+        return 'B';
+        break;
+    case e_bloqueado_emergencia:
+        return 'B';
+        break;
+   }
+
 }
 
 generar_oxigeno(int duracion, int id){  //ESTA BIEN IMPLEMENTADO ESTO CO N1 PAR. MAS? PAG 18 DE LA CONSIGNA

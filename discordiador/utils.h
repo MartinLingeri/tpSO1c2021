@@ -90,10 +90,11 @@ void* recibir_buffer(int* size, int socket_cliente);
 int recibir_operacion(int socket_cliente);
 char* recibir_tarea(int socket_cliente);
 void mover_a(t_tripulante* tripulante, bool xOy, int valor_nuevo, int retardo_ciclo_cpu);
-
 char* logs_bitacora(regs_bitacora asunto, t_tripulante tripulante, char* dato1, char* dato2);
 void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_x_nuevo, int id);
 void reportar_bitacora(char* log, int id);
+char estado_a_char(int estado);
+
 void generar_oxigeno(int duracion);
 void consumir_oxigeno(int duracion);
 void generar_comida(int duracion);
