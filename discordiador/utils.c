@@ -107,7 +107,7 @@ t_buffer* serilizar_tripulante(uint32_t id, uint32_t pid, uint32_t pos_x, uint32
 t_buffer* serilizar_cambio_estado(uint32_t id, uint32_t estado)
 {
 	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t) * 2);
+	void* stream = malloc(sizeof(uint32_t) + sizeof(char));
 	int desplazamiento = 0;
 
 	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
