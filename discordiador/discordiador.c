@@ -327,12 +327,12 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 
 	reportar_bitacora(logs_bitacora(INICIO_TAREA, nombre_tarea[0], " "), &tripulante->TID);
 
-	if(algoritmo == "RR") {
+	if(strcmp(algoritmo,"RR")) {
 		if(pos_x != tripulante->pos_x) {
 			quantum_ejec++;
 			sleep(1);
 		}
-		if(quantum_ejec == quantum) {
+		if(quantum_ejec == atoi(quantum)) {
 			cambiar_estado(tripulante->estado, e_listo, tripulante);
 			sem_wait(&tripulante->semaforo);
 		}
@@ -355,7 +355,7 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 
 	for(int i = 0; i < duracion; i++) {
 		sleep(retardo_ciclo_cpu);
-		if(algoritmo == "RR") {
+		if(strcmp(algoritmo,"RR")) {
 			quantum_ejec++;
 			if(quantum_ejec == quantum) {
 				cambiar_estado(tripulante->estado, e_listo, tripulante);
@@ -419,8 +419,8 @@ void listar_tripulantes(){
 }
 
 void expulsar_tripulante(char* i) {
-	printf("id: %s", i);
 	int id = atoi(i);
+
 	bool es_el_tripulante(void* tripulante_en_lista) {
 		return ((t_tripulante*)tripulante_en_lista)->TID == id;
 	}
@@ -428,29 +428,23 @@ void expulsar_tripulante(char* i) {
 	if(list_any_satisfy(llegada, es_el_tripulante)){
     	t_tripulante* tripulante = list_find(llegada,es_el_tripulante);
         cambiar_estado(e_llegada, e_fin, tripulante);
-        break;
 
     }else if(list_any_satisfy(listo, es_el_tripulante)){
     	t_tripulante* tripulante = list_find(listo,es_el_tripulante);
         cambiar_estado(e_listo, e_fin, tripulante);
-        break;
 
     }else if(list_any_satisfy(bloqueado_IO, es_el_tripulante)){
     	t_tripulante* tripulante = list_find(bloqueado_IO,es_el_tripulante);
         cambiar_estado(e_bloqueado_IO, e_fin, tripulante);
-        break;
 
     }else if(list_any_satisfy(bloqueado_emergencia, es_el_tripulante)){
     	t_tripulante* tripulante = list_find(bloqueado_emergencia,es_el_tripulante);
         cambiar_estado(e_bloqueado_emergencia, e_fin, tripulante);
-        break;
 
-    }else if(list_any_satisfy(trabajando, es_el_tripulante)){
+    }else{
     	t_tripulante* tripulante = list_find(trabajando,es_el_tripulante);
         cambiar_estado(e_trabajando, e_fin, tripulante);
-        break;
     }
-
    //enviar_remover_a_hq(id);
    return;
 }
