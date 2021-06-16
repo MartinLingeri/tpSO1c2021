@@ -144,12 +144,12 @@ t_pcb* recibir_pcb(int socket_cliente){
 	desplazamiento+=sizeof(uint32_t);
 	printf("patota id: %d\n", (patota->pid));
 
-	uint32_t* x = malloc(sizeof(uint32_t));
+	void* cantidad_tripulantes = malloc(sizeof(uint32_t));
 
-	memcpy(&x, buffer+desplazamiento, sizeof(uint32_t));
+	memcpy(&cantidad_tripulantes, buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
 
-	printf("cant trips: %d\n", x);
+	printf("cant tripsss: %d\n", (uint32_t)cantidad_tripulantes);
 
 	void* tareas_len = malloc(sizeof(uint32_t));
 	memcpy(&tareas_len, (buffer+desplazamiento), sizeof(uint32_t));

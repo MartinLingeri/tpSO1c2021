@@ -142,6 +142,7 @@ int longitud_instr(char** instruccion) {
 void iniciar_patota(char** instruccion, char* leido) {
 	//INICIAR_PATOTA 3 /home/utnso/tareas.txt
 	uint32_t cantidad = atoi(instruccion[1]);
+	printf("cant trips: %d\n", cantidad);
 	char* tareas = instruccion[2];
 
 	FILE* archivo_tareas =  fopen(tareas, "r");
