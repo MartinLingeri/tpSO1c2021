@@ -184,9 +184,9 @@ void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
 	}*/
 	t_buffer* buffer = serilizar_tripulante(tripulante->TID, tripulante->PID, tripulante->pos_x, tripulante->pos_y, tripulante->estado);
 	t_paquete* paquete_tcb = crear_mensaje(buffer, TCB_MENSAJE);
+	enviar_paquete(paquete_tcb, conexion_hq);
 	free(paquete_tcb);
 	free(buffer);
-	//enviar_paquete(paquete_tcb, conexion_hq);
 	pthread_mutex_unlock(&bloq);
 }
 
