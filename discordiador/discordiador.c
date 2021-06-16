@@ -47,8 +47,10 @@ int main(void)
 	pthread_detach((pthread_t) hilo_planificador);
 
 	leer_consola(logger);
+	puts("7");
 	terminar_programa(conexion_hq, conexion_store, logger, config);
-
+	puts("8");
+//INICIAR_PATOTA 3 /home/utnso/tareas.txt
 	sleep(5);
 	return EXIT_SUCCESS;
 }
@@ -105,8 +107,10 @@ void leer_consola(t_log* logger)
 		}
 		leido = readline(">");
 	}
+	puts("antes free leido");
 	free(leido);
-}
+	puts("free leido");
+;}
 
 void planificador(void* args) {
 	quantum = config_get_int_value(config, "QUANTUM");
@@ -138,12 +142,13 @@ int longitud_instr(char** instruccion) {
 }
 
 void iniciar_patota(char** instruccion, char* leido) {
-	int cantidad = atoi(instruccion[1]);
+	uint32_t cantidad = atoi(instruccion[1]);
 	char* tareas = instruccion[2];
+	puts("1");
 	FILE* archivo_tareas =  fopen(tareas, "r");
 	char* contenido_tareas = string_new();
 	if (archivo_tareas != NULL) {
-
+		puts("2");
 		char buffer[200];
 
 		while (fgets(buffer, sizeof buffer, archivo_tareas) != NULL) {
@@ -158,19 +163,23 @@ void iniciar_patota(char** instruccion, char* leido) {
 	while (conexion_hq == -1) {
 		sleep(2);
 	}
+	puts("3");
 	t_buffer* buffer = serilizar_patota(id_patota, contenido_tareas, cantidad);
 	t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
 	enviar_paquete(paquete_pcb, conexion_hq);
-
+	puts("4");
 	if(true){/*hay lugar en memoria*/
 		pthread_t hilos[longitud];
-
+		puts("5");
 		for(int i = 0 ; i<cantidad ; i++) {
+			puts("6");
 			inicializar_tripulante(instruccion, i, longitud, id_patota, hilos[i]);
+			sleep(2);
 		}
 	}else{
 		printf("No hay lugar en memoria"); //como tratar esto?
 	}
+	puts("fin init patota");
 }
 
 void iniciar_tripulante_en_hq(t_tripulante* tripulante) {

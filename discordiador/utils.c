@@ -61,17 +61,22 @@ t_buffer* serilizar_patota(uint32_t id, char* tareas, uint32_t trips)
 {
 	t_buffer* buffer = malloc(sizeof(t_buffer));
 	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + strlen(tareas) + 1);
+
 	int desplazamiento = 0;
 	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
+
+	memcpy(stream + desplazamiento, &trips, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
 	void* tareas_len = malloc(sizeof(uint32_t));
 	tareas_len = strlen(tareas) + 1;
 	memcpy(stream + desplazamiento, (void*)(&tareas_len), sizeof(uint32_t));
 	desplazamiento += sizeof(strlen(tareas) + 1);
+
 	memcpy(stream + desplazamiento, tareas, strlen(tareas) + 1);
 	desplazamiento += strlen(tareas) + 1;
-	memcpy(stream + desplazamiento, &trips, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
+
 	buffer->size = desplazamiento;
 	buffer->stream = stream;
 	return buffer;

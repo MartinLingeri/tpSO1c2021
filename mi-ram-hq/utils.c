@@ -105,13 +105,14 @@ t_tcb* recibir_tcb(int socket_cliente){
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
+	puts("a");
 	t_tcb* tripulante = malloc(sizeof(t_tcb));
 
 	buffer = recibir_buffer(&size, socket_cliente);
 
 	memcpy(&(tripulante->tid), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
-
+	puts("b");
 	memcpy(&(tripulante->estado), buffer+desplazamiento, sizeof(char));
 	desplazamiento+=sizeof(char);
 
@@ -125,7 +126,7 @@ t_tcb* recibir_tcb(int socket_cliente){
 	desplazamiento+=sizeof(uint32_t);
 
 	memcpy(&(tripulante->pcb), buffer+desplazamiento, sizeof(uint32_t));
-
+	puts("c");
 	free(buffer);
 	return tripulante;
 }
@@ -142,6 +143,12 @@ t_pcb* recibir_pcb(int socket_cliente){
 	memcpy(&(patota->pid), (buffer+desplazamiento), sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
 	printf("patota id: %d\n", (patota->pid));
+
+	uint32_t* x = malloc(sizeof(uint32_t));
+
+	memcpy(&x, buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
 	puts("1");
 	void* tareas_len = malloc(sizeof(uint32_t));
 	puts("2");
@@ -152,10 +159,11 @@ t_pcb* recibir_pcb(int socket_cliente){
 
 	patota->tareas = malloc(tareas_len);
 	memcpy(patota->tareas, buffer+desplazamiento, tareas_len);
+	desplazamiento += tareas_len;
 
 	printf("tareas: %s\n", patota->tareas);
 
-	//printf("patota tareas: %s\n", patota->tareas);
+	printf("cant trips: %d\n", &x);
 	//free(buffer);
 	return patota;
 }
