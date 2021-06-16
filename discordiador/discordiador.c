@@ -157,12 +157,13 @@ void iniciar_patota(char** instruccion, char* leido) {
 	id_ultima_patota++;
 	uint32_t id_patota = id_ultima_patota;
 
-	while (conexion_hq == -1) {
+	/*while (conexion_hq == -1) {
 		sleep(2);
-	}
+	}*/
 	t_buffer* buffer = serilizar_patota(id_patota, contenido_tareas, cantidad);
 	t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
 	enviar_paquete(paquete_pcb, conexion_hq);
+	sleep(2);
 	free(buffer);
 	free(paquete_pcb);
 
@@ -178,9 +179,9 @@ void iniciar_patota(char** instruccion, char* leido) {
 
 void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
 	pthread_mutex_lock(&bloq);
-	while (conexion_hq == -1) {
+	/*while (conexion_hq == -1) {
 		sleep(2);
-	}
+	}*/
 	t_buffer* buffer = serilizar_tripulante(tripulante->TID, tripulante->PID, tripulante->pos_x, tripulante->pos_y, tripulante->estado);
 	t_paquete* paquete_tcb = crear_mensaje(buffer, TCB_MENSAJE);
 	free(paquete_tcb);
@@ -229,9 +230,9 @@ void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int lo
 void circular(void* args) {
 	t_circular_args* argumentos = args;
 	iniciar_tripulante_en_hq(argumentos->tripulante);
-	while (conexion_hq == -1) {
+	/*while (conexion_hq == -1) {
 		sleep(2);
-	}
+	}*/
 
 	/*
 	t_buffer* buffer = serilizar_pedir_tarea(argumentos->tripulante->TID);

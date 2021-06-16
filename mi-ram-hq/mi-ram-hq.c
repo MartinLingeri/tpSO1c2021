@@ -10,7 +10,7 @@ int main(void)
 	logger = log_create("log.log", "Mi-Ram-HQ", 1, LOG_LEVEL_DEBUG);
 
 	int server_fd = iniciar_servidor();
-	log_info(logger, "Servidor listo para recibir al cliente");
+	log_info(logger, "Servidor listo para recibir al client-e");
 	int cliente_fd = esperar_cliente(server_fd);
 	t_tcb* tripulante = malloc(sizeof(t_tcb));
 	t_pcb* patota = malloc(sizeof(t_pcb));
