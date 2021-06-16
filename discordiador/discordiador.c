@@ -157,16 +157,14 @@ void iniciar_patota(char** instruccion, char* leido) {
 	id_ultima_patota++;
 	uint32_t id_patota = id_ultima_patota;
 
-	/*
 	while (conexion_hq == -1) {
 		sleep(2);
-	}*/
+	}
 	t_buffer* buffer = serilizar_patota(id_patota, contenido_tareas, cantidad);
 	t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
-	//enviar_paquete(paquete_pcb, conexion_hq);
+	enviar_paquete(paquete_pcb, conexion_hq);
 	free(buffer);
 	free(paquete_pcb);
-
 
 	if(true){//SI HAY LUGAR EN MEMORIA
 		pthread_t hilos[longitud];
@@ -176,20 +174,19 @@ void iniciar_patota(char** instruccion, char* leido) {
 	}else{
 		printf("No hay lugar en memoria"); //TRATAR ESTE CASO DE ALGUNA FORMA
 	}
-	puts("Patota iniciada");
 }
 
 void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
-	/*while (conexion_hq == -1) {
-		sleep(2);
-	}*/
 	pthread_mutex_lock(&bloq);
+	while (conexion_hq == -1) {
+		sleep(2);
+	}
 	t_buffer* buffer = serilizar_tripulante(tripulante->TID, tripulante->PID, tripulante->pos_x, tripulante->pos_y, tripulante->estado);
 	t_paquete* paquete_tcb = crear_mensaje(buffer, TCB_MENSAJE);
 	free(paquete_tcb);
 	free(buffer);
-	pthread_mutex_unlock(&bloq);
 	//enviar_paquete(paquete_tcb, conexion_hq);
+	pthread_mutex_unlock(&bloq);
 }
 
 void enviar_cambio_estado_hq(t_tripulante* tripulante) {
@@ -423,19 +420,37 @@ void listar_tripulantes(){
 
 void expulsar_tripulante(char* i) {
 	printf("id: %s", i);
-   int id = atoi(i);
-   bool es_el_tripulante(void* tripulante_en_lista) {
+	int id = atoi(i);
+	bool es_el_tripulante(void* tripulante_en_lista) {
 		return ((t_tripulante*)tripulante_en_lista)->TID == id;
 	}
-    if(list_any_satisfy(llegada, es_el_tripulante)){
+
+	if(list_any_satisfy(llegada, es_el_tripulante)){
     	t_tripulante* tripulante = list_find(llegada,es_el_tripulante);
         cambiar_estado(e_llegada, e_fin, tripulante);
-        return;
-    }else if(list_any_satisfy(llegada, es_el_tripulante)){
+        break;
+
+    }else if(list_any_satisfy(listo, es_el_tripulante)){
     	t_tripulante* tripulante = list_find(listo,es_el_tripulante);
         cambiar_estado(e_listo, e_fin, tripulante);
-        return;
+        break;
+
+    }else if(list_any_satisfy(bloqueado_IO, es_el_tripulante)){
+    	t_tripulante* tripulante = list_find(bloqueado_IO,es_el_tripulante);
+        cambiar_estado(e_bloqueado_IO, e_fin, tripulante);
+        break;
+
+    }else if(list_any_satisfy(bloqueado_emergencia, es_el_tripulante)){
+    	t_tripulante* tripulante = list_find(bloqueado_emergencia,es_el_tripulante);
+        cambiar_estado(e_bloqueado_emergencia, e_fin, tripulante);
+        break;
+
+    }else if(list_any_satisfy(trabajando, es_el_tripulante)){
+    	t_tripulante* tripulante = list_find(trabajando,es_el_tripulante);
+        cambiar_estado(e_trabajando, e_fin, tripulante);
+        break;
     }
+
    //enviar_remover_a_hq(id);
    return;
 }
