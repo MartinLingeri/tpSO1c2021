@@ -149,6 +149,8 @@ t_pcb* recibir_pcb(int socket_cliente){
 	memcpy(&x, buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
 
+	printf("cant trips: %d\n", &x);
+
 	puts("1");
 	void* tareas_len = malloc(sizeof(uint32_t));
 	puts("2");
@@ -163,7 +165,6 @@ t_pcb* recibir_pcb(int socket_cliente){
 
 	printf("tareas: %s\n", patota->tareas);
 
-	printf("cant trips: %d\n", &x);
-	//free(buffer);
+	free(buffer);
 	return patota;
 }

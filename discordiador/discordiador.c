@@ -16,6 +16,7 @@ t_list* bloqueado_IO;
 t_list* bloqueado_emergencia;
 
 bool planificacion_activada = false;
+pthread_mutex_t bloq;
 
 int quantum = 0;
 char* algoritmo;
@@ -38,19 +39,17 @@ int main(void)
 	pthread_t hilo_conexion_hq;
 	pthread_create(&hilo_conexion_hq, NULL, (void*) conexion_con_hq, NULL);
 	pthread_detach((pthread_t) hilo_conexion_hq);
-	/*pthread_t hilo_conexion_store;
+	/*
+	pthread_t hilo_conexion_store;
 	pthread_create(&hilo_conexion_store, NULL, (void*) conexion_con_store, NULL);
-	pthread_detach((pthread_t) hilo_conexion_store);*/
+	pthread_detach((pthread_t) hilo_conexion_store);
+	*/
 
 	pthread_t hilo_planificador;
 	pthread_create(&hilo_planificador, NULL, (void*) planificador, NULL);
 	pthread_detach((pthread_t) hilo_planificador);
-
 	leer_consola(logger);
-	puts("7");
 	terminar_programa(conexion_hq, conexion_store, logger, config);
-	puts("8");
-//INICIAR_PATOTA 3 /home/utnso/tareas.txt
 	sleep(5);
 	return EXIT_SUCCESS;
 }
@@ -91,6 +90,7 @@ void leer_consola(t_log* logger)
 			listar_tripulantes();
 
 		} else if (strcmp(instruccion[0], "EXPULSAR_TRIPULANTE") == 0) {
+			expulsar_tripulante(instruccion[1]);
 
 		} else if (strcmp(instruccion[0], "INICIAR_PLANIFICACION") == 0) {
 			if(planificacion_activada == false) {
@@ -107,10 +107,8 @@ void leer_consola(t_log* logger)
 		}
 		leido = readline(">");
 	}
-	puts("antes free leido");
 	free(leido);
-	puts("free leido");
-;}
+}
 
 void planificador(void* args) {
 	quantum = config_get_int_value(config, "QUANTUM");
@@ -142,53 +140,56 @@ int longitud_instr(char** instruccion) {
 }
 
 void iniciar_patota(char** instruccion, char* leido) {
+	//INICIAR_PATOTA 3 /home/utnso/tareas.txt
 	uint32_t cantidad = atoi(instruccion[1]);
 	char* tareas = instruccion[2];
-	puts("1");
+
 	FILE* archivo_tareas =  fopen(tareas, "r");
 	char* contenido_tareas = string_new();
 	if (archivo_tareas != NULL) {
-		puts("2");
 		char buffer[200];
-
 		while (fgets(buffer, sizeof buffer, archivo_tareas) != NULL) {
 			string_append(&contenido_tareas, buffer);
 		}
-
 		fclose(archivo_tareas);
 	}
 	int longitud = longitud_instr(instruccion);
 	id_ultima_patota++;
 	uint32_t id_patota = id_ultima_patota;
+
+	/*
 	while (conexion_hq == -1) {
 		sleep(2);
-	}
-	puts("3");
+	}*/
 	t_buffer* buffer = serilizar_patota(id_patota, contenido_tareas, cantidad);
 	t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
-	enviar_paquete(paquete_pcb, conexion_hq);
-	puts("4");
-	if(true){/*hay lugar en memoria*/
+	//enviar_paquete(paquete_pcb, conexion_hq);
+	free(buffer);
+	free(paquete_pcb);
+
+
+	if(true){//SI HAY LUGAR EN MEMORIA
 		pthread_t hilos[longitud];
-		puts("5");
 		for(int i = 0 ; i<cantidad ; i++) {
-			puts("6");
 			inicializar_tripulante(instruccion, i, longitud, id_patota, hilos[i]);
-			sleep(2);
 		}
 	}else{
-		printf("No hay lugar en memoria"); //como tratar esto?
+		printf("No hay lugar en memoria"); //TRATAR ESTE CASO DE ALGUNA FORMA
 	}
-	puts("fin init patota");
+	puts("Patota iniciada");
 }
 
 void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
-	while (conexion_hq == -1) {
+	/*while (conexion_hq == -1) {
 		sleep(2);
-	}
+	}*/
+	pthread_mutex_lock(&bloq);
 	t_buffer* buffer = serilizar_tripulante(tripulante->TID, tripulante->PID, tripulante->pos_x, tripulante->pos_y, tripulante->estado);
 	t_paquete* paquete_tcb = crear_mensaje(buffer, TCB_MENSAJE);
-	enviar_paquete(paquete_tcb, conexion_hq);
+	free(paquete_tcb);
+	free(buffer);
+	pthread_mutex_unlock(&bloq);
+	//enviar_paquete(paquete_tcb, conexion_hq);
 }
 
 void enviar_cambio_estado_hq(t_tripulante* tripulante) {
@@ -223,29 +224,34 @@ void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int lo
 
 	t_circular_args* args = malloc(sizeof(t_circular_args));
 	args->tripulante = tripulante;
+
 	pthread_create(&hilo, NULL, (void*) circular, args);
 	pthread_detach((pthread_t) hilo);
 }
 
 void circular(void* args) {
 	t_circular_args* argumentos = args;
-
 	iniciar_tripulante_en_hq(argumentos->tripulante);
-
-	/*
 	while (conexion_hq == -1) {
 		sleep(2);
 	}
+
+	/*
 	t_buffer* buffer = serilizar_pedir_tarea(argumentos->tripulante->TID);
 	t_paquete* paquete_pedir_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
 	enviar_paquete(paquete_pedir_tarea, conexion_hq);
-	//pide 1er tarea
+	*/
+
+	//PEDIR Y RECIBIR PRIMER TAREA
+
+	/*
 	op_code codigo = recibir_operacion(conexion_hq);
 	char* tarea = NULL;
 	if(codigo == PEDIR_SIGUIENTE_TAREA) {
 		tarea = recibir_tarea(conexion_hq);
-	}*/
-	//se le retorna la 1er tarea
+	}
+	*/
+
 	char* tarea = "GENERAR_OXIGENO 12;2;3;5";
 	cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
 
@@ -256,9 +262,11 @@ void circular(void* args) {
 	while(1) {
 		sem_wait(&argumentos->tripulante->semaforo);
 		leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
-		//ir a buscar tarea, si se responde con una tarea vacia, tiene q cambiar de estado a fin
+		//BUSCAR SIG TAREA
+		//SI VACIO SE PASA A TERMINADO
 		cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
 	}
+	free(argumentos);
 }
 
 void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripulante) {
@@ -412,3 +420,23 @@ void listar_tripulantes(){
     list_iterate(fin,listar);
     printf("---------------------------------------------------------------------------- \n");
 }
+
+void expulsar_tripulante(char* i) {
+	printf("id: %s", i);
+   int id = atoi(i);
+   bool es_el_tripulante(void* tripulante_en_lista) {
+		return ((t_tripulante*)tripulante_en_lista)->TID == id;
+	}
+    if(list_any_satisfy(llegada, es_el_tripulante)){
+    	t_tripulante* tripulante = list_find(llegada,es_el_tripulante);
+        cambiar_estado(e_llegada, e_fin, tripulante);
+        return;
+    }else if(list_any_satisfy(llegada, es_el_tripulante)){
+    	t_tripulante* tripulante = list_find(listo,es_el_tripulante);
+        cambiar_estado(e_listo, e_fin, tripulante);
+        return;
+    }
+   //enviar_remover_a_hq(id);
+   return;
+}
+
