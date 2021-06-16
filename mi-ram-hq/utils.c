@@ -164,4 +164,5 @@ t_pcb* recibir_pcb(int socket_cliente){
 
 	free(buffer);
 	return patota;
+	/*CHEQUEAR QUE SE VAN A PODER GUARDAR TODOS LOS TRIPULANTES Y MANDAR SI ESTA OK O SI NO SE VAN A PODER GUARDAR EN MEMORIA*/
 }
