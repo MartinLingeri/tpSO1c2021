@@ -10,6 +10,7 @@
 #include<pthread.h>
 #include<time.h>
 #include<locale.h>
+#include <math.h>
 
 #include "utils.h"
 
@@ -36,5 +37,15 @@ void conexion_con_store();
 void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_y_nuevo, int id, int conexion_hq);
 void reportar_bitacora(char* log, int id);
 void expulsar_tripulante(char* id);
+
+void atender_sabotaje(t_sabotaje* datos);
+void mover_trips(int nuevo_estado);
+void desbloquear_trips_inverso(t_list* lista);
+void pasar_menor_id(t_list* lista, int estado_nuevo);
+void pasar_ultimo(t_list* lista, int nuevo);
+t_tripulante* tripulante_mas_cercano(int x, int y);
+static void* menor_ID(t_tripulante* t1, t_tripulante* t2);
+double distancia(t_tripulante* trip, int x, int y);
+void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos);
 
 #endif /* DISCORDIADOR_H_ */
