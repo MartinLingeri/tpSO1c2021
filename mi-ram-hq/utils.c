@@ -105,28 +105,26 @@ t_tcb* recibir_tcb(int socket_cliente){
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
-	puts("a");
 	t_tcb* tripulante = malloc(sizeof(t_tcb));
 
 	buffer = recibir_buffer(&size, socket_cliente);
-
 	memcpy(&(tripulante->tid), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
-	puts("b");
+	printf("tid: %d\n",tripulante->tid);
 	memcpy(&(tripulante->estado), buffer+desplazamiento, sizeof(char));
 	desplazamiento+=sizeof(char);
-
+	printf("estado: %c\n",tripulante->estado);
 	memcpy(&(tripulante->pos_x), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
-
+	printf("posx: %d\n",tripulante->pos_x);
 	memcpy(&(tripulante->pos_y), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
-
-	memcpy(&(tripulante->proxima_instruccion), buffer+desplazamiento, sizeof(uint32_t));//DISCORDIADOR: creemos que esto no se lo mandamos nosotros
-	desplazamiento+=sizeof(uint32_t);
-
+	printf("posy: %d\n",tripulante->pos_y);
+	/*memcpy(&(tripulante->proxima_instruccion), buffer+desplazamiento, sizeof(uint32_t));//DISCORDIADOR: creemos que esto no se lo mandamos nosotros
+	desplazamiento+=sizeof(uint32_t);*/
 	memcpy(&(tripulante->pcb), buffer+desplazamiento, sizeof(uint32_t));
-	puts("c");
+	printf("pib: %d\n",tripulante->pcb);
+	printf("termino tripulante");
 	free(buffer);
 	return tripulante;
 }
@@ -165,4 +163,20 @@ t_pcb* recibir_pcb(int socket_cliente){
 	free(buffer);
 	return patota;
 	/*CHEQUEAR QUE SE VAN A PODER GUARDAR TODOS LOS TRIPULANTES Y MANDAR SI ESTA OK O SI NO SE VAN A PODER GUARDAR EN MEMORIA*/
+}
+
+void recibir_pedir_tarea(int socket_cliente) {
+	printf("empieza recibir pedir tarea\n");
+	int size;
+	void* buffer;
+
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	void* cantidad_tripulantes = malloc(sizeof(uint32_t));
+
+	memcpy(&(cantidad_tripulantes), (buffer), sizeof(uint32_t));
+	printf("tip id: %d\n", (cantidad_tripulantes));
+
+	free(buffer);
+	/*DEVOLVER PROXIMA TAREA, SI ERA LA ULTIMA Y NO HAY MAS, CHAR* VACIO*/
 }

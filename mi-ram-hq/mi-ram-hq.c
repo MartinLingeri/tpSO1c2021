@@ -1,7 +1,6 @@
 #include "mi-ram-hq.h"
 
-int main(void)
-{
+int main(void) {
 	void iterator(char* value)
 	{
 		printf("%s\n", value);
@@ -26,6 +25,9 @@ int main(void)
 		case PCB_MENSAJE:
 			patota = recibir_pcb(cliente_fd);
 			//mostrar_tcb(patota);
+			break;
+		case PEDIR_SIGUIENTE_TAREA:
+			recibir_pedir_tarea(cliente_fd);
 			break;
 		case -1:
 			log_error(logger, "El cliente se desconecto. Terminando servidor");

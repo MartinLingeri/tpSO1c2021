@@ -235,11 +235,11 @@ void circular(void* args) {
 		sleep(2);
 	}*/
 
-	/*
+
 	t_buffer* buffer = serilizar_pedir_tarea(argumentos->tripulante->TID);
 	t_paquete* paquete_pedir_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
 	enviar_paquete(paquete_pedir_tarea, conexion_hq);
-	*/
+
 
 	//PEDIR Y RECIBIR PRIMER TAREA
 
