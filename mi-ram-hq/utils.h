@@ -56,5 +56,6 @@ int recibir_operacion(int);
 t_pcb* recibir_pcb(int socket_cliente);
 t_tcb* recibir_tcb(int socket_cliente);
 void recibir_pedir_tarea(int socket_cliente);
+void recibir_cambio_estado(int socket_cliente);
 
 #endif /* CONEXIONES_H_ */

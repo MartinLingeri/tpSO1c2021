@@ -29,6 +29,9 @@ int main(void) {
 		case PEDIR_SIGUIENTE_TAREA:
 			recibir_pedir_tarea(cliente_fd);
 			break;
+		case CAMBIO_ESTADO_MENSAJE:
+			recibir_cambio_estado(cliente_fd);
+			break;
 		case -1:
 			log_error(logger, "El cliente se desconecto. Terminando servidor");
 			return EXIT_FAILURE;

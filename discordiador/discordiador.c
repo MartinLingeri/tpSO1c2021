@@ -192,12 +192,11 @@ void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
 }
 
 void enviar_cambio_estado_hq(t_tripulante* tripulante) {
-	while (conexion_hq == -1) {
-		sleep(2);
-	}
+	pthread_mutex_lock(&bloq);
 	t_buffer* buffer = serilizar_cambio_estado(tripulante->TID, tripulante->estado);
 	t_paquete* paquete_cambio_estado = crear_mensaje(buffer, CAMBIO_ESTADO_MENSAJE);
 	enviar_paquete(paquete_cambio_estado, conexion_hq);
+	pthread_mutex_unlock(&bloq);
 }
 
 void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int longitud, int id_patota, pthread_t hilo) {
@@ -316,7 +315,7 @@ void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripula
         list_add(bloqueado_emergencia, tripulante);
         break;
     }
-   //enviar_cambio_estado_hq(tripulante);
+   enviar_cambio_estado_hq(tripulante);
 }
 
 void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
