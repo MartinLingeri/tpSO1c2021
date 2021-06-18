@@ -39,11 +39,10 @@ int main(void)
 	pthread_t hilo_conexion_hq;
 	pthread_create(&hilo_conexion_hq, NULL, (void*) conexion_con_hq, NULL);
 	pthread_detach((pthread_t) hilo_conexion_hq);
-	/*
+
 	pthread_t hilo_conexion_store;
 	pthread_create(&hilo_conexion_store, NULL, (void*) conexion_con_store, NULL);
 	pthread_detach((pthread_t) hilo_conexion_store);
-	*/
 
 	pthread_t hilo_planificador;
 	pthread_create(&hilo_planificador, NULL, (void*) planificador, NULL);
@@ -148,7 +147,7 @@ int longitud_instr(char** instruccion) {
 void iniciar_patota(char** instruccion, char* leido) {
 	//INICIAR_PATOTA 3 /home/utnso/tareas.txt
 	uint32_t cantidad = atoi(instruccion[1]);
-	printf("cant trips: %d\n", cantidad);
+	printf("Cant. trips: %d\n", cantidad);
 	char* tareas = instruccion[2];
 
 	FILE* archivo_tareas =  fopen(tareas, "r");
@@ -204,6 +203,8 @@ void enviar_cambio_estado_hq(t_tripulante* tripulante) {
 	t_buffer* buffer = serilizar_cambio_estado(tripulante->TID, tripulante->estado);
 	t_paquete* paquete_cambio_estado = crear_mensaje(buffer, CAMBIO_ESTADO_MENSAJE);
 	enviar_paquete(paquete_cambio_estado, conexion_hq);
+	free(buffer);
+	free(paquete_cambio_estado);
 }
 
 void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int longitud, int id_patota, pthread_t hilo) {
@@ -241,11 +242,9 @@ void circular(void* args) {
 		sleep(2);
 	}*/
 
-	/*
 	t_buffer* buffer = serilizar_pedir_tarea(argumentos->tripulante->TID);
 	t_paquete* paquete_pedir_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
 	enviar_paquete(paquete_pedir_tarea, conexion_hq);
-	*/
 
 	//PEDIR Y RECIBIR PRIMER TAREA
 
@@ -322,7 +321,7 @@ void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripula
         list_add(bloqueado_emergencia, tripulante);
         break;
     }
-   //enviar_cambio_estado_hq(tripulante);
+   enviar_cambio_estado_hq(tripulante);
 }
 
 void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
@@ -334,32 +333,35 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	int duracion = atoi(parametros_tarea[3]);
 
 	reportar_bitacora(logs_bitacora(INICIO_TAREA, nombre_tarea[0], " "), &tripulante->TID);
+	if(pos_x != tripulante->pos_x || pos_y != tripulante->pos_y){
+		logear_despl(tripulante->pos_x, tripulante->pos_y, parametros_tarea[1], parametros_tarea[2], tripulante->TID, conexion_hq);
+	}
 
 	if(strcmp(algoritmo,"RR")) {
-		if(pos_x != tripulante->pos_x) {
+		while(pos_x != tripulante->pos_x && quantum_ejec < atoi(quantum)) {
 			quantum_ejec++;
-			sleep(1);
+			mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
 		}
 		if(quantum_ejec == atoi(quantum)) {
 			cambiar_estado(tripulante->estado, e_listo, tripulante);
 			sem_wait(&tripulante->semaforo);
 		}
-		if(pos_y != tripulante->pos_y) {
+		while(pos_y != tripulante->pos_y && quantum_ejec < atoi(quantum)) {
 			quantum_ejec++;
-			sleep(1);
+			mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
 		}
 		if(quantum_ejec == quantum) {
 			cambiar_estado(tripulante->estado, e_listo, tripulante);
 			sem_wait(&tripulante->semaforo);
 		}
+	}else{
+		while(pos_x != tripulante->pos_x){
+			mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
+		}
+		while(pos_y != tripulante->pos_y){
+			mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
+		}
 	}
-
-	if(pos_x != tripulante->pos_x || pos_y != tripulante->pos_y){
-		logear_despl(tripulante->pos_x, tripulante->pos_y, parametros_tarea[1], parametros_tarea[2], tripulante->TID, conexion_hq);
-	}
-
-	mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
-	mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
 
 	for(int i = 0; i < duracion; i++) {
 		sleep(retardo_ciclo_cpu);
@@ -373,22 +375,24 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	}
 
 	if(strcmp(nombre_tarea[0], "GENERAR_OXIGENO") == 0) {
-		//generar_oxigeno(nombre_tarea[1], tripulante->TID); //TODAS ESTAS FUNCIONES SON BASICAMENTE LA MISMA, cuando lo pensas el switch este no es necesario
+		generar_oxigeno(nombre_tarea[1], tripulante->TID); //TODAS ESTAS FUNCIONES SON BASICAMENTE LA MISMA, cuando lo pensas el switch este no es necesario
 		puts("genera oxigeno");
 	} else if (strcmp(nombre_tarea[0], "CONSUMIR_OXIGENO") == 0) {
-		//consumir_oxigeno(nombre_tarea[1], tripulante->TID);
+		consumir_oxigeno(nombre_tarea[1], tripulante->TID);
 	} else if (strcmp(nombre_tarea[0], "GENERAR_COMIDA") == 0) {
-		//generar_comida(nombre_tarea[1], tripulante->TID);
+		generar_comida(nombre_tarea[1], tripulante->TID);
 	} else if (strcmp(nombre_tarea[0], "CONSUMIR_COMIDA") == 0) {
-		//consumir_comida(nombre_tarea[1], tripulante->TID);
+		consumir_comida(nombre_tarea[1], tripulante->TID);
 	} else if (strcmp(nombre_tarea[0], "GENERAR_BASURA") == 0) {
-		//generar_basura(nombre_tarea[1], tripulante->TID);
+		generar_basura(nombre_tarea[1], tripulante->TID);
 	} else if (strcmp(nombre_tarea[0], "DESCARTAR_BASURA") == 0) {
-		//destruir_basura(nombre_tarea[1], tripulante->TID);
+		destruir_basura(nombre_tarea[1], tripulante->TID);
 	} else {
-		//t_buffer* buffer = serilizar_hacer_tarea(duracion, nombre_tarea[0], tripulante->TID);
-		//t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-		//enviar_paquete(paquete_hacer_tarea, conexion_hq);
+		t_buffer* buffer = serilizar_hacer_tarea(duracion, nombre_tarea[0], tripulante->TID);
+		t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
+		enviar_paquete(paquete_hacer_tarea, conexion_hq);
+		free(buffer);
+		free(paquete_hacer_tarea);
 	}
 	reportar_bitacora(logs_bitacora(FIN_TAREA, nombre_tarea[0], " "), tripulante->TID);
 }
@@ -396,8 +400,9 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 void listar_tripulantes(){
     void listar(void* t) {
     	char* estados_texto[] = {"Llegada", "Listo", "Fin", "Trabajando", "Bloqueado en I/O", "Bloqueado en emergencia"};
-        printf("Tripulante: %3d    Patota: %3d    Estado: %3s \n",
-        		((t_tripulante*)t)->TID, ((t_tripulante*)t)->PID, estados_texto[((t_tripulante*)t)->estado]);
+        printf("Tripulante: %3d    Patota: %3d    Estado: %3s    Posición: (%d,%d) \n",
+        		((t_tripulante*)t)->TID, ((t_tripulante*)t)->PID, estados_texto[((t_tripulante*)t)->estado],
+				((t_tripulante*)t)->pos_x, ((t_tripulante*)t)->pos_y);
 
 	}
 
@@ -460,13 +465,14 @@ void expulsar_tripulante(char* i) {
 void atender_sabotaje(t_sabotaje* datos){
     //HILO O ALGO QUE ESPERE SABOTAJE SIN ESPERA ACTIVA Y LLAME A ESTO
 	//CONTROLAR PLANIF. ACTIVADA
-	puts("a");
+	puts("Atendiendo sabotaje...");
    mover_trips(e_bloqueado_emergencia);
    t_tripulante* asignado = tripulante_mas_cercano(datos->x, datos->y);
    resolver_sabotaje(asignado, datos);
    cambiar_estado(asignado->estado, e_listo, asignado);
    //VER TEMA EXACTO DEL ORDEN
    desbloquear_trips_inverso(bloqueado_emergencia);
+   puts("Sabotaje atendido...");
    return;
 }
 
@@ -524,8 +530,21 @@ void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos){
     cambiar_estado(asignado->estado, e_bloqueado_emergencia, asignado);
     reportar_bitacora(logs_bitacora(SABOTAJE, " ", " "), asignado->TID);
     int tiempo = atoi(config_get_string_value(config, "DURACION_SABOTAJE"));
-    mover_a(asignado, true, datos->x, 1);
-	mover_a(asignado, false, datos->y, 1);
+
+	if(datos->x != asignado->pos_x || datos->y != asignado->pos_y){
+		char *x = malloc(sizeof(asignado->pos_x));
+		char *y = malloc(sizeof(asignado->pos_y));
+		string_itoa(asignado->pos_x, x, 10);
+		string_itoa(asignado->pos_y, y, 10);
+		logear_despl(asignado->pos_x, asignado->pos_y, x, y, asignado->TID, conexion_store);
+		while(datos->x != asignado->pos_x){
+			mover_a(asignado, true, datos->x, config_get_int_value(config, "RETARDO_CICLO_CPU"));
+		}
+		while(datos->y != asignado->pos_y){
+			mover_a(asignado, false, datos->y, config_get_int_value(config, "RETARDO_CICLO_CPU")); //RETARDO CPU
+		}
+	}
+
     //invocar_FSCK_de_hq(); //ESTO ES UNA SERIALIZACION Y ESPERAR RTA ANTES DE SEGUIR
     sleep(tiempo); //SUPONGO Q ACÁ NO HAY FIFO NI RR
     reportar_bitacora(logs_bitacora(SABOTAJE_RESUELTO, " ", " "), asignado->TID);

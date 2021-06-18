@@ -197,26 +197,22 @@ char* recibir_tarea(int socket_cliente) {
 
 void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_ciclo_cpu) {
       if(es_x) {
-		while(tripulante->pos_x != valor_nuevo) {
 			if(tripulante->pos_x < valor_nuevo) {
 				tripulante->pos_x++;
 			} else {
 				tripulante->pos_x--;
 			}
 			sleep(retardo_ciclo_cpu);
-		}
-		printf("x: %d\n", tripulante->pos_x);
+		printf("X: %d\n", tripulante->pos_x);
 
       } else {
-  		while(tripulante->pos_y != valor_nuevo) {
   			if(tripulante->pos_y < valor_nuevo) {
   				tripulante->pos_y++;
   			} else {
   				tripulante->pos_y--;
   			}
   			sleep(retardo_ciclo_cpu);
-  		}
-  		printf("y: %d\n", tripulante->pos_y);
+  		printf("Y: %d\n", tripulante->pos_y);
       }
 }
 
@@ -353,46 +349,60 @@ char estado_a_char(int estado){
 
 }
 
-void generar_oxigeno(int duracion, int id, int conexion_hq){  //ESTA BIEN IMPLEMENTADO ESTO CO N1 PAR. MAS? PAG 18 DE LA CONSIGNA
+void generar_oxigeno(int duracion, int id, int conexion_store){  //ESTA BIEN IMPLEMENTADO ESTO CO N1 PAR. MAS? PAG 18 DE LA CONSIGNA
 	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_OXIGENO, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+	enviar_paquete(paquete_hacer_tarea, conexion_store);
+	free(buffer);
+	free(paquete_hacer_tarea);
 }
 
-void descartar_oxigeno(int duracion, int id, int conexion_hq){
+void descartar_oxigeno(int duracion, int id, int conexion_store){
 	t_buffer* buffer = serilizar_hacer_tarea(duracion, CONSUMIR_OXIGENO, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+	enviar_paquete(paquete_hacer_tarea, conexion_store);
+	free(buffer);
+	free(paquete_hacer_tarea);
 }
 
-void generar_comida(int duracion, int id, int conexion_hq){
+void generar_comida(int duracion, int id, int conexion_store){
 	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_COMIDA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+	enviar_paquete(paquete_hacer_tarea, conexion_store);
+	free(buffer);
+	free(paquete_hacer_tarea);
 }
 
-void consumir_comida(int duracion, int id, int conexion_hq){
+void consumir_comida(int duracion, int id, int conexion_store){
 	t_buffer* buffer = serilizar_hacer_tarea(duracion, CONSUMIR_COMIDA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+	enviar_paquete(paquete_hacer_tarea, conexion_store);
+	free(buffer);
+	free(paquete_hacer_tarea);
 }
 
-void generar_basura(int duracion, int id, int conexion_hq){
+void generar_basura(int duracion, int id, int conexion_store){
 	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_BASURA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+	enviar_paquete(paquete_hacer_tarea, conexion_store);
+	free(buffer);
+	free(paquete_hacer_tarea);
 }
 
 void descartar_basura(int duracion, int id, int conexion_hq){
 	t_buffer* buffer = serilizar_hacer_tarea(duracion, DESCARTAR_BASURA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+	enviar_paquete(paquete_hacer_tarea, conexion_store);
+	free(buffer);
+	free(paquete_hacer_tarea);
 }
 
-void reportar_bitacora(char* log, int id, int conexion_hq){
+void reportar_bitacora(char* log, int id, int conexion_store){
     t_buffer* buffer = serializar_reporte_bitacora(id, log);
 	t_paquete* paquete_bitacora = crear_mensaje(buffer, REPORTE_BITACORA);
-	enviar_paquete(paquete_bitacora, conexion_hq);
+	enviar_paquete(paquete_bitacora, conexion_store);
+	free(buffer);
+	free(paquete_bitacora);
 }
 
 void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_y_nuevo, int id, int conexion_hq){
