@@ -73,6 +73,11 @@ typedef struct
 	t_buffer* buffer;
 } t_paquete;
 
+typedef struct{
+    uint32_t x;
+    uint32_t y;
+}t_sabotaje;
+
 void* serializar_paquete(t_paquete* paquete, int bytes);
 void enviar_paquete(t_paquete* paquete, int socket_cliente);
 int crear_conexion(char* ip, char* puerto);

@@ -102,6 +102,12 @@ void leer_consola(t_log* logger)
 			}
 		} else if (strcmp(instruccion[0], "OBTENER_BITACORA") == 0) {
 
+		} else if (strcmp(instruccion[0], "SIMULAR_SABOTAJE") == 0) {
+			//ESTO SIRVE PARA TESTEAR MIENTRAS NO ESTÉ EL IMONGO
+			t_sabotaje* data = malloc(sizeof(t_sabotaje));
+			data->x = 1;
+			data->y = 2;
+			atender_sabotaje(data);
 		} else {
 			log_info(logger, "no se reconocio la instruccion");
 		}
@@ -448,5 +454,80 @@ void expulsar_tripulante(char* i) {
     }
    //enviar_remover_a_hq(id);
    return;
+}
+
+void atender_sabotaje(t_sabotaje* datos){
+    //HILO O ALGO QUE ESPERE SABOTAJE SIN ESPERA ACTIVA Y LLAME A ESTO
+	//CONTROLAR PLANIF. ACTIVADA
+	puts("a");
+   mover_trips(e_bloqueado_emergencia);
+   t_tripulante* asignado = tripulante_mas_cercano(datos->x, datos->y);
+   resolver_sabotaje(asignado, datos);
+   cambiar_estado(asignado->estado, e_listo, asignado);
+   //VER TEMA EXACTO DEL ORDEN
+   desbloquear_trips_inverso(bloqueado_emergencia);
+   return;
+}
+
+void mover_trips(int nuevo_estado){
+    //MUTEX PARA CADA LISTA
+    pasar_menor_id(trabajando,nuevo_estado);
+    pasar_menor_id(listo,nuevo_estado);
+    while(list_size(bloqueado_IO) != 0){
+        pasar_menor_id(bloqueado_IO, nuevo_estado);
+        pasar_menor_id(listo, nuevo_estado);
+    }
+}
+
+void desbloquear_trips_inverso(t_list* lista){
+    while(list_size(lista) != 0){
+        pasar_ultimo(lista, e_listo);
+    }
+    return;
+}
+
+void pasar_menor_id(t_list* lista, int estado_nuevo){
+    while(list_size(lista) != 0){
+        t_tripulante* cambio = list_get_minimum(lista, (void*)menor_ID);
+        cambiar_estado(cambio->estado, estado_nuevo, cambio);
+    }
+    return;
+}
+
+void pasar_ultimo(t_list* lista, int nuevo){
+    int x = list_size(lista);
+    t_tripulante* ultimo = list_get(lista,x-1);
+    cambiar_estado(ultimo->estado, nuevo, ultimo);
+    return;
+}
+
+t_tripulante* tripulante_mas_cercano(int x, int y){
+    void* t_distancia(t_tripulante* t1, t_tripulante* t2){
+        return distancia(t1, x, y) < distancia(t1, x, y) ? t1 : t2;
+    }
+    t_tripulante* asignado = list_get_minimum(bloqueado_emergencia, (void*)t_distancia);
+    return asignado;
+}
+
+static void* menor_ID(t_tripulante* t1, t_tripulante* t2) {
+    return t1->TID < t2->TID ? t1 : t2;
+}
+
+double distancia(t_tripulante* trip, int x, int y){
+    return ((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
+    //NO ANDA EL sqrt()
+    //return sqrt((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
+}
+
+void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos){
+    cambiar_estado(asignado->estado, e_bloqueado_emergencia, asignado);
+    reportar_bitacora(logs_bitacora(SABOTAJE, " ", " "), asignado->TID);
+    int tiempo = atoi(config_get_string_value(config, "DURACION_SABOTAJE"));
+    mover_a(asignado, true, datos->x, 1);
+	mover_a(asignado, false, datos->y, 1);
+    //invocar_FSCK_de_hq(); //ESTO ES UNA SERIALIZACION Y ESPERAR RTA ANTES DE SEGUIR
+    sleep(tiempo); //SUPONGO Q ACÁ NO HAY FIFO NI RR
+    reportar_bitacora(logs_bitacora(SABOTAJE_RESUELTO, " ", " "), asignado->TID);
+    return;
 }
 
