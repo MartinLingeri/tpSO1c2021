@@ -105,28 +105,20 @@ t_tcb* recibir_tcb(int socket_cliente){
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
-	puts("a");
 	t_tcb* tripulante = malloc(sizeof(t_tcb));
 
 	buffer = recibir_buffer(&size, socket_cliente);
-
 	memcpy(&(tripulante->tid), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
-	puts("b");
 	memcpy(&(tripulante->estado), buffer+desplazamiento, sizeof(char));
 	desplazamiento+=sizeof(char);
-
 	memcpy(&(tripulante->pos_x), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
-
 	memcpy(&(tripulante->pos_y), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
-
-	memcpy(&(tripulante->proxima_instruccion), buffer+desplazamiento, sizeof(uint32_t));//DISCORDIADOR: creemos que esto no se lo mandamos nosotros
-	desplazamiento+=sizeof(uint32_t);
-
+	/*memcpy(&(tripulante->proxima_instruccion), buffer+desplazamiento, sizeof(uint32_t));//DISCORDIADOR: creemos que esto no se lo mandamos nosotros
+	desplazamiento+=sizeof(uint32_t);*/
 	memcpy(&(tripulante->pcb), buffer+desplazamiento, sizeof(uint32_t));
-	puts("c");
 	free(buffer);
 	return tripulante;
 }
@@ -138,31 +130,57 @@ t_pcb* recibir_pcb(int socket_cliente){
 	t_pcb* patota = malloc(sizeof(t_pcb));
 
 	buffer = recibir_buffer(&size, socket_cliente);
-	printf("el size del buffer: %d\n", size);
 
 	memcpy(&(patota->pid), (buffer+desplazamiento), sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
-	printf("patota id: %d\n", (patota->pid));
 
 	void* cantidad_tripulantes = malloc(sizeof(uint32_t));
 
 	memcpy(&cantidad_tripulantes, buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
 
-	printf("cant tripsss: %d\n", (uint32_t)cantidad_tripulantes);
-
 	void* tareas_len = malloc(sizeof(uint32_t));
 	memcpy(&tareas_len, (buffer+desplazamiento), sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
-	printf("el tareas len: %d\n", (size_t)tareas_len);
 
 	patota->tareas = malloc(tareas_len);
 	memcpy(patota->tareas, buffer+desplazamiento, tareas_len);
 	desplazamiento += tareas_len;
 
-	printf("tareas: %s\n", patota->tareas);
-
 	free(buffer);
 	return patota;
 	/*CHEQUEAR QUE SE VAN A PODER GUARDAR TODOS LOS TRIPULANTES Y MANDAR SI ESTA OK O SI NO SE VAN A PODER GUARDAR EN MEMORIA*/
+}
+
+void recibir_pedir_tarea(int socket_cliente) {
+	int size;
+	void* buffer;
+
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	void* cantidad_tripulantes = malloc(sizeof(uint32_t));
+
+	memcpy(&(cantidad_tripulantes), (buffer), sizeof(uint32_t));
+
+	free(buffer);
+	/*DEVOLVER PROXIMA TAREA, SI ERA LA ULTIMA Y NO HAY MAS, CHAR* VACIO*/
+}
+
+void recibir_cambio_estado(int socket_cliente) {
+	int size;
+	void* buffer;
+	int desplazamiento = 0;
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	void* tid = malloc(sizeof(uint32_t));
+	memcpy(&(tid), (buffer+desplazamiento), sizeof(uint32_t));
+	printf("tip id: %d\n", (tid));
+	desplazamiento += sizeof(uint32_t);
+
+	void* nuevo_estado = malloc(sizeof(char));
+	memcpy(&(nuevo_estado), (buffer+desplazamiento), sizeof(char));
+	printf("nuevo estado: %c\n", (char)(nuevo_estado));
+
+	free(buffer);
+	/*DEVOLVER PROXIMA TAREA, SI ERA LA ULTIMA Y NO HAY MAS, CHAR* VACIO*/
 }

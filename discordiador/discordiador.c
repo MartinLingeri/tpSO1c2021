@@ -197,14 +197,13 @@ void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
 }
 
 void enviar_cambio_estado_hq(t_tripulante* tripulante) {
-	while (conexion_hq == -1) {
-		sleep(2);
-	}
+	pthread_mutex_lock(&bloq);
 	t_buffer* buffer = serilizar_cambio_estado(tripulante->TID, tripulante->estado);
 	t_paquete* paquete_cambio_estado = crear_mensaje(buffer, CAMBIO_ESTADO_MENSAJE);
 	enviar_paquete(paquete_cambio_estado, conexion_hq);
 	free(buffer);
 	free(paquete_cambio_estado);
+	pthread_mutex_unlock(&bloq);
 }
 
 void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int longitud, int id_patota, pthread_t hilo) {
@@ -245,6 +244,8 @@ void circular(void* args) {
 	t_buffer* buffer = serilizar_pedir_tarea(argumentos->tripulante->TID);
 	t_paquete* paquete_pedir_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
 	enviar_paquete(paquete_pedir_tarea, conexion_hq);
+	free(buffer);
+	free(paquete_pedir_tarea);
 
 	//PEDIR Y RECIBIR PRIMER TAREA
 
