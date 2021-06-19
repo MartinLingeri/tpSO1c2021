@@ -103,7 +103,7 @@ void consumir_oxigeno(int duracion, int id, int conexion_hq);
 void generar_comida(int duracion, int id, int conexion_hq);
 void consumir_comida(int duracion, int id, int conexion_hq);
 void generar_basura(int duracion, int id, int conexion_hq);
-void descartar_basura(int duracion, int id, int conexion_hq);
+void destruir_basura(int duracion, int id, int conexion_hq);
 
 #endif /* UTILS_H_ */
 

@@ -358,7 +358,7 @@ void generar_oxigeno(int duracion, int id, int conexion_store){  //ESTA BIEN IMP
 	free(paquete_hacer_tarea);
 }
 
-void descartar_oxigeno(int duracion, int id, int conexion_store){
+void consumir_oxigeno(int duracion, int id, int conexion_store){
 	t_buffer* buffer = serilizar_hacer_tarea(duracion, CONSUMIR_OXIGENO, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 	enviar_paquete(paquete_hacer_tarea, conexion_store);
@@ -390,7 +390,7 @@ void generar_basura(int duracion, int id, int conexion_store){
 	free(paquete_hacer_tarea);
 }
 
-void descartar_basura(int duracion, int id, int conexion_hq){
+void destruir_basura(int duracion, int id, int conexion_store){
 	t_buffer* buffer = serilizar_hacer_tarea(duracion, DESCARTAR_BASURA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 	enviar_paquete(paquete_hacer_tarea, conexion_store);

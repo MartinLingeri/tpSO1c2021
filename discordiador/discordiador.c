@@ -17,6 +17,10 @@ t_list* bloqueado_emergencia;
 
 bool planificacion_activada = false;
 pthread_mutex_t bloq;
+pthread_mutex_t estados[5];
+pthread_mutex_t store;
+pthread_mutex_t hq;
+pthread_mutex_t planif;
 
 int quantum = 0;
 char* algoritmo;
@@ -123,7 +127,6 @@ void planificador(void* args) {
 			cambiar_estado(tripulante->estado, e_trabajando, tripulante);
 			sem_post(&tripulante->semaforo);
 		}
-
 	}
 }
 
@@ -146,8 +149,8 @@ int longitud_instr(char** instruccion) {
 
 void iniciar_patota(char** instruccion, char* leido) {
 	//INICIAR_PATOTA 3 /home/utnso/tareas.txt
+	//INICIAR_PATOTA 1 home/utnso/tareas.txt
 	uint32_t cantidad = atoi(instruccion[1]);
-	printf("Cant. trips: %d\n", cantidad);
 	char* tareas = instruccion[2];
 
 	FILE* archivo_tareas =  fopen(tareas, "r");
@@ -261,16 +264,14 @@ void circular(void* args) {
 	cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
 
 	//PARTE CON BLOQUEOS PORQUE TIENE QUE ESTAR PLANIFICADO
-	//INICIAR_PATOTA 3 /home/utnso/tareas/tareasPatota5.txt
 	sem_init(&argumentos->tripulante->semaforo, 0, 0);
-
-	while(1) {
+//	while(1) {
 		sem_wait(&argumentos->tripulante->semaforo);
 		leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
 		//BUSCAR SIG TAREA
 		//SI VACIO SE PASA A TERMINADO
 		cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
-	}
+//	}
 	free(argumentos);
 }
 
@@ -279,6 +280,7 @@ void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripula
 		return ((t_tripulante*)tripulante_en_lista)->TID == tripulante->TID;
 	}
 
+   pthread_mutex_lock(estados[estado_anterior]);
    switch(estado_anterior){
     case e_llegada:
         list_remove_by_condition(llegada, es_el_tripulante);
@@ -299,9 +301,11 @@ void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripula
         list_remove_by_condition(bloqueado_emergencia, es_el_tripulante);
         break;
    }
+   pthread_mutex_unlock(estados[estado_anterior]);
 
    tripulante->estado = estado_nuevo;
 
+   pthread_mutex_lock(estados[estado_nuevo]);
    switch(estado_nuevo){
     case e_llegada:
         list_add(llegada, tripulante);
@@ -322,6 +326,7 @@ void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripula
         list_add(bloqueado_emergencia, tripulante);
         break;
     }
+   pthread_mutex_unlock(estados[estado_nuevo]);
    enviar_cambio_estado_hq(tripulante);
 }
 
@@ -333,12 +338,11 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	int pos_y = atoi(parametros_tarea[2]);
 	int duracion = atoi(parametros_tarea[3]);
 
-	reportar_bitacora(logs_bitacora(INICIO_TAREA, nombre_tarea[0], " "), &tripulante->TID);
+	//reportar_bitacora(logs_bitacora(INICIO_TAREA, nombre_tarea[0], " "), &tripulante->TID);
 	if(pos_x != tripulante->pos_x || pos_y != tripulante->pos_y){
-		logear_despl(tripulante->pos_x, tripulante->pos_y, parametros_tarea[1], parametros_tarea[2], tripulante->TID, conexion_hq);
+		//logear_despl(tripulante->pos_x, tripulante->pos_y, parametros_tarea[1], parametros_tarea[2], tripulante->TID, conexion_hq);
 	}
-
-	if(strcmp(algoritmo,"RR")) {
+	if(strcmp(algoritmo,"RR") == 1) {
 		while(pos_x != tripulante->pos_x && quantum_ejec < atoi(quantum)) {
 			quantum_ejec++;
 			mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
@@ -363,7 +367,6 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 			mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
 		}
 	}
-
 	for(int i = 0; i < duracion; i++) {
 		sleep(retardo_ciclo_cpu);
 		if(strcmp(algoritmo,"RR")) {
@@ -374,26 +377,25 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 			}
 		}
 	}
-
 	if(strcmp(nombre_tarea[0], "GENERAR_OXIGENO") == 0) {
-		generar_oxigeno(nombre_tarea[1], tripulante->TID); //TODAS ESTAS FUNCIONES SON BASICAMENTE LA MISMA, cuando lo pensas el switch este no es necesario
-		puts("genera oxigeno");
+		//generar_oxigeno(nombre_tarea[1], tripulante->TID, conexion_store); //TODAS ESTAS FUNCIONES SON BASICAMENTE LA MISMA, cuando lo pensas el switch este no es necesario
+		puts("Genera oxigeno");
 	} else if (strcmp(nombre_tarea[0], "CONSUMIR_OXIGENO") == 0) {
-		consumir_oxigeno(nombre_tarea[1], tripulante->TID);
+		//consumir_oxigeno(nombre_tarea[1], tripulante->TID, conexion_store);
 	} else if (strcmp(nombre_tarea[0], "GENERAR_COMIDA") == 0) {
-		generar_comida(nombre_tarea[1], tripulante->TID);
+		//generar_comida(nombre_tarea[1], tripulante->TID, conexion_store);
 	} else if (strcmp(nombre_tarea[0], "CONSUMIR_COMIDA") == 0) {
-		consumir_comida(nombre_tarea[1], tripulante->TID);
+		//consumir_comida(nombre_tarea[1], tripulante->TID, conexion_store);
 	} else if (strcmp(nombre_tarea[0], "GENERAR_BASURA") == 0) {
-		generar_basura(nombre_tarea[1], tripulante->TID);
+		//generar_basura(nombre_tarea[1], tripulante->TID, conexion_store);
 	} else if (strcmp(nombre_tarea[0], "DESCARTAR_BASURA") == 0) {
-		destruir_basura(nombre_tarea[1], tripulante->TID);
+		//destruir_basura(nombre_tarea[1], tripulante->TID, conexion_store);
 	} else {
-		t_buffer* buffer = serilizar_hacer_tarea(duracion, nombre_tarea[0], tripulante->TID);
+		/*t_buffer* buffer = serilizar_hacer_tarea(duracion, nombre_tarea[0], tripulante->TID);
 		t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 		enviar_paquete(paquete_hacer_tarea, conexion_hq);
 		free(buffer);
-		free(paquete_hacer_tarea);
+		free(paquete_hacer_tarea);*/
 	}
 	reportar_bitacora(logs_bitacora(FIN_TAREA, nombre_tarea[0], " "), tripulante->TID);
 }
@@ -529,15 +531,13 @@ double distancia(t_tripulante* trip, int x, int y){
 
 void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos){
     cambiar_estado(asignado->estado, e_bloqueado_emergencia, asignado);
-    reportar_bitacora(logs_bitacora(SABOTAJE, " ", " "), asignado->TID);
+    //reportar_bitacora(logs_bitacora(SABOTAJE, " ", " "), asignado->TID);
     int tiempo = atoi(config_get_string_value(config, "DURACION_SABOTAJE"));
 
 	if(datos->x != asignado->pos_x || datos->y != asignado->pos_y){
-		char *x = malloc(sizeof(asignado->pos_x));
-		char *y = malloc(sizeof(asignado->pos_y));
-		string_itoa(asignado->pos_x, x, 10);
-		string_itoa(asignado->pos_y, y, 10);
-		logear_despl(asignado->pos_x, asignado->pos_y, x, y, asignado->TID, conexion_store);
+		char *x = string_itoa(asignado->pos_x);
+		char *y = string_itoa(asignado->pos_y);
+		//logear_despl(asignado->pos_x, asignado->pos_y, x, y, asignado->TID, conexion_store);
 		while(datos->x != asignado->pos_x){
 			mover_a(asignado, true, datos->x, config_get_int_value(config, "RETARDO_CICLO_CPU"));
 		}
@@ -548,7 +548,7 @@ void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos){
 
     //invocar_FSCK_de_hq(); //ESTO ES UNA SERIALIZACION Y ESPERAR RTA ANTES DE SEGUIR
     sleep(tiempo); //SUPONGO Q ACÁ NO HAY FIFO NI RR
-    reportar_bitacora(logs_bitacora(SABOTAJE_RESUELTO, " ", " "), asignado->TID);
+    //reportar_bitacora(logs_bitacora(SABOTAJE_RESUELTO, " ", " "), asignado->TID);
     return;
 }
 
