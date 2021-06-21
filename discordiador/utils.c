@@ -191,7 +191,7 @@ char* recibir_tarea(int socket_cliente) {
 	desplazamiento += sizeof(uint32_t);
 
 	char* tarea = malloc(tarea_len);
-	memcpy(tarea, buffer+desplazamiento, tarea_len);
+	memcpy(tarea, buffer+desplazamiento, &tarea_len);
 
 	return tarea;
 }
@@ -258,24 +258,20 @@ t_buffer* serilizar_desplazamiento(uint32_t tid, uint32_t x_nuevo, uint32_t y_nu
 	return buffer;
 }
 
-t_buffer* serilizar_hacer_tarea(uint32_t cantidad, char* tarea, uint32_t tid)
+t_buffer* serilizar_hacer_tarea(uint32_t cantidad, int tarea, uint32_t tid)
 {
 	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + strlen(tarea) + 1);
+	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t));
 	int desplazamiento = 0;
 
 	memcpy(stream + desplazamiento, &cantidad, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	memcpy(stream + desplazamiento, &tid, sizeof(uint32_t));
+	memcpy(stream + desplazamiento, &tarea, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	void* tarea_len = malloc(sizeof(uint32_t));
-	tarea_len = strlen(tarea) + 1;
-	memcpy(stream + desplazamiento, (void*)(&tarea_len), sizeof(uint32_t));
-	desplazamiento += sizeof(strlen(tarea) + 1);
-	memcpy(stream + desplazamiento, tarea, strlen(tarea) + 1);
-	desplazamiento += strlen(tarea) + 1;
+	memcpy(stream + desplazamiento, &tid, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
 	buffer->size = desplazamiento;
 	buffer->stream = stream;
@@ -347,7 +343,6 @@ char estado_a_char(int estado){
         return 'B';
         break;
    }
-
 }
 
 void generar_oxigeno(int duracion, int id, int conexion_store){  //ESTA BIEN IMPLEMENTADO ESTO CO N1 PAR. MAS? PAG 18 DE LA CONSIGNA
@@ -385,7 +380,9 @@ void consumir_comida(int duracion, int id, int conexion_store){
 void generar_basura(int duracion, int id, int conexion_store){
 	t_buffer* buffer = serilizar_hacer_tarea(duracion, GENERAR_BASURA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
+	//pthread_mutex_lock(&store);
 	enviar_paquete(paquete_hacer_tarea, conexion_store);
+	//pthread_mutex_unlock(&store);
 	free(buffer);
 	free(paquete_hacer_tarea);
 }
@@ -398,24 +395,13 @@ void destruir_basura(int duracion, int id, int conexion_store){
 	free(paquete_hacer_tarea);
 }
 
-void reportar_bitacora(char* log, int id, int conexion_store){
-    t_buffer* buffer = serializar_reporte_bitacora(id, log);
-	t_paquete* paquete_bitacora = crear_mensaje(buffer, REPORTE_BITACORA);
-	enviar_paquete(paquete_bitacora, conexion_store);
-	free(buffer);
-	free(paquete_bitacora);
-}
-
 void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_y_nuevo, int id, int conexion_hq){
 	int size = sizeof(int)*2 + sizeof('|');
 	char *str_start = malloc(size);
 	char *str_end = malloc(size);
 
-	char *x = malloc(sizeof(pos_x));
-	char *y = malloc(sizeof(pos_y));
-
-	string_itoa(pos_x, x, 10);
-	string_itoa(pos_y, y, 10);
+	char *x = string_itoa(pos_x);
+	char *y = string_itoa(pos_y);
 
 	strcpy (str_start, x);
 	strcat (str_start, "|");
@@ -426,4 +412,8 @@ void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_y_nuevo, in
 	strcat (str_end, pos_x_nuevo);
 
 	reportar_bitacora(logs_bitacora(B_DESPLAZAMIENTO, str_start, str_end), id, conexion_hq);
+	free(str_start);
+	free(str_end);
 }
+
+

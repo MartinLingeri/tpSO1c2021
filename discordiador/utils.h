@@ -88,7 +88,7 @@ t_buffer* serilizar_cambio_estado(uint32_t id, uint32_t estado);
 t_buffer* serilizar_pedir_tarea(uint32_t id); //DEVOLVER TAREA O NADA
 t_buffer* serilizar_reporte_bitacora(uint32_t id, char* reporte);
 t_buffer* serilizar_desplazamiento(uint32_t tid, uint32_t x_nuevo, uint32_t y_nuevo);
-t_buffer* serilizar_hacer_tarea(uint32_t cantidad, char* tarea, uint32_t id);
+t_buffer* serilizar_hacer_tarea(uint32_t cantidad, int tarea, uint32_t id);
 void eliminar_paquete(t_paquete* paquete);
 void liberar_conexion(int socket_cliente);
 void* recibir_buffer(int* size, int socket_cliente);

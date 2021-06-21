@@ -35,7 +35,7 @@ void listar_tripulantes();
 void conexion_con_hq();
 void conexion_con_store();
 void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_y_nuevo, int id, int conexion_hq);
-void reportar_bitacora(char* log, int id);
+void reportar_bitacora(char* log, int id, int conexion_store);
 void expulsar_tripulante(char* id);
 
 void atender_sabotaje(t_sabotaje* datos);
