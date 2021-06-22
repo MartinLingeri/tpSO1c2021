@@ -78,6 +78,67 @@ t_config* leer_config(void)
 	return config_create("discordiador.config");
 }
 
+void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_config* config)
+{
+	liberar_conexion(conexion_hq);
+	log_destroy(logger);
+	config_destroy(config);
+	sem_destroy(&planif);
+	sem_destroy(&multiprog);
+}
+
+void* esperar_conexion(int cliente_fd){
+	/*
+	 * Vamos a esperar conexiones de 2 lados distintos, como se haria? con 2 hilos y 2 funcs de recibir?
+	 * abriendo y cerrando conexiones cada vez q sea necesario?
+	 * tmb vamos a necesitar una conexión abierta escuchando constantemente si hay sabotaje asi q
+	 * eso seria una tercera o la misma q recv bitacora?
+	 * si fuera la misma como gestionar si llegan 2 cosas al mismo tiempo
+	 */
+	char* bitacora;
+	char* tarea;
+	t_sabotaje* data = malloc(sizeof(t_sabotaje));
+	int lugar = 0;
+
+	while(1){
+		//wait sem
+		int cod_op = recibir_operacion(cliente_fd);
+		switch(cod_op){
+		case BITACORA:
+			//bitacora = recibir_bitacora(cliente_fd);
+			//leer_bitacora(bitacora);
+			break;
+
+		case ALERTA_SABOTAJE:
+			//data = recibir_datos_sabotaje(cliente_fd);
+			atender_sabotaje(data);
+			break;
+
+		case LUGAR_MEMORIA:
+			//lugar = recibir_confirmacion_lugar(cliente_fd);
+			return lugar;
+			break;
+
+		case TAREA:
+			tarea = recibir_tarea(cliente_fd);
+			//ver forma de pasar tarea al hilo del trip
+			return tarea;
+			break;
+
+		case -1:
+			log_error(logger, "El cliente se desconecto. Terminando servidor");
+			return 0;
+
+		default:
+			break;
+		}
+	}
+	free(bitacora);
+	free(data);
+	free(tarea);
+}
+
+
 void leer_consola(t_log* logger)
 {
 	char* leido;
@@ -100,6 +161,7 @@ void leer_consola(t_log* logger)
 			sem_wait(&planif);
 
 		} else if (strcmp(instruccion[0], "OBTENER_BITACORA") == 0) {
+			obtener_bitacora(instruccion[1]);
 
 		} else if (strcmp(instruccion[0], "SIMULAR_SABOTAJE") == 0) {
 			//ESTO SIRVE PARA TESTEAR MIENTRAS NO ESTÉ EL IMONGO
@@ -128,14 +190,6 @@ void planificador(void* args) {
 	}
 }
 
-void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_config* config)
-{
-	liberar_conexion(conexion_hq);
-	log_destroy(logger);
-	config_destroy(config);
-	sem_destroy(&planif);
-	sem_destroy(&multiprog);
-}
 
 int longitud_instr(char** instruccion) {
 	int largo = 0;
@@ -561,5 +615,22 @@ void reportar_bitacora(char* log, int id, int conexion_store){
 	free(buffer);
 	free(paquete_bitacora);
 	free(log);
+}
+
+void obtener_bitacora (char* i){
+	int id = atoi(i);
+	char* bitacora;
+	//t_buffer* buffer = serilizar_pedir_bitacora(id);
+	//t_paquete* paquete_pcb = crear_mensaje(buffer, PEDIR_BITACORA);
+	pthread_mutex_lock(&hq);
+	//enviar_paquete(paquete_pcb, conexion_hq);
+	pthread_mutex_unlock(&hq);
+	//ver de que manera recibir el texto por conexion y si la puedo pasar aca de alguna forma
+
+	printf("---------------------------------------------------------------------------- \n");
+    printf("Bitácora del tripulante N° %d \n", id);
+    //printf("%s \n", bitacora); o hacer pedido y que el pedido la lea
+    printf("---------------------------------------------------------------------------- \n");
+    //free(bitacora);
 }
 

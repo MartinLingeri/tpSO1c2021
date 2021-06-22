@@ -25,6 +25,14 @@ typedef enum
 
 typedef enum
 {
+	BITACORA,
+	LUGAR_MEMORIA,
+	ALERTA_SABOTAJE,
+	TAREA,
+}recv_code;
+
+typedef enum
+{
 	GENERAR_OXIGENO,
 	CONSUMIR_OXIGENO,
 	GENERAR_COMIDA,

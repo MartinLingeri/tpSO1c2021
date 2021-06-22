@@ -47,5 +47,6 @@ t_tripulante* tripulante_mas_cercano(int x, int y);
 static void* menor_ID(t_tripulante* t1, t_tripulante* t2);
 double distancia(t_tripulante* trip, int x, int y);
 void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos);
+void obtener_bitacora (char* i);
 
 #endif /* DISCORDIADOR_H_ */
