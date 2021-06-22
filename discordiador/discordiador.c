@@ -220,7 +220,7 @@ void iniciar_patota(char** instruccion, char* leido) {
 	id_ultima_patota++;
 	uint32_t id_patota = id_ultima_patota;
 
-	t_buffer* buffer = serilizar_patota(id_patota, contenido_tareas, cantidad);
+	t_buffer* buffer = serializar_patota(id_patota, contenido_tareas, cantidad);
 	t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
 	pthread_mutex_lock(&hq);
 	enviar_paquete(paquete_pcb, conexion_hq);
@@ -240,7 +240,7 @@ void iniciar_patota(char** instruccion, char* leido) {
 }
 
 void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
-	t_buffer* buffer = serilizar_tripulante(tripulante->TID, tripulante->PID, tripulante->pos_x, tripulante->pos_y, tripulante->estado);
+	t_buffer* buffer = serializar_tripulante(tripulante->TID, tripulante->PID, tripulante->pos_x, tripulante->pos_y, tripulante->estado);
 	t_paquete* paquete_tcb = crear_mensaje(buffer, TCB_MENSAJE);
 	pthread_mutex_lock(&hq);
 	enviar_paquete(paquete_tcb, conexion_hq);
@@ -250,7 +250,7 @@ void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
 }
 
 void enviar_cambio_estado_hq(t_tripulante* tripulante) {
-	t_buffer* buffer = serilizar_cambio_estado(tripulante->TID, tripulante->estado);
+	t_buffer* buffer = serializar_cambio_estado(tripulante->TID, tripulante->estado);
 	t_paquete* paquete_cambio_estado = crear_mensaje(buffer, CAMBIO_ESTADO_MENSAJE);
 	pthread_mutex_lock(&hq);
 	enviar_paquete(paquete_cambio_estado, conexion_hq);
@@ -293,7 +293,7 @@ void circular(void* args) {
 	t_circular_args* argumentos = args;
 	iniciar_tripulante_en_hq(argumentos->tripulante);
 
-	t_buffer* buffer = serilizar_pedir_tarea(argumentos->tripulante->TID);
+	t_buffer* buffer = serializar_pedir_tarea(argumentos->tripulante->TID);
 	t_paquete* paquete_pedir_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
 	pthread_mutex_lock(&hq);
 	enviar_paquete(paquete_pedir_tarea, conexion_hq);
@@ -443,7 +443,7 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	} else if (strcmp(nombre_tarea[0], "DESCARTAR_BASURA") == 0) {
 		destruir_basura(duracion, tripulante->TID, conexion_store);
 	} else {
-		t_buffer* buffer = serilizar_hacer_tarea(duracion, atoi(nombre_tarea[0]), tripulante->TID);
+		t_buffer* buffer = serializar_hacer_tarea(duracion, atoi(nombre_tarea[0]), tripulante->TID);
 		t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 		pthread_mutex_lock(&hq);
 		enviar_paquete(paquete_hacer_tarea, conexion_hq);
@@ -517,8 +517,35 @@ void expulsar_tripulante(char* i) {
     	t_tripulante* tripulante = list_find(trabajando,es_el_tripulante);
         cambiar_estado(e_trabajando, e_fin, tripulante);
     }
-   //enviar_remover_a_hq(id);
-   return;
+	t_buffer* buffer = serializar_eliminar_tripulante(id);
+	t_paquete* paquete_r = crear_mensaje(buffer, ELIMINAR_TRIP);
+	pthread_mutex_lock(&hq);
+	enviar_paquete(paquete_r, conexion_hq);
+	pthread_mutex_unlock(&hq);
+	free(buffer);
+	free(paquete_r);
+	return;
+}
+
+void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_y_nuevo, int id, int conexion_hq){
+	int size = sizeof(int)*2 + sizeof('|');
+	char *str_start = malloc(size);
+	char *str_end = malloc(size);
+
+	char *x = string_itoa(pos_x);
+	char *y = string_itoa(pos_y);
+
+	strcpy (str_start, x);
+	strcat (str_start, "|");
+	strcat (str_start, y);
+
+	strcpy (str_end, pos_x_nuevo);
+	strcat (str_end, "|");
+	strcat (str_end, pos_x_nuevo);
+
+	reportar_bitacora(logs_bitacora(B_DESPLAZAMIENTO, str_start, str_end), id, conexion_hq);
+	free(str_start);
+	free(str_end);
 }
 
 void atender_sabotaje(t_sabotaje* datos){
@@ -620,11 +647,11 @@ void reportar_bitacora(char* log, int id, int conexion_store){
 void obtener_bitacora (char* i){
 	int id = atoi(i);
 	char* bitacora;
-	//t_buffer* buffer = serilizar_pedir_bitacora(id);
-	//t_paquete* paquete_pcb = crear_mensaje(buffer, PEDIR_BITACORA);
-	pthread_mutex_lock(&hq);
-	//enviar_paquete(paquete_pcb, conexion_hq);
-	pthread_mutex_unlock(&hq);
+	t_buffer* buffer = serializar_solicitar_bitacora(id);
+	t_paquete* paquete_b = crear_mensaje(buffer, PEDIR_BITACORA);
+	pthread_mutex_lock(&store);
+	enviar_paquete(paquete_b, conexion_store);
+	pthread_mutex_unlock(&store);
 	//ver de que manera recibir el texto por conexion y si la puedo pasar aca de alguna forma
 
 	printf("---------------------------------------------------------------------------- \n");
@@ -632,5 +659,7 @@ void obtener_bitacora (char* i){
     //printf("%s \n", bitacora); o hacer pedido y que el pedido la lea
     printf("---------------------------------------------------------------------------- \n");
     //free(bitacora);
+    free(buffer);
+    free(paquete_b);
 }
 
