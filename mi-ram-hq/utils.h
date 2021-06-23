@@ -44,6 +44,27 @@ typedef struct{
 	uint32_t pcb;
 }t_tcb;
 
+typdef struct{
+	uint32_t idPatota;
+	void *paginas;
+}tabla_de_paginas;
+
+typedef struct{
+	uint32_t nroPagina;
+	void *frame;
+}pagina;
+
+typedef struct{
+	bool libre;
+	t_pcb *pcb;
+	char *tareas;
+	t_tcb *tcb;
+}frame;
+
+t_list listaDeTablasDePaginas;
+t_list listaDeFrames;
+void *puntero_memoria_principal;
+
 t_log* logger;
 
 void* recibir_buffer(int*, int);

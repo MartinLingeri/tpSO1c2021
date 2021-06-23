@@ -184,3 +184,21 @@ void recibir_cambio_estado(int socket_cliente) {
 	free(buffer);
 	/*DEVOLVER PROXIMA TAREA, SI ERA LA ULTIMA Y NO HAY MAS, CHAR* VACIO*/
 }
+
+t_buffer *serializar_enviar_tarea(char *tarea){
+		t_buffer* buffer=malloc(sizeof(t_buffer));
+		void* stream=malloc(sizeof(uin32_t)+strlen(tarea)+1);
+		int desplazamiento =0;
+
+		void* tarea_len=malloc(sizeof(uint32_t));
+		tarea_len=strlen(tarea)+1;
+		memcpy(stream+desplazamiento,(void*)(&tarea_len), sizeof(uint32_t));
+		desplazamiento += sizeof(uint32_t);
+
+		memcpy(stream+desplazamiento, &tarea, tareas_len);
+		desplazamiento += tarea_len;
+
+		buffer->size=desplazamiento;
+		buffer->stream = stream;
+		return buffer;
+}
