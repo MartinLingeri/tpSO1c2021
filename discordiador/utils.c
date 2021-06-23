@@ -84,7 +84,6 @@ t_buffer* serializar_patota(uint32_t id, char* tareas, uint32_t trips)
 
 t_buffer* serializar_tripulante(uint32_t id, uint32_t pid, uint32_t pos_x, uint32_t pos_y, uint32_t estado)
 {
-	puts("empieza a serializar");
 	t_buffer* buffer = malloc(sizeof(t_buffer));
 	void* stream = malloc(sizeof(uint32_t) * 4 + sizeof(char));
 	int desplazamiento = 0;

@@ -25,6 +25,7 @@ sem_t multiprog;
 
 int quantum = 0;
 char* algoritmo;
+int gr;
 
 int main(void)
 {
@@ -34,14 +35,16 @@ int main(void)
 	trabajando = list_create();
 	bloqueado_IO = list_create();
 	bloqueado_emergencia = list_create();
-	sem_init(&planif,0,0);
-	sem_init(&multiprog,0,config_get_int_value(config, "GRADO_MULTITAREA"));
 
 	setlocale(LC_ALL,"spanish");
 
 	logger = iniciar_logger();
 	config = leer_config();
 	algoritmo = config_get_string_value(config, "ALGORITMO");
+	gr = config_get_int_value(config, "GRADO_MULTITAREA");
+
+	sem_init(&planif,0,0);
+	sem_init(&multiprog,0, gr);
 
 	pthread_t hilo_conexion_hq;
 	pthread_create(&hilo_conexion_hq, NULL, (void*) conexion_con_hq, NULL);
@@ -143,7 +146,7 @@ void leer_consola(t_log* logger)
 {
 	char* leido;
 	leido = readline(">");
-	while (strcmp(leido, "") != 0) {
+	while (strcmp(leido, "FIN") != 0) {
 		char** instruccion = string_split(leido, " ");
 		if(strcmp(instruccion[0], "INICIAR_PATOTA") == 0) {
 			iniciar_patota(instruccion, leido);
@@ -171,7 +174,8 @@ void leer_consola(t_log* logger)
 			atender_sabotaje(data);
 			free(data);
 		} else {
-			log_info(logger, "no se reconocio la instruccion");
+			log_info(logger, "No se reconocio la instruccion");
+			printf("No se reconocio la instruccion");
 		}
 		leido = readline(">");
 	}
@@ -235,7 +239,7 @@ void iniciar_patota(char** instruccion, char* leido) {
 			inicializar_tripulante(instruccion, i, longitud, id_patota, hilos[i]);
 		}
 	}else{
-		printf("No hay lugar en memoria"); //TRATAR ESTE CASO DE ALGUNA FORMA
+		log_info(logger, "No hay lugar en memoria"); //TRATAR ESTE CASO DE ALGUNA FORMA
 	}
 }
 
@@ -316,14 +320,13 @@ void circular(void* args) {
 
 	//PARTE CON BLOQUEOS PORQUE TIENE QUE ESTAR PLANIFICADO
 	sem_init(&argumentos->tripulante->semaforo, 0, 0);
-//	while(1) {
+//	while(strcmp(tarea, "") != 1) {
 		sem_wait(&argumentos->tripulante->semaforo);
 		leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
-		//BUSCAR SIG TAREA
-		//SI VACIO SE PASA A TERMINADO
 		cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
 		sem_post(&planif);
 //	}
+	cambiar_estado(argumentos->tripulante->estado, e_fin, argumentos->tripulante);
 	free(argumentos);
 }
 
@@ -487,7 +490,6 @@ void listar_tripulantes(){
     list_iterate(bloqueado_IO,listar);
     list_iterate(fin,listar);
     printf("---------------------------------------------------------------------------- \n");
-    free(local);
 }
 
 void expulsar_tripulante(char* i) {
@@ -565,10 +567,9 @@ void atender_sabotaje(t_sabotaje* datos){
 void mover_trips(int nuevo_estado){
     pasar_menor_id(trabajando,nuevo_estado);
     pasar_menor_id(listo,nuevo_estado);
-    while(list_size(bloqueado_IO) != 0){
-        pasar_menor_id(bloqueado_IO, nuevo_estado);
-        pasar_menor_id(listo, nuevo_estado);
-    }
+    pthread_mutex_lock(&estados[e_bloqueado_IO]);
+    pasar_menor_id(bloqueado_IO, nuevo_estado);
+    pthread_mutex_lock(&estados[e_bloqueado_IO]);
 }
 
 void desbloquear_trips_inverso(t_list* lista){
@@ -606,9 +607,9 @@ static void* menor_ID(t_tripulante* t1, t_tripulante* t2) {
 }
 
 double distancia(t_tripulante* trip, int x, int y){
-    return ((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
-    //NO ANDA EL sqrt()
-    //return sqrt((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
+    double result = ((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
+    //double result = sqrt((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
+    return result;
 }
 
 void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos){
@@ -653,11 +654,8 @@ void obtener_bitacora (char* i){
 	enviar_paquete(paquete_b, conexion_store);
 	pthread_mutex_unlock(&store);
 	//ver de que manera recibir el texto por conexion y si la puedo pasar aca de alguna forma
-
-	printf("---------------------------------------------------------------------------- \n");
-    printf("Bitácora del tripulante N° %d \n", id);
-    //printf("%s \n", bitacora); o hacer pedido y que el pedido la lea
-    printf("---------------------------------------------------------------------------- \n");
+	log_info(logger, "Bitácora del tripulante N°"); //poner el numero
+    //log_info(logger, bitacora); o hacer pedido y que el pedido loggee
     //free(bitacora);
     free(buffer);
     free(paquete_b);

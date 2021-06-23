@@ -2,6 +2,7 @@
 #define DISCORDIADOR_H_
 
 #include<stdio.h>
+#include<math.h>
 #include<stdlib.h>
 #include<commons/string.h>
 #include<commons/config.h>
@@ -10,7 +11,6 @@
 #include<pthread.h>
 #include<time.h>
 #include<locale.h>
-#include <math.h>
 
 #include "utils.h"
 
