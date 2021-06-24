@@ -2,8 +2,15 @@
 
 t_config* leer_config(void)
 {
-	config_create("mi-ram-hq.config");
+	return config_create("mi-ram-hq.config");
 }
+
+t_log* iniciar_logger(void)
+{
+	return log_create("mi-ram-hq.log", "mi-ram-hq", true, LOG_LEVEL_INFO);
+}
+
+//----------------------------
 
 int iniciar_servidor(void)
 {
@@ -101,36 +108,29 @@ t_list* recibir_paquete(int socket_cliente)
 	return NULL;
 }
 
-t_tcb recibir_tcb(int socket_cliente){
+t_tcb* recibir_tcb(int socket_cliente){
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
 	t_tcb* tripulante = malloc(sizeof(t_tcb));
 
 	buffer = recibir_buffer(&size, socket_cliente);
-
 	memcpy(&(tripulante->tid), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
-
 	memcpy(&(tripulante->estado), buffer+desplazamiento, sizeof(char));
 	desplazamiento+=sizeof(char);
-
 	memcpy(&(tripulante->pos_x), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
-
 	memcpy(&(tripulante->pos_y), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
-
-	memcpy(&(tripulante->proxima_instruccion), buffer+desplazamiento, sizeof(uint32_t));
-	desplazamiento+=sizeof(uint32_t);
-
+	/*memcpy(&(tripulante->proxima_instruccion), buffer+desplazamiento, sizeof(uint32_t));//DISCORDIADOR: creemos que esto no se lo mandamos nosotros
+	desplazamiento+=sizeof(uint32_t);*/
 	memcpy(&(tripulante->pcb), buffer+desplazamiento, sizeof(uint32_t));
-
 	free(buffer);
 	return tripulante;
 }
 
-t_tcb recibir_pcb(int socket_cliente){
+t_pcb* recibir_pcb(int socket_cliente){
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
@@ -138,11 +138,74 @@ t_tcb recibir_pcb(int socket_cliente){
 
 	buffer = recibir_buffer(&size, socket_cliente);
 
-	memcpy(&(patota->pid), buffer+desplazamiento, sizeof(uint32_t));
+	memcpy(&(patota->pid), (buffer+desplazamiento), sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
 
-	memcpy(&(patota->tareas), buffer+desplazamiento, sizeof(char));
+	void* cantidad_tripulantes = malloc(sizeof(uint32_t));
+
+	memcpy(&cantidad_tripulantes, buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
+	void* tareas_len = malloc(sizeof(uint32_t));
+	memcpy(&tareas_len, (buffer+desplazamiento), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	patota->tareas = malloc(tareas_len);
+	memcpy(patota->tareas, buffer+desplazamiento, tareas_len);
+	desplazamiento += tareas_len;
 
 	free(buffer);
 	return patota;
+	/*CHEQUEAR QUE SE VAN A PODER GUARDAR TODOS LOS TRIPULANTES Y MANDAR SI ESTA OK O SI NO SE VAN A PODER GUARDAR EN MEMORIA*/
+}
+
+void recibir_pedir_tarea(int socket_cliente) {
+	int size;
+	void* buffer;
+
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	void* cantidad_tripulantes = malloc(sizeof(uint32_t));
+
+	memcpy(&(cantidad_tripulantes), (buffer), sizeof(uint32_t));
+
+	free(buffer);
+	/*DEVOLVER PROXIMA TAREA, SI ERA LA ULTIMA Y NO HAY MAS, CHAR* VACIO*/
+}
+
+void recibir_cambio_estado(int socket_cliente) {
+	int size;
+	void* buffer;
+	int desplazamiento = 0;
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	void* tid = malloc(sizeof(uint32_t));
+	memcpy(&(tid), (buffer+desplazamiento), sizeof(uint32_t));
+	printf("tip id: %d\n", (tid));
+	desplazamiento += sizeof(uint32_t);
+
+	void* nuevo_estado = malloc(sizeof(char));
+	memcpy(&(nuevo_estado), (buffer+desplazamiento), sizeof(char));
+	printf("nuevo estado: %c\n", (char)(nuevo_estado));
+
+	free(buffer);
+	/*DEVOLVER PROXIMA TAREA, SI ERA LA ULTIMA Y NO HAY MAS, CHAR* VACIO*/
+}
+
+t_buffer *serializar_enviar_tarea(char *tarea){
+		t_buffer* buffer=malloc(sizeof(t_buffer));
+		void* stream=malloc(sizeof(uint32_t)+strlen(tarea)+1);
+		int desplazamiento =0;
+
+		void* tarea_len=malloc(sizeof(uint32_t));
+		tarea_len=strlen(tarea)+1;
+		memcpy(stream+desplazamiento,(void*)(&tarea_len), sizeof(uint32_t));
+		desplazamiento += sizeof(uint32_t);
+
+		memcpy(stream+desplazamiento, &tarea, tarea_len);
+		desplazamiento += tarea_len;
+
+		buffer->size=desplazamiento;
+		buffer->stream = stream;
+		return buffer;
 }

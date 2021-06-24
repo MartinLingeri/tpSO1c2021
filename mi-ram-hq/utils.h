@@ -24,12 +24,15 @@ typedef struct{
 typedef enum
 {
 	PCB_MENSAJE,
-	TCB_MENSAJE
+	TCB_MENSAJE,
+	CAMBIO_ESTADO_MENSAJE,
+	PEDIR_SIGUIENTE_TAREA,
+	MENSAJE,
 }op_code;
 
 typedef struct{
 	uint32_t pid;
-	uint32_t tareas;
+	char* tareas;
 }t_pcb;
 
 typedef struct{
@@ -41,7 +44,34 @@ typedef struct{
 	uint32_t pcb;
 }t_tcb;
 
+typdef struct{
+	uint32_t idPatota;
+	void *paginas;
+}tabla_de_paginas;
+
+typedef struct{
+	uint32_t nroPagina;
+	void *frame;
+}pagina;
+
+typedef struct{
+	bool libre;
+	t_pcb *pcb;
+	char *tareas;
+	t_tcb *tcb;
+}frame;
+
+t_list listaDeTablasDePaginas;
+t_list listaDeFrames;
+void *puntero_memoria_principal;
+
 t_log* logger;
+t_config* config;
+
+t_config* leer_config(void);
+t_log* iniciar_logger(void);
+
+//-------------------------
 
 void* recibir_buffer(int*, int);
 
@@ -50,5 +80,9 @@ int esperar_cliente(int);
 t_list* recibir_paquete(int);
 void recibir_mensaje(int);
 int recibir_operacion(int);
+t_pcb* recibir_pcb(int socket_cliente);
+t_tcb* recibir_tcb(int socket_cliente);
+void recibir_pedir_tarea(int socket_cliente);
+void recibir_cambio_estado(int socket_cliente);
 
 #endif /* CONEXIONES_H_ */
