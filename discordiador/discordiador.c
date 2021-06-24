@@ -64,7 +64,8 @@ int main(void)
 }
 
 void conexion_con_hq() {
-		conexion_hq = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
+	conexion_hq = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
+	printf("socket: %d\n", conexion_hq);
 }
 
 void conexion_con_store() {
@@ -90,7 +91,7 @@ void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_con
 	sem_destroy(&multiprog);
 }
 
-void* esperar_conexion(int cliente_fd){
+void* esperar_conexion(int cliente_fd) {
 	/*
 	 * Vamos a esperar conexiones de 2 lados distintos, como se haria? con 2 hilos y 2 funcs de recibir?
 	 * abriendo y cerrando conexiones cada vez q sea necesario?
@@ -172,11 +173,20 @@ void leer_consola(t_log* logger)
 			data->x = 1;
 			data->y = 2;
 			atender_sabotaje(data);
-			free(data);
+
+		} else if (strcmp(instruccion[0], "ELIMINAR_TRIPULANTE") == 0) {
+			printf("entro al eliminar");
+			int id = atoi(instruccion[1]);
+			printf("id: %d\n", id);
+			printf("conexion hq: %d\n", conexion_hq);
+			reportar_eliminar_tripulante(id, conexion_hq);
+
+			//free(data);
 		} else {
 			log_info(logger, "No se reconocio la instruccion");
 			printf("No se reconocio la instruccion");
 		}
+
 		leido = readline(">");
 	}
 	free(leido);
@@ -184,6 +194,7 @@ void leer_consola(t_log* logger)
 
 void planificador(void* args) {
 	quantum = config_get_int_value(config, "QUANTUM");
+
 	while(1){
 		sem_wait(&planif);
 		sem_wait(&multiprog);
@@ -230,8 +241,8 @@ void iniciar_patota(char** instruccion, char* leido) {
 	enviar_paquete(paquete_pcb, conexion_hq);
 	pthread_mutex_unlock(&hq);
 	sleep(2);
-	free(buffer);
-	free(paquete_pcb);
+	//free(buffer);
+	//free(paquete_pcb);
 
 	if(true){//SI HAY LUGAR EN MEMORIA
 		pthread_t hilos[longitud];
@@ -254,6 +265,7 @@ void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
 }
 
 void enviar_cambio_estado_hq(t_tripulante* tripulante) {
+	pthread_mutex_lock(&bloq);
 	t_buffer* buffer = serializar_cambio_estado(tripulante->TID, tripulante->estado);
 	t_paquete* paquete_cambio_estado = crear_mensaje(buffer, CAMBIO_ESTADO_MENSAJE);
 	pthread_mutex_lock(&hq);
@@ -321,6 +333,7 @@ void circular(void* args) {
 	sem_init(&argumentos->tripulante->semaforo, 0, 0);
 //	while(strcmp(tarea, "") != 1) {
 		sem_wait(&argumentos->tripulante->semaforo);
+		puts("despues del wait");
 		leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
 		cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
 		sem_post(&planif);
@@ -613,10 +626,6 @@ t_tripulante* tripulante_mas_cercano(int x, int y){
     t_tripulante* asignado = list_get_minimum(bloqueado_emergencia, (void*)t_distancia);
     return asignado;
 }
-/*
-static void* menor_ID(t_tripulante* t1, t_tripulante* t2) {
-    return t1->TID < t2->TID ? t1 : t2;
-}*/
 
 double distancia(t_tripulante* trip, int x, int y){
     double result = ((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
@@ -663,7 +672,7 @@ void reportar_bitacora(char* log, int id, int conexion_store){
 	free(log);
 }
 
-void obtener_bitacora (char* i){
+void obtener_bitacora (char* i) {
 	int id = atoi(i);
 	char* bitacora;
 	t_buffer* buffer = serializar_solicitar_bitacora(id);
@@ -678,4 +687,3 @@ void obtener_bitacora (char* i){
     free(buffer);
     free(paquete_b);
 }
-

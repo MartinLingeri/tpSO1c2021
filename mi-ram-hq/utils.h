@@ -28,6 +28,10 @@ typedef enum
 	CAMBIO_ESTADO_MENSAJE,
 	PEDIR_SIGUIENTE_TAREA,
 	MENSAJE,
+    REPORTE_BITACORA,
+    DESPLAZAMIENTO,
+    HACER_TAREA,
+	ELIMINAR_TRIPULANTE,
 }op_code;
 
 typedef struct{
@@ -44,7 +48,8 @@ typedef struct{
 	uint32_t pcb;
 }t_tcb;
 
-typdef struct{
+
+typedef struct{
 	uint32_t idPatota;
 	void *paginas;
 }tabla_de_paginas;
@@ -66,6 +71,12 @@ t_list listaDeFrames;
 void *puntero_memoria_principal;
 
 t_log* logger;
+t_config* config;
+
+t_config* leer_config(void);
+t_log* iniciar_logger(void);
+
+//-------------------------
 
 void* recibir_buffer(int*, int);
 
@@ -78,5 +89,7 @@ t_pcb* recibir_pcb(int socket_cliente);
 t_tcb* recibir_tcb(int socket_cliente);
 void recibir_pedir_tarea(int socket_cliente);
 void recibir_cambio_estado(int socket_cliente);
+void recibir_desplazamiento(int socket_cliente);
+void recibir_eliminar_tripulante(int socket_cliente);
 
 #endif /* CONEXIONES_H_ */

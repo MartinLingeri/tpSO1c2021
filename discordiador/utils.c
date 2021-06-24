@@ -305,7 +305,6 @@ void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_c
       }
 }
 
-
 char* logs_bitacora(regs_bitacora asunto, char* dato1, char* dato2){
 	int size;
 	char* reporte;
@@ -418,6 +417,26 @@ void generar_basura(int duracion, int id, int conexion_store){
 	free(paquete_hacer_tarea);
 }
 
+void descartar_basura(int duracion, int id, int conexion_hq){
+	t_buffer* buffer = serializar_hacer_tarea(duracion, DESCARTAR_BASURA, id);
+	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
+	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+}
+
+void reportar_eliminar_tripulante(int id, int conexion_hq) {
+    t_buffer* buffer = serializar_eliminar_tripulante(id);
+	t_paquete* paquete = crear_mensaje(buffer, ELIMINAR_TRIPULANTE);
+	enviar_paquete(paquete, conexion_hq);
+}
+
+void reportar_desplazamiento(int id, int nuevo_x, int nuevo_y, int conexion_hq) {
+    t_buffer* buffer = serializar_desplazamiento(id, nuevo_x, nuevo_y);
+    printf("buffer size: %d\n", buffer->size);
+	t_paquete* paquete = crear_mensaje(buffer, DESPLAZAMIENTO);
+	printf("conexion hq: %d\n", conexion_hq);
+	enviar_paquete(paquete, conexion_hq);
+}
+
 void destruir_basura(int duracion, int id, int conexion_store){
 	t_buffer* buffer = serializar_hacer_tarea(duracion, DESCARTAR_BASURA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
@@ -425,6 +444,3 @@ void destruir_basura(int duracion, int id, int conexion_store){
 	free(buffer);
 	free(paquete_hacer_tarea);
 }
-
-
-

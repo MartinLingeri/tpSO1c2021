@@ -2,8 +2,15 @@
 
 t_config* leer_config(void)
 {
-	config_create("mi-ram-hq.config");
+	return config_create("mi-ram-hq.config");
 }
+
+t_log* iniciar_logger(void)
+{
+	return log_create("mi-ram-hq.log", "mi-ram-hq", true, LOG_LEVEL_INFO);
+}
+
+//----------------------------
 
 int iniciar_servidor(void)
 {
@@ -19,7 +26,8 @@ int iniciar_servidor(void)
     t_config* config = leer_config();
 	char* ip = config_get_string_value(config, "IP");
 	char* puerto = config_get_string_value(config, "PUERTO");
-
+	printf("ip: %s", ip);
+	printf("puerto: %s", puerto);
     getaddrinfo(ip, puerto, &hints, &servinfo);
 
     for (p=servinfo; p != NULL; p = p->ai_next)
@@ -124,6 +132,7 @@ t_tcb* recibir_tcb(int socket_cliente){
 }
 
 t_pcb* recibir_pcb(int socket_cliente){
+	puts("RECIBE PCB");
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
@@ -132,6 +141,7 @@ t_pcb* recibir_pcb(int socket_cliente){
 	buffer = recibir_buffer(&size, socket_cliente);
 
 	memcpy(&(patota->pid), (buffer+desplazamiento), sizeof(uint32_t));
+
 	desplazamiento+=sizeof(uint32_t);
 
 	void* cantidad_tripulantes = malloc(sizeof(uint32_t));
@@ -174,11 +184,14 @@ void recibir_cambio_estado(int socket_cliente) {
 
 	void* tid = malloc(sizeof(uint32_t));
 	memcpy(&(tid), (buffer+desplazamiento), sizeof(uint32_t));
+
 	printf("tip id: %d\n", (tid));
+
 	desplazamiento += sizeof(uint32_t);
 
 	void* nuevo_estado = malloc(sizeof(char));
 	memcpy(&(nuevo_estado), (buffer+desplazamiento), sizeof(char));
+
 	printf("nuevo estado: %c\n", (char)(nuevo_estado));
 
 	free(buffer);
@@ -186,19 +199,39 @@ void recibir_cambio_estado(int socket_cliente) {
 }
 
 t_buffer *serializar_enviar_tarea(char *tarea){
-		t_buffer* buffer=malloc(sizeof(t_buffer));
-		void* stream=malloc(sizeof(uin32_t)+strlen(tarea)+1);
-		int desplazamiento =0;
+void recibir_desplazamiento(int socket_cliente) {
+	int size;
+	void* buffer;
+	int desplazamiento = 0;
+	buffer = recibir_buffer(&size, socket_cliente);
 
-		void* tarea_len=malloc(sizeof(uint32_t));
-		tarea_len=strlen(tarea)+1;
-		memcpy(stream+desplazamiento,(void*)(&tarea_len), sizeof(uint32_t));
-		desplazamiento += sizeof(uint32_t);
+	void* tid = malloc(sizeof(uint32_t));
+	memcpy(&(tid), (buffer), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+	printf("tid: %d\n", tid);
 
-		memcpy(stream+desplazamiento, &tarea, tareas_len);
-		desplazamiento += tarea_len;
+	void* nuexo_x = malloc(sizeof(uint32_t));
+	memcpy(&(nuexo_x), (buffer), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+	printf("nuevo x: %d\n", tid);
 
-		buffer->size=desplazamiento;
-		buffer->stream = stream;
-		return buffer;
+	void* nuexo_y = malloc(sizeof(uint32_t));
+	memcpy(&(nuexo_y), (buffer), sizeof(uint32_t));
+	printf("nuevo y: %d\n", tid);
+
+	free(buffer);
+}
+
+void recibir_eliminar_tripulante(int socket_cliente) {
+	int size;
+	void* buffer;
+	printf("antes d expulsar");
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	void* id = malloc(sizeof(uint32_t));
+
+	memcpy(&(id), (buffer), sizeof(uint32_t));
+	printf("EL ID A EXP: %d\n", id);
+
+	free(buffer);
 }
