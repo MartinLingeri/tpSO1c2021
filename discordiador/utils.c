@@ -305,83 +305,6 @@ void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_c
       }
 }
 
-t_buffer* serializar_reporte_bitacora(uint32_t id, char* reporte)
-{
-	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + strlen(reporte) + 1);
-	int desplazamiento = 0;
-
-	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	void* reporte_len = malloc(sizeof(uint32_t));
-	reporte_len = strlen(reporte) + 1;
-	memcpy(stream + desplazamiento, (void*)(&reporte_len), sizeof(uint32_t));
-	desplazamiento += sizeof(strlen(reporte) + 1);
-	memcpy(stream + desplazamiento, reporte, strlen(reporte) + 1);
-	desplazamiento += strlen(reporte) + 1;
-
-	buffer->size = desplazamiento;
-	buffer->stream = stream;
-	return buffer;
-}
-
-t_buffer* serializar_hacer_tarea(uint32_t cantidad, char* tarea, uint32_t tid)
-{
-	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + strlen(tarea) + 1);
-	int desplazamiento = 0;
-
-	memcpy(stream + desplazamiento, &cantidad, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	memcpy(stream + desplazamiento, &tid, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	void* tarea_len = malloc(sizeof(uint32_t));
-	tarea_len = strlen(tarea) + 1;
-	memcpy(stream + desplazamiento, (void*)(&tarea_len), sizeof(uint32_t));
-	desplazamiento += sizeof(strlen(tarea) + 1);
-	memcpy(stream + desplazamiento, tarea, strlen(tarea) + 1);
-	desplazamiento += strlen(tarea) + 1;
-
-	buffer->size = desplazamiento;
-	buffer->stream = stream;
-	return buffer;
-}
-
-t_buffer* serializar_desplazamiento (int id, int nuevo_x, int nuevo_y) {
-	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t));
-	int desplazamiento = 0;
-
-	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	memcpy(stream + desplazamiento, &nuevo_x, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	memcpy(stream + desplazamiento, &nuevo_y, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	buffer->size = desplazamiento;
-	buffer->stream = stream;
-	return buffer;
-}
-
-t_buffer* serializar_eliminar_tripulante (int id) {
-	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t));
-	int desplazamiento = 0;
-
-	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	buffer->size = desplazamiento;
-	buffer->stream = stream;
-	return buffer;
-}
-
 char* logs_bitacora(regs_bitacora asunto, char* dato1, char* dato2){
 	int size;
 	char* reporte;
@@ -498,12 +421,6 @@ void descartar_basura(int duracion, int id, int conexion_hq){
 	t_buffer* buffer = serializar_hacer_tarea(duracion, DESCARTAR_BASURA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 	enviar_paquete(paquete_hacer_tarea, conexion_hq);
-}
-
-void reportar_bitacora(char* log, int id, int conexion_hq){
-    t_buffer* buffer = serializar_reporte_bitacora(id, log);
-	t_paquete* paquete_bitacora = crear_mensaje(buffer, REPORTE_BITACORA);
-	enviar_paquete(paquete_bitacora, conexion_hq);//al store, no hq
 }
 
 void reportar_eliminar_tripulante(int id, int conexion_hq) {

@@ -64,8 +64,7 @@ int main(void)
 }
 
 void conexion_con_hq() {
-		conexion_hq = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
-	}
+	conexion_hq = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
 	printf("socket: %d\n", conexion_hq);
 }
 
@@ -92,7 +91,7 @@ void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_con
 	sem_destroy(&multiprog);
 }
 
-void* esperar_conexion(int cliente_fd){
+void* esperar_conexion(int cliente_fd) {
 	/*
 	 * Vamos a esperar conexiones de 2 lados distintos, como se haria? con 2 hilos y 2 funcs de recibir?
 	 * abriendo y cerrando conexiones cada vez q sea necesario?
@@ -182,7 +181,7 @@ void leer_consola(t_log* logger)
 			printf("conexion hq: %d\n", conexion_hq);
 			reportar_eliminar_tripulante(id, conexion_hq);
 
-			free(data);
+			//free(data);
 		} else {
 			log_info(logger, "No se reconocio la instruccion");
 			printf("No se reconocio la instruccion");
@@ -407,11 +406,6 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	int pos_y = atoi(parametros_tarea[2]);
 	int duracion = atoi(parametros_tarea[3]);
 
-	reportar_bitacora(logs_bitacora(INICIO_TAREA, nombre_tarea[0], " "), &tripulante->TID);
-
-	if(strcmp(algoritmo,"RR") == 1) {
-		puts("entro al if de rr");
-		if(pos_x != tripulante->pos_x) {
 	reportar_bitacora(logs_bitacora(INICIO_TAREA, nombre_tarea[0], " "), tripulante->TID, conexion_store);
 	if(pos_x != tripulante->pos_x || pos_y != tripulante->pos_y){
 		logear_despl(tripulante->pos_x, tripulante->pos_y, parametros_tarea[1], parametros_tarea[2], tripulante->TID, conexion_hq);
@@ -433,17 +427,6 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 			cambiar_estado(tripulante->estado, e_listo, tripulante);
 			sem_wait(&tripulante->semaforo);
 		}
-	}
-
-	puts("antes loguear desplazamiento");
-	if(pos_x != tripulante->pos_x || pos_y != tripulante->pos_y) {
-		puts("entra al if para loguear desplazamiento");
-		logear_despl(tripulante->pos_x, tripulante->pos_y, parametros_tarea[1], parametros_tarea[2], tripulante->TID, conexion_hq);
-	}
-	puts("antes del mover a");
-	mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
-	mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
-
 	}else{
 		while(pos_x != tripulante->pos_x){
 			mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
@@ -452,7 +435,6 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 			mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
 		}
 	}
-
 	for(int i = 0; i < duracion; i++) {
 		sleep(retardo_ciclo_cpu);
 		if(strcmp(algoritmo,"RR")) {
@@ -477,7 +459,6 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	} else if (strcmp(nombre_tarea[0], "DESCARTAR_BASURA") == 0) {
 		destruir_basura(duracion, tripulante->TID, conexion_store);
 	} else {
-
 		t_buffer* buffer = serializar_hacer_tarea(duracion, atoi(nombre_tarea[0]), tripulante->TID);
 		t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 		pthread_mutex_lock(&hq);
@@ -634,7 +615,7 @@ t_tripulante* tripulante_mas_cercano(int x, int y){
     return asignado;
 }
 
-static void* menor_ID(t_tripulante* t1, t_tripulante* t2) {
+void* menor_ID(t_tripulante* t1, t_tripulante* t2) {
     return t1->TID < t2->TID ? t1 : t2;
 }
 
@@ -677,7 +658,7 @@ void reportar_bitacora(char* log, int id, int conexion_store){
 	free(log);
 }
 
-void obtener_bitacora (char* i){
+void obtener_bitacora (char* i) {
 	int id = atoi(i);
 	char* bitacora;
 	t_buffer* buffer = serializar_solicitar_bitacora(id);

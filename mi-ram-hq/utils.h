@@ -48,7 +48,7 @@ typedef struct{
 	uint32_t pcb;
 }t_tcb;
 
-typdef struct{
+typedef struct{
 	uint32_t idPatota;
 	void *paginas;
 }tabla_de_paginas;

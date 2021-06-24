@@ -1,7 +1,7 @@
-#include<utils.h>
+#include "utils.h"
 
 //Cosas que van a ir en algun lado y que ponele funcionan
-	t_config*config=leer_config("mi-ram-hq.config");
+	/*t_config*config=leer_config("mi-ram-hq.config");
 	int tamanio_memoria = config_get_int_value(config,"TAMANIO_MEMORIA");
 
 	puntero_memoria_principal = malloc(tamanio_memoria);
@@ -119,3 +119,4 @@
 	void eliminar_tripulante(uint32_t tid){
 
 	}
+*/

@@ -220,8 +220,9 @@ void recibir_eliminar_tripulante(int socket_cliente) {
 	printf("EL ID A EXP: %d\n", id);
 
 	free(buffer);
+}
 
-t_buffer *serializar_enviar_tarea(char *tarea){
+t_buffer *serializar_enviar_tarea(char *tarea) {
 		t_buffer* buffer=malloc(sizeof(t_buffer));
 		void* stream=malloc(sizeof(uint32_t)+strlen(tarea)+1);
 		int desplazamiento =0;
