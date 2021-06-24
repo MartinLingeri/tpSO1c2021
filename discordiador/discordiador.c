@@ -17,7 +17,7 @@ t_list* bloqueado_emergencia;
 
 bool planificacion_activada = false;
 pthread_mutex_t bloq;
-pthread_mutex_t estados[5];
+pthread_mutex_t estados[6];
 pthread_mutex_t store;
 pthread_mutex_t hq;
 sem_t planif;
@@ -281,8 +281,7 @@ void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int lo
 
 	sem_t semaforo_tripulante;
 	tripulante->semaforo = semaforo_tripulante;
-
-	pthread_mutex_unlock(&estados[e_llegada]);
+	pthread_mutex_lock(&estados[e_llegada]);
 	list_add(llegada, tripulante);
 	pthread_mutex_unlock(&estados[e_llegada]);
 
@@ -334,7 +333,6 @@ void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripula
    bool es_el_tripulante(void* tripulante_en_lista) {
 		return ((t_tripulante*)tripulante_en_lista)->TID == tripulante->TID;
 	}
-
    pthread_mutex_lock(&estados[estado_anterior]);
    switch(estado_anterior){
     case e_llegada:
@@ -357,7 +355,6 @@ void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripula
         break;
    }
    pthread_mutex_unlock(&estados[estado_anterior]);
-
    tripulante->estado = estado_nuevo;
 
    pthread_mutex_lock(&estados[estado_nuevo]);
@@ -494,31 +491,34 @@ void listar_tripulantes(){
 
 void expulsar_tripulante(char* i) {
 	int id = atoi(i);
+	if(id < id_ultimo_tripulante+1){
+		bool es_el_tripulante(void* tripulante_en_lista) {
+			return ((t_tripulante*)tripulante_en_lista)->TID == id;
+		}
 
-	bool es_el_tripulante(void* tripulante_en_lista) {
-		return ((t_tripulante*)tripulante_en_lista)->TID == id;
+		if(list_any_satisfy(llegada, es_el_tripulante)){
+			t_tripulante* tripulante = list_find(llegada,es_el_tripulante);
+			cambiar_estado(e_llegada, e_fin, tripulante);
+
+		}else if(list_any_satisfy(listo, es_el_tripulante)){
+			t_tripulante* tripulante = list_find(listo,es_el_tripulante);
+			cambiar_estado(e_listo, e_fin, tripulante);
+
+		}else if(list_any_satisfy(bloqueado_IO, es_el_tripulante)){
+			t_tripulante* tripulante = list_find(bloqueado_IO,es_el_tripulante);
+			cambiar_estado(e_bloqueado_IO, e_fin, tripulante);
+
+		}else if(list_any_satisfy(bloqueado_emergencia, es_el_tripulante)){
+			t_tripulante* tripulante = list_find(bloqueado_emergencia,es_el_tripulante);
+			cambiar_estado(e_bloqueado_emergencia, e_fin, tripulante);
+
+		}else{
+			t_tripulante* tripulante = list_find(trabajando,es_el_tripulante);
+			cambiar_estado(e_trabajando, e_fin, tripulante);
+		}
+	}else{
+		log_info(logger, "El tripulante no existe o ya fue eliminado");
 	}
-
-	if(list_any_satisfy(llegada, es_el_tripulante)){
-    	t_tripulante* tripulante = list_find(llegada,es_el_tripulante);
-        cambiar_estado(e_llegada, e_fin, tripulante);
-
-    }else if(list_any_satisfy(listo, es_el_tripulante)){
-    	t_tripulante* tripulante = list_find(listo,es_el_tripulante);
-        cambiar_estado(e_listo, e_fin, tripulante);
-
-    }else if(list_any_satisfy(bloqueado_IO, es_el_tripulante)){
-    	t_tripulante* tripulante = list_find(bloqueado_IO,es_el_tripulante);
-        cambiar_estado(e_bloqueado_IO, e_fin, tripulante);
-
-    }else if(list_any_satisfy(bloqueado_emergencia, es_el_tripulante)){
-    	t_tripulante* tripulante = list_find(bloqueado_emergencia,es_el_tripulante);
-        cambiar_estado(e_bloqueado_emergencia, e_fin, tripulante);
-
-    }else{
-    	t_tripulante* tripulante = list_find(trabajando,es_el_tripulante);
-        cambiar_estado(e_trabajando, e_fin, tripulante);
-    }
 	t_buffer* buffer = serializar_eliminar_tripulante(id);
 	t_paquete* paquete_r = crear_mensaje(buffer, ELIMINAR_TRIP);
 	pthread_mutex_lock(&hq);
@@ -554,10 +554,15 @@ void atender_sabotaje(t_sabotaje* datos){
     //HILO O ALGO QUE ESPERE SABOTAJE SIN ESPERA ACTIVA Y LLAME A ESTO
 	//CONTROLAR PLANIF. ACTIVADA
 	puts("Atendiendo sabotaje...");
+	puts("1");
    mover_trips(e_bloqueado_emergencia);
+	puts("2");
    t_tripulante* asignado = tripulante_mas_cercano(datos->x, datos->y);
+	puts("3");
    resolver_sabotaje(asignado, datos);
+	puts("4");
    cambiar_estado(asignado->estado, e_listo, asignado);
+	puts("5");
    //VER TEMA EXACTO DEL ORDEN
    desbloquear_trips_inverso(bloqueado_emergencia);
    puts("Sabotaje atendido...");
@@ -567,9 +572,9 @@ void atender_sabotaje(t_sabotaje* datos){
 void mover_trips(int nuevo_estado){
     pasar_menor_id(trabajando,nuevo_estado);
     pasar_menor_id(listo,nuevo_estado);
-    pthread_mutex_lock(&estados[e_bloqueado_IO]);
-    pasar_menor_id(bloqueado_IO, nuevo_estado);
-    pthread_mutex_lock(&estados[e_bloqueado_IO]);
+   // pthread_mutex_lock(&estados[e_bloqueado_IO]);
+  //  pasar_menor_id(bloqueado_IO, nuevo_estado);
+  //  pthread_mutex_lock(&estados[e_bloqueado_IO]);
 }
 
 void desbloquear_trips_inverso(t_list* lista){
@@ -580,11 +585,18 @@ void desbloquear_trips_inverso(t_list* lista){
 }
 
 void pasar_menor_id(t_list* lista, int estado_nuevo){
+	void* menor_ID(t_tripulante* t1, t_tripulante* t2) {
+	    return t1->TID < t2->TID ? t1 : t2;
+	}
+
     while(list_size(lista) != 0){
+    	puts("132");
         t_tripulante* cambio = list_get_minimum(lista, (void*)menor_ID);
+        puts("133");
         cambiar_estado(cambio->estado, estado_nuevo, cambio);
+        puts("134");
     }
-    return;
+	return;
 }
 
 void pasar_ultimo(t_list* lista, int nuevo){
@@ -601,10 +613,10 @@ t_tripulante* tripulante_mas_cercano(int x, int y){
     t_tripulante* asignado = list_get_minimum(bloqueado_emergencia, (void*)t_distancia);
     return asignado;
 }
-
+/*
 static void* menor_ID(t_tripulante* t1, t_tripulante* t2) {
     return t1->TID < t2->TID ? t1 : t2;
-}
+}*/
 
 double distancia(t_tripulante* trip, int x, int y){
     double result = ((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
@@ -614,7 +626,7 @@ double distancia(t_tripulante* trip, int x, int y){
 
 void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos){
     cambiar_estado(asignado->estado, e_bloqueado_emergencia, asignado);
-    reportar_bitacora(logs_bitacora(SABOTAJE, " ", " "), asignado->TID, conexion_store);
+    //reportar_bitacora(logs_bitacora(SABOTAJE, " ", " "), asignado->TID, conexion_store);
     int tiempo = atoi(config_get_string_value(config, "DURACION_SABOTAJE"));
 
 	if(datos->x != asignado->pos_x || datos->y != asignado->pos_y){
@@ -628,9 +640,15 @@ void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos){
 			mover_a(asignado, false, datos->y, config_get_int_value(config, "RETARDO_CICLO_CPU")); //RETARDO CPU
 		}
 	}
-    //invocar_FSCK_de_hq(); //ESTO ES UNA SERIALIZACION Y ESPERAR RTA ANTES DE SEGUIR
-    sleep(tiempo);
-    reportar_bitacora(logs_bitacora(SABOTAJE_RESUELTO, " ", " "), asignado->TID, conexion_store);
+	/*t_buffer* buffer;
+	t_paquete* no_paquete = crear_mensaje(buffer, INVOCAR_FSCK);
+	pthread_mutex_lock(&store);
+	enviar_paquete(no_paquete, conexion_store);
+	pthread_mutex_unlock(&store);
+	free(buffer);
+	free(no_paquete);
+   // sleep(tiempo);
+    reportar_bitacora(logs_bitacora(SABOTAJE_RESUELTO, " ", " "), asignado->TID, conexion_store);*/
     return;
 }
 

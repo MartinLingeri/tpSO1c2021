@@ -23,6 +23,7 @@ typedef enum
     HACER_TAREA,
 	PEDIR_BITACORA,
 	ELIMINAR_TRIP,
+	INVOCAR_FSCK,
 }op_code;
 
 typedef enum
