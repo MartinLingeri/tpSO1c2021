@@ -143,6 +143,95 @@ t_buffer* serializar_pedir_tarea(uint32_t id)
 	return buffer;
 }
 
+t_buffer* serializar_reporte_bitacora(uint32_t id, char* reporte)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + strlen(reporte) + 1);
+	int desplazamiento = 0;
+
+	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	void* reporte_len = malloc(sizeof(uint32_t));
+	reporte_len = strlen(reporte) + 1;
+	memcpy(stream + desplazamiento, (void*)(&reporte_len), sizeof(uint32_t));
+	desplazamiento += sizeof(strlen(reporte) + 1);
+	memcpy(stream + desplazamiento, reporte, strlen(reporte) + 1);
+	desplazamiento += strlen(reporte) + 1;
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}
+
+t_buffer* serializar_desplazamiento(uint32_t tid, uint32_t x_nuevo, uint32_t y_nuevo)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(sizeof(uint32_t)*3);
+	int desplazamiento = 0;
+
+	memcpy(stream + desplazamiento, &tid, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(stream + desplazamiento, &x_nuevo, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(stream + desplazamiento, &y_nuevo, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}
+
+t_buffer* serializar_hacer_tarea(uint32_t cantidad, int tarea, int tid)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t));
+	int desplazamiento = 0;
+
+	memcpy(stream + desplazamiento, &cantidad, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(stream + desplazamiento, &tarea, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(stream + desplazamiento, &tid, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}
+
+t_buffer* serializar_eliminar_tripulante(uint32_t id)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(sizeof(uint32_t));
+	int desplazamiento = 0;
+
+	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}
+
+t_buffer* serializar_solicitar_bitacora(uint32_t id)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(sizeof(uint32_t));
+	int desplazamiento = 0;
+
+	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}
+
+
 void eliminar_paquete(t_paquete* paquete)
 {
 	free(paquete->buffer->stream);
@@ -190,33 +279,29 @@ char* recibir_tarea(int socket_cliente) {
 	desplazamiento += sizeof(uint32_t);
 
 	char* tarea = malloc(tarea_len);
-	memcpy(tarea, buffer+desplazamiento, tarea_len);
+	memcpy(tarea, buffer+desplazamiento, &tarea_len);
 
 	return tarea;
 }
 
 void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_ciclo_cpu) {
       if(es_x) {
-		while(tripulante->pos_x != valor_nuevo) {
 			if(tripulante->pos_x < valor_nuevo) {
 				tripulante->pos_x++;
 			} else {
 				tripulante->pos_x--;
 			}
 			sleep(retardo_ciclo_cpu);
-		}
-		printf("x: %d\n", tripulante->pos_x);
+		printf("X: %d\n", tripulante->pos_x);
 
       } else {
-  		while(tripulante->pos_y != valor_nuevo) {
   			if(tripulante->pos_y < valor_nuevo) {
   				tripulante->pos_y++;
   			} else {
   				tripulante->pos_y--;
   			}
   			sleep(retardo_ciclo_cpu);
-  		}
-  		printf("y: %d\n", tripulante->pos_y);
+  		printf("Y: %d\n", tripulante->pos_y);
       }
 }
 
@@ -361,38 +446,52 @@ char estado_a_char(int estado){
     case e_bloqueado_emergencia:
         return 'B';
         break;
+    default:
+    	return '?';
+    	break;
    }
-
 }
 
-void generar_oxigeno(int duracion, int id, int conexion_hq){  //ESTA BIEN IMPLEMENTADO ESTO CO N1 PAR. MAS? PAG 18 DE LA CONSIGNA
+void generar_oxigeno(int duracion, int id, int conexion_store){  //ESTA BIEN IMPLEMENTADO ESTO CO N1 PAR. MAS? PAG 18 DE LA CONSIGNA
 	t_buffer* buffer = serializar_hacer_tarea(duracion, GENERAR_OXIGENO, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+	enviar_paquete(paquete_hacer_tarea, conexion_store);
+	free(buffer);
+	free(paquete_hacer_tarea);
 }
 
-void descartar_oxigeno(int duracion, int id, int conexion_hq){
+void consumir_oxigeno(int duracion, int id, int conexion_store){
 	t_buffer* buffer = serializar_hacer_tarea(duracion, CONSUMIR_OXIGENO, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+	enviar_paquete(paquete_hacer_tarea, conexion_store);
+	free(buffer);
+	free(paquete_hacer_tarea);
 }
 
-void generar_comida(int duracion, int id, int conexion_hq){
+void generar_comida(int duracion, int id, int conexion_store){
 	t_buffer* buffer = serializar_hacer_tarea(duracion, GENERAR_COMIDA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+	enviar_paquete(paquete_hacer_tarea, conexion_store);
+	free(buffer);
+	free(paquete_hacer_tarea);
 }
 
-void consumir_comida(int duracion, int id, int conexion_hq){
+void consumir_comida(int duracion, int id, int conexion_store){
 	t_buffer* buffer = serializar_hacer_tarea(duracion, CONSUMIR_COMIDA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+	enviar_paquete(paquete_hacer_tarea, conexion_store);
+	free(buffer);
+	free(paquete_hacer_tarea);
 }
 
-void generar_basura(int duracion, int id, int conexion_hq){
+void generar_basura(int duracion, int id, int conexion_store){
 	t_buffer* buffer = serializar_hacer_tarea(duracion, GENERAR_BASURA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+	//pthread_mutex_lock(&store);
+	enviar_paquete(paquete_hacer_tarea, conexion_store);
+	//pthread_mutex_unlock(&store);
+	free(buffer);
+	free(paquete_hacer_tarea);
 }
 
 void descartar_basura(int duracion, int id, int conexion_hq){
@@ -421,25 +520,11 @@ void reportar_desplazamiento(int id, int nuevo_x, int nuevo_y, int conexion_hq) 
 	enviar_paquete(paquete, conexion_hq);
 }
 
-void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_y_nuevo, int id, int conexion_hq){
-	int size = sizeof(int)*2 + sizeof('|');
-	char *str_start = malloc(size);
-	char *str_end = malloc(size);
-
-	char *x = malloc(sizeof(pos_x));
-	char *y = malloc(sizeof(pos_y));
-
-	string_itoa(pos_x, x, 10);
-	string_itoa(pos_y, y, 10);
-
-	strcpy (str_start, x);
-	strcat (str_start, "|");
-	strcat (str_start, y);
-
-	strcpy (str_end, pos_x_nuevo);
-	strcat (str_end, "|");
-	strcat (str_end, pos_x_nuevo);
-
-	reportar_desplazamiento(id, pos_x, pos_y, conexion_hq);
-	reportar_bitacora(logs_bitacora(B_DESPLAZAMIENTO, str_start, str_end), id, conexion_hq);
+void destruir_basura(int duracion, int id, int conexion_store){
+	t_buffer* buffer = serializar_hacer_tarea(duracion, DESCARTAR_BASURA, id);
+	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
+	enviar_paquete(paquete_hacer_tarea, conexion_store);
+	free(buffer);
+	free(paquete_hacer_tarea);
 }
+

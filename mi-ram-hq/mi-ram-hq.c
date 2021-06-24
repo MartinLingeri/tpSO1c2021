@@ -1,5 +1,7 @@
 #include "mi-ram-hq.h"
 
+pthread_mutex_t discordiador;
+
 int main(void) {
 	void iterator(char* value)
 	{
@@ -96,4 +98,14 @@ void* serializar_paquete(t_paquete* paquete, int bytes)
 	desplazamiento+= paquete->buffer->size;
 
 	return magic;
+}
+
+void enviar_tarea(char *tarea){
+		t_buffer *buffer = serializar_enviar_tarea(tarea);
+		t_paquete* paquete_enviar_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
+		pthread_mutex_lock(&discordiador);
+		enviar_paquete(paquete_enviar_tarea, conexion_hq);
+		pthread_mutex_unlock(&discordiador);
+		free(buffer);
+		free(paquete_enviar_tarea);
 }
