@@ -24,6 +24,7 @@ typedef enum
 	ELIMINAR_TRIPULANTE,
 	PEDIR_BITACORA,
 	ELIMINAR_TRIP,
+	INVOCAR_FSCK,
 }op_code;
 
 typedef enum
@@ -126,4 +127,3 @@ void generar_basura(int duracion, int id, int conexion_hq);
 void destruir_basura(int duracion, int id, int conexion_hq);
 
 #endif /* UTILS_H_ */
-

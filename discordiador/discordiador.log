@@ -78,6 +78,11 @@
 [INFO] 19:08:11:902 discordiador/(5188:5188): no se reconocio la instruccion
 [INFO] 15:44:00:307 discordiador/(8254:8254): no se reconocio la instruccion
 [INFO] 15:45:53:026 discordiador/(8344:8344): no se reconocio la instruccion
+<<<<<<< HEAD
+[INFO] 16:23:19:165 discordiador/(4802:4802): no se reconocio la instruccion
+[INFO] 13:55:50:623 discordiador/(4490:4490): no se reconocio la instruccion
+[INFO] 14:05:41:204 discordiador/(6945:6945): no se reconocio la instruccion
+=======
 [INFO] 20:00:40:461 discordiador/(7155:7155): no se reconocio la instruccion
 [INFO] 09:37:31:307 discordiador/(3951:3951): no se reconocio la instruccion
 [INFO] 09:56:29:930 discordiador/(4340:4340): no se reconocio la instruccion
@@ -85,6 +90,23 @@
 [INFO] 16:07:44:544 discordiador/(5190:5190): no se reconocio la instruccion
 [INFO] 16:07:47:183 discordiador/(5190:5190): no se reconocio la instruccion
 [INFO] 16:18:04:121 discordiador/(5755:5755): Bitácora del tripulante N°
+<<<<<<< HEAD
+[INFO] 19:18:35:187 discordiador/(5036:5036): No se reconocio la instruccion
+[INFO] 19:22:12:568 discordiador/(5258:5258): El tripulante no existe o ya fue eliminado
+[INFO] 19:22:50:010 discordiador/(5305:5305): No se reconocio la instruccion
+[INFO] 19:22:58:854 discordiador/(5305:5305): No se reconocio la instruccion
+[INFO] 19:22:59:837 discordiador/(5305:5305): No se reconocio la instruccion
+[INFO] 19:23:00:340 discordiador/(5305:5305): No se reconocio la instruccion
+[INFO] 19:24:44:217 discordiador/(5385:5385): El tripulante no existe o ya fue eliminado
+[INFO] 19:25:42:120 discordiador/(5439:5439): No se reconocio la instruccion
+[INFO] 19:26:17:713 discordiador/(5464:5464): No se reconocio la instruccion
+[INFO] 20:15:28:650 discordiador/(7525:7525): No se reconocio la instruccion
+=======
 >>>>>>> 48aead27990137ff2f6be6b0df770c67579c742d
+<<<<<<< HEAD
 [INFO] 19:30:47:100 discordiador/(6940:6940): No se reconocio la instruccion
 [INFO] 19:30:54:099 discordiador/(6940:6940): No se reconocio la instruccion
+=======
+>>>>>>> 0eeac5c051a2d95d3acb33445cafd35f9eeb01d9
+>>>>>>> 821e524617a50b91fbd191221c174ad89d843788
+>>>>>>> 96cddb376fa0f79c49fa5afba19b6fd630970458

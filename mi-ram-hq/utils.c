@@ -2,8 +2,15 @@
 
 t_config* leer_config(void)
 {
-	config_create("mi-ram-hq.config");
+	return config_create("mi-ram-hq.config");
 }
+
+t_log* iniciar_logger(void)
+{
+	return log_create("mi-ram-hq.log", "mi-ram-hq", true, LOG_LEVEL_INFO);
+}
+
+//----------------------------
 
 int iniciar_servidor(void)
 {
@@ -134,6 +141,7 @@ t_pcb* recibir_pcb(int socket_cliente){
 	buffer = recibir_buffer(&size, socket_cliente);
 
 	memcpy(&(patota->pid), (buffer+desplazamiento), sizeof(uint32_t));
+
 	desplazamiento+=sizeof(uint32_t);
 
 	void* cantidad_tripulantes = malloc(sizeof(uint32_t));
@@ -176,15 +184,21 @@ void recibir_cambio_estado(int socket_cliente) {
 
 	void* tid = malloc(sizeof(uint32_t));
 	memcpy(&(tid), (buffer+desplazamiento), sizeof(uint32_t));
+
+	printf("tip id: %d\n", (tid));
+
 	desplazamiento += sizeof(uint32_t);
 
 	void* nuevo_estado = malloc(sizeof(char));
 	memcpy(&(nuevo_estado), (buffer+desplazamiento), sizeof(char));
 
+	printf("nuevo estado: %c\n", (char)(nuevo_estado));
+
 	free(buffer);
 	/*DEVOLVER PROXIMA TAREA, SI ERA LA ULTIMA Y NO HAY MAS, CHAR* VACIO*/
 }
 
+t_buffer *serializar_enviar_tarea(char *tarea){
 void recibir_desplazamiento(int socket_cliente) {
 	int size;
 	void* buffer;
@@ -220,22 +234,4 @@ void recibir_eliminar_tripulante(int socket_cliente) {
 	printf("EL ID A EXP: %d\n", id);
 
 	free(buffer);
-}
-
-t_buffer *serializar_enviar_tarea(char *tarea) {
-		t_buffer* buffer=malloc(sizeof(t_buffer));
-		void* stream=malloc(sizeof(uint32_t)+strlen(tarea)+1);
-		int desplazamiento =0;
-
-		void* tarea_len=malloc(sizeof(uint32_t));
-		tarea_len=strlen(tarea)+1;
-		memcpy(stream+desplazamiento,(void*)(&tarea_len), sizeof(uint32_t));
-		desplazamiento += sizeof(uint32_t);
-
-		memcpy(stream+desplazamiento, &tarea, tarea_len);
-		desplazamiento += tarea_len;
-
-		buffer->size=desplazamiento;
-		buffer->stream = stream;
-		return buffer;
 }

@@ -444,4 +444,3 @@ void destruir_basura(int duracion, int id, int conexion_store){
 	free(buffer);
 	free(paquete_hacer_tarea);
 }
-

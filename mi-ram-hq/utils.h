@@ -48,6 +48,7 @@ typedef struct{
 	uint32_t pcb;
 }t_tcb;
 
+
 typedef struct{
 	uint32_t idPatota;
 	void *paginas;
@@ -70,6 +71,12 @@ t_list listaDeFrames;
 void *puntero_memoria_principal;
 
 t_log* logger;
+t_config* config;
+
+t_config* leer_config(void);
+t_log* iniciar_logger(void);
+
+//-------------------------
 
 void* recibir_buffer(int*, int);
 
