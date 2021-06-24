@@ -25,6 +25,7 @@ sem_t multiprog;
 
 int quantum = 0;
 char* algoritmo;
+int gr;
 
 int main(void)
 {
@@ -34,14 +35,16 @@ int main(void)
 	trabajando = list_create();
 	bloqueado_IO = list_create();
 	bloqueado_emergencia = list_create();
-	sem_init(&planif,0,0);
-	sem_init(&multiprog,0,config_get_int_value(config, "GRADO_MULTITAREA"));
 
 	setlocale(LC_ALL,"spanish");
 
 	logger = iniciar_logger();
 	config = leer_config();
 	algoritmo = config_get_string_value(config, "ALGORITMO");
+	gr = config_get_int_value(config, "GRADO_MULTITAREA");
+
+	sem_init(&planif,0,0);
+	sem_init(&multiprog,0, gr);
 
 	pthread_t hilo_conexion_hq;
 	pthread_create(&hilo_conexion_hq, NULL, (void*) conexion_con_hq, NULL);
@@ -61,7 +64,8 @@ int main(void)
 }
 
 void conexion_con_hq() {
-		conexion_hq = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
+	conexion_hq = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
+	printf("socket: %d\n", conexion_hq);
 }
 
 void conexion_con_store() {
@@ -87,7 +91,7 @@ void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_con
 	sem_destroy(&multiprog);
 }
 
-void* esperar_conexion(int cliente_fd){
+void* esperar_conexion(int cliente_fd) {
 	/*
 	 * Vamos a esperar conexiones de 2 lados distintos, como se haria? con 2 hilos y 2 funcs de recibir?
 	 * abriendo y cerrando conexiones cada vez q sea necesario?
@@ -143,7 +147,7 @@ void leer_consola(t_log* logger)
 {
 	char* leido;
 	leido = readline(">");
-	while (strcmp(leido, "") != 0) {
+	while (strcmp(leido, "FIN") != 0) {
 		char** instruccion = string_split(leido, " ");
 		if(strcmp(instruccion[0], "INICIAR_PATOTA") == 0) {
 			iniciar_patota(instruccion, leido);
@@ -169,10 +173,20 @@ void leer_consola(t_log* logger)
 			data->x = 1;
 			data->y = 2;
 			atender_sabotaje(data);
-			free(data);
+
+		} else if (strcmp(instruccion[0], "ELIMINAR_TRIPULANTE") == 0) {
+			printf("entro al eliminar");
+			int id = atoi(instruccion[1]);
+			printf("id: %d\n", id);
+			printf("conexion hq: %d\n", conexion_hq);
+			reportar_eliminar_tripulante(id, conexion_hq);
+
+			//free(data);
 		} else {
-			log_info(logger, "no se reconocio la instruccion");
+			log_info(logger, "No se reconocio la instruccion");
+			printf("No se reconocio la instruccion");
 		}
+
 		leido = readline(">");
 	}
 	free(leido);
@@ -180,6 +194,7 @@ void leer_consola(t_log* logger)
 
 void planificador(void* args) {
 	quantum = config_get_int_value(config, "QUANTUM");
+
 	while(1){
 		sem_wait(&planif);
 		sem_wait(&multiprog);
@@ -220,14 +235,14 @@ void iniciar_patota(char** instruccion, char* leido) {
 	id_ultima_patota++;
 	uint32_t id_patota = id_ultima_patota;
 
-	t_buffer* buffer = serilizar_patota(id_patota, contenido_tareas, cantidad);
+	t_buffer* buffer = serializar_patota(id_patota, contenido_tareas, cantidad);
 	t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
 	pthread_mutex_lock(&hq);
 	enviar_paquete(paquete_pcb, conexion_hq);
 	pthread_mutex_unlock(&hq);
 	sleep(2);
-	free(buffer);
-	free(paquete_pcb);
+	//free(buffer);
+	//free(paquete_pcb);
 
 	if(true){//SI HAY LUGAR EN MEMORIA
 		pthread_t hilos[longitud];
@@ -235,12 +250,12 @@ void iniciar_patota(char** instruccion, char* leido) {
 			inicializar_tripulante(instruccion, i, longitud, id_patota, hilos[i]);
 		}
 	}else{
-		printf("No hay lugar en memoria"); //TRATAR ESTE CASO DE ALGUNA FORMA
+		log_info(logger, "No hay lugar en memoria"); //TRATAR ESTE CASO DE ALGUNA FORMA
 	}
 }
 
 void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
-	t_buffer* buffer = serilizar_tripulante(tripulante->TID, tripulante->PID, tripulante->pos_x, tripulante->pos_y, tripulante->estado);
+	t_buffer* buffer = serializar_tripulante(tripulante->TID, tripulante->PID, tripulante->pos_x, tripulante->pos_y, tripulante->estado);
 	t_paquete* paquete_tcb = crear_mensaje(buffer, TCB_MENSAJE);
 	pthread_mutex_lock(&hq);
 	enviar_paquete(paquete_tcb, conexion_hq);
@@ -250,7 +265,8 @@ void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
 }
 
 void enviar_cambio_estado_hq(t_tripulante* tripulante) {
-	t_buffer* buffer = serilizar_cambio_estado(tripulante->TID, tripulante->estado);
+	pthread_mutex_lock(&bloq);
+	t_buffer* buffer = serializar_cambio_estado(tripulante->TID, tripulante->estado);
 	t_paquete* paquete_cambio_estado = crear_mensaje(buffer, CAMBIO_ESTADO_MENSAJE);
 	pthread_mutex_lock(&hq);
 	enviar_paquete(paquete_cambio_estado, conexion_hq);
@@ -293,7 +309,7 @@ void circular(void* args) {
 	t_circular_args* argumentos = args;
 	iniciar_tripulante_en_hq(argumentos->tripulante);
 
-	t_buffer* buffer = serilizar_pedir_tarea(argumentos->tripulante->TID);
+	t_buffer* buffer = serializar_pedir_tarea(argumentos->tripulante->TID);
 	t_paquete* paquete_pedir_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
 	pthread_mutex_lock(&hq);
 	enviar_paquete(paquete_pedir_tarea, conexion_hq);
@@ -316,14 +332,14 @@ void circular(void* args) {
 
 	//PARTE CON BLOQUEOS PORQUE TIENE QUE ESTAR PLANIFICADO
 	sem_init(&argumentos->tripulante->semaforo, 0, 0);
-//	while(1) {
+//	while(strcmp(tarea, "") != 1) {
 		sem_wait(&argumentos->tripulante->semaforo);
+		puts("despues del wait");
 		leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
-		//BUSCAR SIG TAREA
-		//SI VACIO SE PASA A TERMINADO
 		cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
 		sem_post(&planif);
 //	}
+	cambiar_estado(argumentos->tripulante->estado, e_fin, argumentos->tripulante);
 	free(argumentos);
 }
 
@@ -443,7 +459,7 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	} else if (strcmp(nombre_tarea[0], "DESCARTAR_BASURA") == 0) {
 		destruir_basura(duracion, tripulante->TID, conexion_store);
 	} else {
-		t_buffer* buffer = serilizar_hacer_tarea(duracion, atoi(nombre_tarea[0]), tripulante->TID);
+		t_buffer* buffer = serializar_hacer_tarea(duracion, atoi(nombre_tarea[0]), tripulante->TID);
 		t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 		pthread_mutex_lock(&hq);
 		enviar_paquete(paquete_hacer_tarea, conexion_hq);
@@ -487,7 +503,6 @@ void listar_tripulantes(){
     list_iterate(bloqueado_IO,listar);
     list_iterate(fin,listar);
     printf("---------------------------------------------------------------------------- \n");
-    free(local);
 }
 
 void expulsar_tripulante(char* i) {
@@ -517,8 +532,35 @@ void expulsar_tripulante(char* i) {
     	t_tripulante* tripulante = list_find(trabajando,es_el_tripulante);
         cambiar_estado(e_trabajando, e_fin, tripulante);
     }
-   //enviar_remover_a_hq(id);
-   return;
+	t_buffer* buffer = serializar_eliminar_tripulante(id);
+	t_paquete* paquete_r = crear_mensaje(buffer, ELIMINAR_TRIP);
+	pthread_mutex_lock(&hq);
+	enviar_paquete(paquete_r, conexion_hq);
+	pthread_mutex_unlock(&hq);
+	free(buffer);
+	free(paquete_r);
+	return;
+}
+
+void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_y_nuevo, int id, int conexion_hq){
+	int size = sizeof(int)*2 + sizeof('|');
+	char *str_start = malloc(size);
+	char *str_end = malloc(size);
+
+	char *x = string_itoa(pos_x);
+	char *y = string_itoa(pos_y);
+
+	strcpy (str_start, x);
+	strcat (str_start, "|");
+	strcat (str_start, y);
+
+	strcpy (str_end, pos_x_nuevo);
+	strcat (str_end, "|");
+	strcat (str_end, pos_x_nuevo);
+
+	reportar_bitacora(logs_bitacora(B_DESPLAZAMIENTO, str_start, str_end), id, conexion_hq);
+	free(str_start);
+	free(str_end);
 }
 
 void atender_sabotaje(t_sabotaje* datos){
@@ -538,10 +580,9 @@ void atender_sabotaje(t_sabotaje* datos){
 void mover_trips(int nuevo_estado){
     pasar_menor_id(trabajando,nuevo_estado);
     pasar_menor_id(listo,nuevo_estado);
-    while(list_size(bloqueado_IO) != 0){
-        pasar_menor_id(bloqueado_IO, nuevo_estado);
-        pasar_menor_id(listo, nuevo_estado);
-    }
+    pthread_mutex_lock(&estados[e_bloqueado_IO]);
+    pasar_menor_id(bloqueado_IO, nuevo_estado);
+    pthread_mutex_lock(&estados[e_bloqueado_IO]);
 }
 
 void desbloquear_trips_inverso(t_list* lista){
@@ -574,14 +615,14 @@ t_tripulante* tripulante_mas_cercano(int x, int y){
     return asignado;
 }
 
-static void* menor_ID(t_tripulante* t1, t_tripulante* t2) {
+void* menor_ID(t_tripulante* t1, t_tripulante* t2) {
     return t1->TID < t2->TID ? t1 : t2;
 }
 
 double distancia(t_tripulante* trip, int x, int y){
-    return ((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
-    //NO ANDA EL sqrt()
-    //return sqrt((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
+    double result = ((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
+    //double result = sqrt((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
+    return result;
 }
 
 void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos){
@@ -617,20 +658,18 @@ void reportar_bitacora(char* log, int id, int conexion_store){
 	free(log);
 }
 
-void obtener_bitacora (char* i){
+void obtener_bitacora (char* i) {
 	int id = atoi(i);
 	char* bitacora;
-	//t_buffer* buffer = serilizar_pedir_bitacora(id);
-	//t_paquete* paquete_pcb = crear_mensaje(buffer, PEDIR_BITACORA);
-	pthread_mutex_lock(&hq);
-	//enviar_paquete(paquete_pcb, conexion_hq);
-	pthread_mutex_unlock(&hq);
+	t_buffer* buffer = serializar_solicitar_bitacora(id);
+	t_paquete* paquete_b = crear_mensaje(buffer, PEDIR_BITACORA);
+	pthread_mutex_lock(&store);
+	enviar_paquete(paquete_b, conexion_store);
+	pthread_mutex_unlock(&store);
 	//ver de que manera recibir el texto por conexion y si la puedo pasar aca de alguna forma
-
-	printf("---------------------------------------------------------------------------- \n");
-    printf("Bitácora del tripulante N° %d \n", id);
-    //printf("%s \n", bitacora); o hacer pedido y que el pedido la lea
-    printf("---------------------------------------------------------------------------- \n");
+	log_info(logger, "Bitácora del tripulante N°"); //poner el numero
+    //log_info(logger, bitacora); o hacer pedido y que el pedido loggee
     //free(bitacora);
+    free(buffer);
+    free(paquete_b);
 }
-

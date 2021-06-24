@@ -30,6 +30,7 @@ int main(void) {
 	nivel = nivel_crear("A-MongOs");
 
 	//Conecta con el servidor
+
 	void iterator(char* value)
 	{
 		printf("%s\n", value);
@@ -42,6 +43,7 @@ int main(void) {
 	t_pcb* patota = malloc(sizeof(t_pcb));
 	while(1)
 	{
+		printf("socket: %d\n", cliente_fd);
 		int cod_op = recibir_operacion(cliente_fd);
 		switch(cod_op)
 		{
@@ -50,6 +52,7 @@ int main(void) {
 			//mostrar_tcb(tripulante);
 			break;
 		case PCB_MENSAJE:
+			printf("COD OP: %d\n", cod_op);
 			patota = recibir_pcb(cliente_fd);
 			//mostrar_tcb(patota);
 			break;
@@ -58,6 +61,16 @@ int main(void) {
 			break;
 		case CAMBIO_ESTADO_MENSAJE:
 			recibir_cambio_estado(cliente_fd);
+			break;
+		case DESPLAZAMIENTO:
+			printf("COD OP: %d\n", cod_op);
+			printf("entra en msj desplazamiento");
+			recibir_desplazamiento(cliente_fd);
+			break;
+		case ELIMINAR_TRIPULANTE:
+			printf("COD OP: %d\n", cod_op);
+			printf("entra en msj ELIM TRIP");
+			recibir_eliminar_tripulante(cliente_fd);
 			break;
 		case -1:
 			log_error(logger, "El cliente se desconecto. Terminando servidor");
@@ -71,6 +84,7 @@ int main(void) {
 
 	free(inicio_memoria);
 	terminar_programa(/*conexion_disc,*/ logger, config);
+
 	return EXIT_SUCCESS;
 }
 
@@ -102,7 +116,7 @@ void* serializar_paquete(t_paquete* paquete, int bytes)
 
 	return magic;
 }
-
+/*
 void enviar_tarea(char *tarea){
 		t_buffer *buffer = serializar_enviar_tarea(tarea);
 		t_paquete* paquete_enviar_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
@@ -111,4 +125,10 @@ void enviar_tarea(char *tarea){
 		pthread_mutex_unlock(&discordiador);
 		free(buffer);
 		free(paquete_enviar_tarea);
-}
+		//t_paquete* paquete_enviar_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
+		pthread_mutex_lock(&discordiador);
+		//enviar_paquete(paquete_enviar_tarea, conexion_hq);
+		pthread_mutex_unlock(&discordiador);
+		free(buffer);
+		//free(paquete_enviar_tarea);
+}*/
