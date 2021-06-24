@@ -39,11 +39,10 @@ int main(void)
 	pthread_t hilo_conexion_hq;
 	pthread_create(&hilo_conexion_hq, NULL, (void*) conexion_con_hq, NULL);
 	pthread_detach((pthread_t) hilo_conexion_hq);
-	/*
+
 	pthread_t hilo_conexion_store;
 	pthread_create(&hilo_conexion_store, NULL, (void*) conexion_con_store, NULL);
 	pthread_detach((pthread_t) hilo_conexion_store);
-	*/
 
 	pthread_t hilo_planificador;
 	pthread_create(&hilo_planificador, NULL, (void*) planificador, NULL);
@@ -57,8 +56,8 @@ int main(void)
 void conexion_con_hq() {
 	while(conexion_hq == -1) {
 		conexion_hq = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
-		sleep(2);
 	}
+	printf("socket: %d\n", conexion_hq);
 }
 
 void conexion_con_store() {
@@ -108,9 +107,16 @@ void leer_consola(t_log* logger)
 			data->x = 1;
 			data->y = 2;
 			atender_sabotaje(data);
+		} else if (strcmp(instruccion[0], "ELIMINAR_TRIPULANTE") == 0) {
+			printf("entro al eliminar");
+			int id = atoi(instruccion[1]);
+			printf("id: %d\n", id);
+			printf("conexion hq: %d\n", conexion_hq);
+			reportar_eliminar_tripulante(id, conexion_hq);
 		} else {
 			log_info(logger, "no se reconocio la instruccion");
 		}
+
 		leido = readline(">");
 	}
 	free(leido);
@@ -120,11 +126,12 @@ void planificador(void* args) {
 	quantum = config_get_int_value(config, "QUANTUM");
 	while(1) {
 		if(planificacion_activada == true && list_size(trabajando) < config_get_int_value(config, "GRADO_MULTITAREA")) {
-			t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
-			cambiar_estado(tripulante->estado, e_trabajando, tripulante);
-			sem_post(&tripulante->semaforo);
+			if(list_size(listo) > 0) {
+				t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
+				cambiar_estado(tripulante->estado, e_trabajando, tripulante);
+				sem_post(&tripulante->semaforo);
+			}
 		}
-
 	}
 }
 
@@ -148,7 +155,6 @@ int longitud_instr(char** instruccion) {
 void iniciar_patota(char** instruccion, char* leido) {
 	//INICIAR_PATOTA 3 /home/utnso/tareas.txt
 	uint32_t cantidad = atoi(instruccion[1]);
-	printf("cant trips: %d\n", cantidad);
 	char* tareas = instruccion[2];
 
 	FILE* archivo_tareas =  fopen(tareas, "r");
@@ -167,12 +173,12 @@ void iniciar_patota(char** instruccion, char* leido) {
 	/*while (conexion_hq == -1) {
 		sleep(2);
 	}*/
-	t_buffer* buffer = serilizar_patota(id_patota, contenido_tareas, cantidad);
+	t_buffer* buffer = serializar_patota(id_patota, contenido_tareas, cantidad);
 	t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
 	enviar_paquete(paquete_pcb, conexion_hq);
 	sleep(2);
-	free(buffer);
-	free(paquete_pcb);
+	//free(buffer);
+	//free(paquete_pcb);
 
 	if(true){//SI HAY LUGAR EN MEMORIA
 		pthread_t hilos[longitud];
@@ -189,7 +195,7 @@ void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
 	/*while (conexion_hq == -1) {
 		sleep(2);
 	}*/
-	t_buffer* buffer = serilizar_tripulante(tripulante->TID, tripulante->PID, tripulante->pos_x, tripulante->pos_y, tripulante->estado);
+	t_buffer* buffer = serializar_tripulante(tripulante->TID, tripulante->PID, tripulante->pos_x, tripulante->pos_y, tripulante->estado);
 	t_paquete* paquete_tcb = crear_mensaje(buffer, TCB_MENSAJE);
 	enviar_paquete(paquete_tcb, conexion_hq);
 	free(paquete_tcb);
@@ -199,7 +205,7 @@ void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
 
 void enviar_cambio_estado_hq(t_tripulante* tripulante) {
 	pthread_mutex_lock(&bloq);
-	t_buffer* buffer = serilizar_cambio_estado(tripulante->TID, tripulante->estado);
+	t_buffer* buffer = serializar_cambio_estado(tripulante->TID, tripulante->estado);
 	t_paquete* paquete_cambio_estado = crear_mensaje(buffer, CAMBIO_ESTADO_MENSAJE);
 	enviar_paquete(paquete_cambio_estado, conexion_hq);
 	pthread_mutex_unlock(&bloq);
@@ -236,12 +242,13 @@ void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int lo
 void circular(void* args) {
 	t_circular_args* argumentos = args;
 	iniciar_tripulante_en_hq(argumentos->tripulante);
+	puts("");
 	/*while (conexion_hq == -1) {
 		sleep(2);
 	}*/
 
 
-	t_buffer* buffer = serilizar_pedir_tarea(argumentos->tripulante->TID);
+	t_buffer* buffer = serializar_pedir_tarea(argumentos->tripulante->TID);
 	t_paquete* paquete_pedir_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
 	enviar_paquete(paquete_pedir_tarea, conexion_hq);
 
@@ -265,6 +272,7 @@ void circular(void* args) {
 
 	while(1) {
 		sem_wait(&argumentos->tripulante->semaforo);
+		puts("despues del wait");
 		leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
 		//BUSCAR SIG TAREA
 		//SI VACIO SE PASA A TERMINADO
@@ -334,7 +342,8 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 
 	reportar_bitacora(logs_bitacora(INICIO_TAREA, nombre_tarea[0], " "), &tripulante->TID);
 
-	if(strcmp(algoritmo,"RR")) {
+	if(strcmp(algoritmo,"RR") == 1) {
+		puts("entro al if de rr");
 		if(pos_x != tripulante->pos_x) {
 			quantum_ejec++;
 			sleep(1);
@@ -351,12 +360,15 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 			cambiar_estado(tripulante->estado, e_listo, tripulante);
 			sem_wait(&tripulante->semaforo);
 		}
+		puts("antes de terminar el if del rr");
 	}
 
-	if(pos_x != tripulante->pos_x || pos_y != tripulante->pos_y){
+	puts("antes loguear desplazamiento");
+	if(pos_x != tripulante->pos_x || pos_y != tripulante->pos_y) {
+		puts("entra al if para loguear desplazamiento");
 		logear_despl(tripulante->pos_x, tripulante->pos_y, parametros_tarea[1], parametros_tarea[2], tripulante->TID, conexion_hq);
 	}
-
+	puts("antes del mover a");
 	mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
 	mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
 
@@ -385,7 +397,7 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	} else if (strcmp(nombre_tarea[0], "DESCARTAR_BASURA") == 0) {
 		//destruir_basura(nombre_tarea[1], tripulante->TID);
 	} else {
-		//t_buffer* buffer = serilizar_hacer_tarea(duracion, nombre_tarea[0], tripulante->TID);
+		//t_buffer* buffer = serializar_hacer_tarea(duracion, nombre_tarea[0], tripulante->TID);
 		//t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 		//enviar_paquete(paquete_hacer_tarea, conexion_hq);
 	}

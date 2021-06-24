@@ -28,6 +28,10 @@ typedef enum
 	CAMBIO_ESTADO_MENSAJE,
 	PEDIR_SIGUIENTE_TAREA,
 	MENSAJE,
+    REPORTE_BITACORA,
+    DESPLAZAMIENTO,
+    HACER_TAREA,
+	ELIMINAR_TRIPULANTE,
 }op_code;
 
 typedef struct{
@@ -57,5 +61,7 @@ t_pcb* recibir_pcb(int socket_cliente);
 t_tcb* recibir_tcb(int socket_cliente);
 void recibir_pedir_tarea(int socket_cliente);
 void recibir_cambio_estado(int socket_cliente);
+void recibir_desplazamiento(int socket_cliente);
+void recibir_eliminar_tripulante(int socket_cliente);
 
 #endif /* CONEXIONES_H_ */

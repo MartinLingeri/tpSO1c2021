@@ -19,7 +19,8 @@ int iniciar_servidor(void)
     t_config* config = leer_config();
 	char* ip = config_get_string_value(config, "IP");
 	char* puerto = config_get_string_value(config, "PUERTO");
-
+	printf("ip: %s", ip);
+	printf("puerto: %s", puerto);
     getaddrinfo(ip, puerto, &hints, &servinfo);
 
     for (p=servinfo; p != NULL; p = p->ai_next)
@@ -124,6 +125,7 @@ t_tcb* recibir_tcb(int socket_cliente){
 }
 
 t_pcb* recibir_pcb(int socket_cliente){
+	puts("RECIBE PCB");
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
@@ -174,13 +176,48 @@ void recibir_cambio_estado(int socket_cliente) {
 
 	void* tid = malloc(sizeof(uint32_t));
 	memcpy(&(tid), (buffer+desplazamiento), sizeof(uint32_t));
-	printf("tip id: %d\n", (tid));
 	desplazamiento += sizeof(uint32_t);
 
 	void* nuevo_estado = malloc(sizeof(char));
 	memcpy(&(nuevo_estado), (buffer+desplazamiento), sizeof(char));
-	printf("nuevo estado: %c\n", (char)(nuevo_estado));
 
 	free(buffer);
 	/*DEVOLVER PROXIMA TAREA, SI ERA LA ULTIMA Y NO HAY MAS, CHAR* VACIO*/
+}
+
+void recibir_desplazamiento(int socket_cliente) {
+	int size;
+	void* buffer;
+	int desplazamiento = 0;
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	void* tid = malloc(sizeof(uint32_t));
+	memcpy(&(tid), (buffer), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+	printf("tid: %d\n", tid);
+
+	void* nuexo_x = malloc(sizeof(uint32_t));
+	memcpy(&(nuexo_x), (buffer), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+	printf("nuevo x: %d\n", tid);
+
+	void* nuexo_y = malloc(sizeof(uint32_t));
+	memcpy(&(nuexo_y), (buffer), sizeof(uint32_t));
+	printf("nuevo y: %d\n", tid);
+
+	free(buffer);
+}
+
+void recibir_eliminar_tripulante(int socket_cliente) {
+	int size;
+	void* buffer;
+	printf("antes d expulsar");
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	void* id = malloc(sizeof(uint32_t));
+
+	memcpy(&(id), (buffer), sizeof(uint32_t));
+	printf("EL ID A EXP: %d\n", id);
+
+	free(buffer);
 }

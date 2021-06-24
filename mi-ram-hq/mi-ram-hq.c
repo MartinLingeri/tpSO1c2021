@@ -9,12 +9,13 @@ int main(void) {
 	logger = log_create("log.log", "Mi-Ram-HQ", 1, LOG_LEVEL_DEBUG);
 
 	int server_fd = iniciar_servidor();
-	log_info(logger, "Servidor listo para recibir al client-e");
+	log_info(logger, "Servidor listo para recibir al cliente");
 	int cliente_fd = esperar_cliente(server_fd);
 	t_tcb* tripulante = malloc(sizeof(t_tcb));
 	t_pcb* patota = malloc(sizeof(t_pcb));
 	while(1)
 	{
+		printf("socket: %d\n", cliente_fd);
 		int cod_op = recibir_operacion(cliente_fd);
 		switch(cod_op)
 		{
@@ -23,6 +24,7 @@ int main(void) {
 			//mostrar_tcb(tripulante);
 			break;
 		case PCB_MENSAJE:
+			printf("COD OP: %d\n", cod_op);
 			patota = recibir_pcb(cliente_fd);
 			//mostrar_tcb(patota);
 			break;
@@ -31,6 +33,16 @@ int main(void) {
 			break;
 		case CAMBIO_ESTADO_MENSAJE:
 			recibir_cambio_estado(cliente_fd);
+			break;
+		case DESPLAZAMIENTO:
+			printf("COD OP: %d\n", cod_op);
+			printf("entra en msj desplazamiento");
+			recibir_desplazamiento(cliente_fd);
+			break;
+		case ELIMINAR_TRIPULANTE:
+			printf("COD OP: %d\n", cod_op);
+			printf("entra en msj ELIM TRIP");
+			recibir_eliminar_tripulante(cliente_fd);
 			break;
 		case -1:
 			log_error(logger, "El cliente se desconecto. Terminando servidor");
