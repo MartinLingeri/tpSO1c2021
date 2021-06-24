@@ -50,9 +50,9 @@ int main(void)
 	pthread_create(&hilo_conexion_hq, NULL, (void*) conexion_con_hq, NULL);
 	pthread_detach((pthread_t) hilo_conexion_hq);
 
-	pthread_t hilo_conexion_store;
+	/*pthread_t hilo_conexion_store;
 	pthread_create(&hilo_conexion_store, NULL, (void*) conexion_con_store, NULL);
-	pthread_detach((pthread_t) hilo_conexion_store);
+	pthread_detach((pthread_t) hilo_conexion_store);*/
 
 	pthread_t hilo_planificador;
 	pthread_create(&hilo_planificador, NULL, (void*) planificador, NULL);
