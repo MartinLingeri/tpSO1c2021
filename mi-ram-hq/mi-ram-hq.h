@@ -1,13 +1,13 @@
 #ifndef MI_RAM_HQ_H_
 #define MI_RAM_HQ_H_
 
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <curses.h>
 
-#include<commons/log.h>
-#include<commons/config.h>
+#include <commons/log.h>
+#include <commons/config.h>
 #include <commons/collections/list.h>
 
 #include <nivel-gui/nivel-gui.h>
