@@ -9,7 +9,7 @@
 #include<netdb.h>
 #include<string.h>
 #include<commons/log.h>
-#include <semaphore.h>
+#include<semaphore.h>
 
 typedef enum
 {
@@ -56,12 +56,12 @@ typedef enum
 }estado;
 
 typedef struct {
-int TID;
-int PID;
-int pos_x;
-int pos_y;
-estado estado;
-sem_t semaforo;
+	int TID;
+	int PID;
+	int pos_x;
+	int pos_y;
+	estado estado;
+	sem_t semaforo;
 }t_tripulante;
 
 typedef enum
@@ -92,9 +92,11 @@ typedef struct{
 
 void* serializar_paquete(t_paquete* paquete, int bytes);
 void enviar_paquete(t_paquete* paquete, int socket_cliente);
+int iniciar_servidor(char* ip, char* puerto);
+int esperar_cliente(int socket_servidor);
+
 int crear_conexion(char* ip, char* puerto);
 t_paquete* crear_mensaje(t_buffer* buffer, op_code codigo);
-
 
 t_buffer* serializar_patota(uint32_t id, char* tareas, uint32_t trips); //DEVOLVER SI HAY LUGAR
 t_buffer* serializar_tripulante(uint32_t id, uint32_t pid, uint32_t pos_x, uint32_t pos_y, uint32_t estado);
@@ -106,16 +108,22 @@ t_buffer* serializar_desplazamiento(uint32_t tid, uint32_t x_nuevo, uint32_t y_n
 t_buffer* serializar_hacer_tarea(uint32_t cantidad, int tarea, int tid);
 t_buffer* serializar_eliminar_tripulante(uint32_t id);
 t_buffer* serializar_solicitar_bitacora(uint32_t id);
-
+t_buffer* invocar_fsck(uint32_t id);
 
 void eliminar_paquete(t_paquete* paquete);
 void liberar_conexion(int socket_cliente);
 void* recibir_buffer(int* size, int socket_cliente);
 int recibir_operacion(int socket_cliente);
+
+t_sabotaje* recibir_datos_sabotaje(int socket_cliente);
+int recibir_hay_lugar(int socket_cliente);
+char* recibir_bitacora(int socket_cliente);
 char* recibir_tarea(int socket_cliente);
+
 void mover_a(t_tripulante* tripulante, bool xOy, int valor_nuevo, int retardo_ciclo_cpu);
 char* logs_bitacora(regs_bitacora asunto, char* dato1, char* dato2);
 char estado_a_char(int estado);
+int atoi_tarea(char* tarea);
 void reportar_desplazamiento(int id, int nuevo_x, int nuevo_y, int conexion_hq);
 void reportar_eliminar_tripulante(int id, int conexion_hq);
 

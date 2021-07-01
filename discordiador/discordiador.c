@@ -16,16 +16,20 @@ t_list* bloqueado_IO;
 t_list* bloqueado_emergencia;
 
 bool planificacion_activada = false;
-pthread_mutex_t bloq;
 pthread_mutex_t estados[6];
 pthread_mutex_t store;
 pthread_mutex_t hq;
+pthread_mutex_t sabotaje;
+pthread_mutex_t logs;
+
+sem_t recibido_hay_lugar;
 sem_t planif;
 sem_t multiprog;
 
 int quantum = 0;
 char* algoritmo;
-int gr;
+int grado_multitarea;
+int lugar_en_memoria = 1; //INICIAR EN 0 DESPUES
 
 int main(void)
 {
@@ -41,10 +45,11 @@ int main(void)
 	logger = iniciar_logger();
 	config = leer_config();
 	algoritmo = config_get_string_value(config, "ALGORITMO");
-	gr = config_get_int_value(config, "GRADO_MULTITAREA");
+	grado_multitarea = config_get_int_value(config, "GRADO_MULTITAREA");
 
 	sem_init(&planif,0,0);
-	sem_init(&multiprog,0, gr);
+	sem_init(&recibido_hay_lugar,0,1);
+	sem_init(&multiprog,0, grado_multitarea);
 
 	pthread_t hilo_conexion_hq;
 	pthread_create(&hilo_conexion_hq, NULL, (void*) conexion_con_hq, NULL);
@@ -53,7 +58,15 @@ int main(void)
 	pthread_t hilo_conexion_store;
 	pthread_create(&hilo_conexion_store, NULL, (void*) conexion_con_store, NULL);
 	pthread_detach((pthread_t) hilo_conexion_store);
+/*
+	pthread_t hilo_recibir_store;
+	pthread_create(&hilo_recibir_store, NULL, (void*) esperar_conexion_store, NULL);
+	pthread_detach((pthread_t) hilo_recibir_store);
 
+	pthread_t hilo_recibir_hq;
+	pthread_create(&hilo_recibir_hq, NULL, (void*) esperar_conexion_hq, NULL);
+	pthread_detach((pthread_t) hilo_recibir_hq);
+*/
 	pthread_t hilo_planificador;
 	pthread_create(&hilo_planificador, NULL, (void*) planificador, NULL);
 	pthread_detach((pthread_t) hilo_planificador);
@@ -89,9 +102,10 @@ void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_con
 	config_destroy(config);
 	sem_destroy(&planif);
 	sem_destroy(&multiprog);
+	sem_destroy(&recibido_hay_lugar);
 }
 
-void* esperar_conexion(int cliente_fd) {
+void* esperar_conexion_store() {
 	/*
 	 * Vamos a esperar conexiones de 2 lados distintos, como se haria? con 2 hilos y 2 funcs de recibir?
 	 * abriendo y cerrando conexiones cada vez q sea necesario?
@@ -99,49 +113,87 @@ void* esperar_conexion(int cliente_fd) {
 	 * eso seria una tercera o la misma q recv bitacora?
 	 * si fuera la misma como gestionar si llegan 2 cosas al mismo tiempo
 	 */
+	char* ip = config_get_string_value(config, "IP");
+	char* puerto = config_get_string_value(config, "PUERTO");
+	int server_st = iniciar_servidor(ip, puerto);
+	pthread_mutex_lock(&logs);
+	log_info(logger, "Servidor listo para recibir al store");
+	pthread_mutex_unlock(&logs);
+	int cliente_st = esperar_cliente(server_st);
+
 	char* bitacora;
-	char* tarea;
 	t_sabotaje* data = malloc(sizeof(t_sabotaje));
-	int lugar = 0;
 
 	while(1){
-		//wait sem
-		int cod_op = recibir_operacion(cliente_fd);
+		int cod_op = recibir_operacion(cliente_st);
 		switch(cod_op){
 		case BITACORA:
-			//bitacora = recibir_bitacora(cliente_fd);
-			//leer_bitacora(bitacora);
+			bitacora = recibir_bitacora(cliente_st);
+			log_info(logger, bitacora);
+			pthread_mutex_unlock(&logs);
 			break;
 
 		case ALERTA_SABOTAJE:
-			//data = recibir_datos_sabotaje(cliente_fd);
+			data = recibir_datos_sabotaje(cliente_st);
 			atender_sabotaje(data);
 			break;
 
-		case LUGAR_MEMORIA:
-			//lugar = recibir_confirmacion_lugar(cliente_fd);
-			return lugar;
-			break;
-
-		case TAREA:
-			tarea = recibir_tarea(cliente_fd);
-			//ver forma de pasar tarea al hilo del trip
-			return tarea;
-			break;
-
 		case -1:
-			log_error(logger, "El cliente se desconecto. Terminando servidor");
+			pthread_mutex_unlock(&logs);
+			log_error(logger, "I-Mongo-Store se desconecto. Terminando servidor");
+			pthread_mutex_unlock(&logs);
 			return 0;
 
 		default:
 			break;
 		}
 	}
+	free(ip);
+	free(puerto);
 	free(bitacora);
 	free(data);
-	free(tarea);
 }
 
+void* esperar_conexion_hq() {
+	char* ip = config_get_string_value(config, "IP");
+	char* puerto = config_get_string_value(config, "PUERTO");
+	int server_hq = iniciar_servidor(ip, puerto);
+	pthread_mutex_lock(&logs);
+	log_info(logger, "Servidor listo para recibir al hq");
+	pthread_mutex_unlock(&logs);
+	int cliente_hq = esperar_cliente(server_hq);
+
+	char* tarea;
+
+	while(1){
+		int cod_op = recibir_operacion(cliente_hq);
+		switch(cod_op){
+		case LUGAR_MEMORIA:
+			lugar_en_memoria = recibir_hay_lugar(cliente_hq);
+			sem_post(&recibido_hay_lugar);
+			sem_post(&recibido_hay_lugar); //HAY 2 POST XQ EL SEM = -1 ACA
+			return 1;
+
+		case TAREA:
+			tarea = recibir_tarea(cliente_hq);
+			//ver forma de pasar tarea al hilo del trip
+			return tarea;
+			break;
+
+		case -1:
+			pthread_mutex_lock(&logs);
+			log_error(logger, "Mi-RAM-HQ se desconecto. Terminando servidor");
+			pthread_mutex_unlock(&logs);
+			return 0;
+
+		default:
+			break;
+		}
+	}
+	free(ip);
+	free(puerto);
+	free(tarea);
+}
 
 void leer_consola(t_log* logger)
 {
@@ -173,18 +225,20 @@ void leer_consola(t_log* logger)
 			data->x = 1;
 			data->y = 2;
 			atender_sabotaje(data);
+			free(data);
 
 		} else if (strcmp(instruccion[0], "ELIMINAR_TRIPULANTE") == 0) {
+			expulsar_tripulante(instruccion[1]);
 			printf("entro al eliminar");
 			int id = atoi(instruccion[1]);
 			printf("id: %d\n", id);
 			printf("conexion hq: %d\n", conexion_hq);
 			reportar_eliminar_tripulante(id, conexion_hq);
 
-			//free(data);
 		} else {
+			pthread_mutex_lock(&logs);
 			log_info(logger, "No se reconocio la instruccion");
-			printf("No se reconocio la instruccion");
+			pthread_mutex_unlock(&logs);
 		}
 
 		leido = readline(">");
@@ -197,11 +251,15 @@ void planificador(void* args) {
 
 	while(1){
 		sem_wait(&planif);
+		puts("wait planif");
 		sem_wait(&multiprog);
+		puts("-1 espacio libre");
 		t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
 		cambiar_estado(tripulante->estado, e_trabajando, tripulante);
+		puts("Pasa a trabajando");
 		sem_post(&tripulante->semaforo);
 		sem_post(&planif);
+		puts("post planif");
 	}
 }
 
@@ -221,6 +279,7 @@ void iniciar_patota(char** instruccion, char* leido) {
 	//INICIAR_PATOTA 1 home/utnso/tareas.txt
 	uint32_t cantidad = atoi(instruccion[1]);
 	char* tareas = instruccion[2];
+	sem_wait(&recibido_hay_lugar);
 
 	FILE* archivo_tareas =  fopen(tareas, "r");
 	char* contenido_tareas = string_new();
@@ -241,16 +300,19 @@ void iniciar_patota(char** instruccion, char* leido) {
 	enviar_paquete(paquete_pcb, conexion_hq);
 	pthread_mutex_unlock(&hq);
 	sleep(2);
-	//free(buffer);
-	//free(paquete_pcb);
+	free(buffer);
+	free(paquete_pcb);
 
-	if(true){//SI HAY LUGAR EN MEMORIA
+	sem_wait(&recibido_hay_lugar);
+	if(lugar_en_memoria != 0){
 		pthread_t hilos[longitud];
 		for(int i = 0 ; i<cantidad ; i++) {
 			inicializar_tripulante(instruccion, i, longitud, id_patota, hilos[i]);
 		}
 	}else{
-		log_info(logger, "No hay lugar en memoria"); //TRATAR ESTE CASO DE ALGUNA FORMA
+		pthread_mutex_lock(&logs);
+		log_info(logger, "No hay lugar en memoria");
+		pthread_mutex_unlock(&logs);
 	}
 }
 
@@ -265,7 +327,6 @@ void iniciar_tripulante_en_hq(t_tripulante* tripulante) {
 }
 
 void enviar_cambio_estado_hq(t_tripulante* tripulante) {
-	pthread_mutex_lock(&bloq);
 	t_buffer* buffer = serializar_cambio_estado(tripulante->TID, tripulante->estado);
 	t_paquete* paquete_cambio_estado = crear_mensaje(buffer, CAMBIO_ESTADO_MENSAJE);
 	pthread_mutex_lock(&hq);
@@ -316,15 +377,9 @@ void circular(void* args) {
 	free(buffer);
 	free(paquete_pedir_tarea);
 
-	//PEDIR Y RECIBIR PRIMER TAREA
-
-	/*
-	op_code codigo = recibir_operacion(conexion_hq);
+	/*//PEDIR Y RECIBIR PRIMER TAREA
 	char* tarea = NULL;
-	if(codigo == PEDIR_SIGUIENTE_TAREA) {
-		tarea = recibir_tarea(conexion_hq);
-	}
-	*/
+	serializar_pedir_tarea(argumentos->tripulante->TID);*/
 
 	char* tarea = "GENERAR_OXIGENO 12;2;3;5";
 	cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
@@ -333,13 +388,16 @@ void circular(void* args) {
 	sem_init(&argumentos->tripulante->semaforo, 0, 0);
 //	while(strcmp(tarea, "") != 1) {
 		sem_wait(&argumentos->tripulante->semaforo);
-		puts("despues del wait");
+		puts("Despues del wait sem de tripulante");
 		leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
 		cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
-		sem_post(&planif);
+		puts("Vuelve a listo");
+		sem_post(&multiprog);
+		puts("+1 espacio libre");
 //	}
 	cambiar_estado(argumentos->tripulante->estado, e_fin, argumentos->tripulante);
 	free(argumentos);
+	//free(tarea);
 }
 
 void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripulante) {
@@ -407,6 +465,7 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	if(pos_x != tripulante->pos_x || pos_y != tripulante->pos_y){
 		logear_despl(tripulante->pos_x, tripulante->pos_y, parametros_tarea[1], parametros_tarea[2], tripulante->TID, conexion_hq);
 	}
+
 	if(strcmp(algoritmo,"RR") == 1) {
 		while(pos_x != tripulante->pos_x && quantum_ejec < quantum) {
 			quantum_ejec++;
@@ -432,16 +491,30 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 			mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
 		}
 	}
-	for(int i = 0; i < duracion; i++) {
-		sleep(retardo_ciclo_cpu);
-		if(strcmp(algoritmo,"RR")) {
-			quantum_ejec++;
-			if(quantum_ejec == quantum) {
-				cambiar_estado(tripulante->estado, e_listo, tripulante);
-				sem_wait(&tripulante->semaforo);
+
+	if(atoi_tarea(nombre_tarea[0]) != -1){
+		cambiar_estado(tripulante->estado, e_bloqueado_IO, tripulante); //TAREAS_IO
+		for(int i = 0; i < duracion; i++) {
+			pthread_mutex_lock(&sabotaje);
+			sleep(retardo_ciclo_cpu);
+			pthread_mutex_unlock(&sabotaje);
+		}
+		cambiar_estado(tripulante->estado, e_listo, tripulante);
+
+	}else{	//TAREAS NO DE IO
+		for(int i = 0; i < duracion; i++) {
+			sleep(retardo_ciclo_cpu);
+			if(strcmp(algoritmo,"RR")) {
+				quantum_ejec++;
+				if(quantum_ejec == quantum) {
+					cambiar_estado(tripulante->estado, e_listo, tripulante);
+					sem_wait(&tripulante->semaforo);
+				}
 			}
 		}
 	}
+	realizar_tarea(nombre_tarea[0],duracion,tripulante->TID);
+/*
 	if(strcmp(nombre_tarea[0], "GENERAR_OXIGENO") == 0) {
 		generar_oxigeno(duracion, tripulante->TID, conexion_store); //TODAS ESTAS FUNCIONES SON BASICAMENTE LA MISMA, cuando lo pensas el switch este no es necesario
 		puts("Genera oxigeno");
@@ -464,9 +537,25 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 		free(buffer);
 		free(paquete_hacer_tarea);
 	}
-	reportar_bitacora(logs_bitacora(FIN_TAREA, nombre_tarea[0], " "), tripulante->TID, conexion_store);
+	reportar_bitacora(logs_bitacora(FIN_TAREA, nombre_tarea[0], " "), tripulante->TID, conexion_store);*/
 	free(parametros_tarea);
 	free(nombre_tarea);
+	puts("Fin tarea");
+}
+
+void realizar_tarea(char* tarea, int duracion, int id){
+	int tarea_io = atoi_tarea(tarea);
+
+	if(tarea_io != -1){
+		t_buffer* buffer = serializar_hacer_tarea(duracion, tarea_io, id);
+		t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
+		pthread_mutex_lock(&store);
+		enviar_paquete(paquete_hacer_tarea, conexion_store);
+		pthread_mutex_unlock(&store);
+		free(buffer);
+		free(paquete_hacer_tarea);
+	}
+	reportar_bitacora(logs_bitacora(FIN_TAREA, tarea, " "), id , conexion_store);
 }
 
 void listar_tripulantes(){
@@ -564,20 +653,15 @@ void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_y_nuevo, in
 }
 
 void atender_sabotaje(t_sabotaje* datos){
-    //HILO O ALGO QUE ESPERE SABOTAJE SIN ESPERA ACTIVA Y LLAME A ESTO
-	//CONTROLAR PLANIF. ACTIVADA
+	//CONTROLAR PLANIF. ACTIVADA (O NO, PREGUNTAR)
 	puts("Atendiendo sabotaje...");
-	puts("1");
    mover_trips(e_bloqueado_emergencia);
-	puts("2");
+   pthread_mutex_lock(&sabotaje);
    t_tripulante* asignado = tripulante_mas_cercano(datos->x, datos->y);
-	puts("3");
    resolver_sabotaje(asignado, datos);
-	puts("4");
    cambiar_estado(asignado->estado, e_listo, asignado);
-	puts("5");
-   //VER TEMA EXACTO DEL ORDEN
    desbloquear_trips_inverso(bloqueado_emergencia);
+   pthread_mutex_unlock(&sabotaje);
    puts("Sabotaje atendido...");
    return;
 }
@@ -585,9 +669,6 @@ void atender_sabotaje(t_sabotaje* datos){
 void mover_trips(int nuevo_estado){
     pasar_menor_id(trabajando,nuevo_estado);
     pasar_menor_id(listo,nuevo_estado);
-   // pthread_mutex_lock(&estados[e_bloqueado_IO]);
-  //  pasar_menor_id(bloqueado_IO, nuevo_estado);
-  //  pthread_mutex_lock(&estados[e_bloqueado_IO]);
 }
 
 void desbloquear_trips_inverso(t_list* lista){
@@ -603,11 +684,8 @@ void pasar_menor_id(t_list* lista, int estado_nuevo){
 	}
 
     while(list_size(lista) != 0){
-    	puts("132");
         t_tripulante* cambio = list_get_minimum(lista, (void*)menor_ID);
-        puts("133");
         cambiar_estado(cambio->estado, estado_nuevo, cambio);
-        puts("134");
     }
 	return;
 }
@@ -635,7 +713,7 @@ double distancia(t_tripulante* trip, int x, int y){
 
 void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos){
     cambiar_estado(asignado->estado, e_bloqueado_emergencia, asignado);
-    //reportar_bitacora(logs_bitacora(SABOTAJE, " ", " "), asignado->TID, conexion_store);
+    reportar_bitacora(logs_bitacora(SABOTAJE, " ", " "), asignado->TID, conexion_store);
     int tiempo = atoi(config_get_string_value(config, "DURACION_SABOTAJE"));
 
 	if(datos->x != asignado->pos_x || datos->y != asignado->pos_y){
@@ -649,15 +727,15 @@ void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos){
 			mover_a(asignado, false, datos->y, config_get_int_value(config, "RETARDO_CICLO_CPU")); //RETARDO CPU
 		}
 	}
-	/*t_buffer* buffer;
+	t_buffer* buffer = invocar_fsck(asignado->TID);
 	t_paquete* no_paquete = crear_mensaje(buffer, INVOCAR_FSCK);
 	pthread_mutex_lock(&store);
 	enviar_paquete(no_paquete, conexion_store);
 	pthread_mutex_unlock(&store);
 	free(buffer);
 	free(no_paquete);
-   // sleep(tiempo);
-    reportar_bitacora(logs_bitacora(SABOTAJE_RESUELTO, " ", " "), asignado->TID, conexion_store);*/
+    sleep(tiempo);
+    reportar_bitacora(logs_bitacora(SABOTAJE_RESUELTO, " ", " "), asignado->TID, conexion_store);
     return;
 }
 
@@ -669,21 +747,17 @@ void reportar_bitacora(char* log, int id, int conexion_store){
 	pthread_mutex_unlock(&store);
 	free(buffer);
 	free(paquete_bitacora);
-	free(log);
 }
 
 void obtener_bitacora (char* i) {
 	int id = atoi(i);
-	char* bitacora;
 	t_buffer* buffer = serializar_solicitar_bitacora(id);
 	t_paquete* paquete_b = crear_mensaje(buffer, PEDIR_BITACORA);
 	pthread_mutex_lock(&store);
 	enviar_paquete(paquete_b, conexion_store);
 	pthread_mutex_unlock(&store);
-	//ver de que manera recibir el texto por conexion y si la puedo pasar aca de alguna forma
+	pthread_mutex_lock(&logs);
 	log_info(logger, "Bitácora del tripulante N°"); //poner el numero
-    //log_info(logger, bitacora); o hacer pedido y que el pedido loggee
-    //free(bitacora);
     free(buffer);
     free(paquete_b);
 }

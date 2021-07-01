@@ -26,6 +26,51 @@ void enviar_paquete(t_paquete* paquete, int socket_cliente)
 	free(a_enviar);
 }
 
+int iniciar_servidor(char* ip, char* puerto)
+{
+	int socket_servidor;
+
+    struct addrinfo hints, *servinfo, *p;
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+
+    getaddrinfo(ip, puerto, &hints, &servinfo);
+
+    for (p=servinfo; p != NULL; p = p->ai_next)
+    {
+        if ((socket_servidor = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
+            continue;
+
+        if (bind(socket_servidor, p->ai_addr, p->ai_addrlen) == -1) {
+            close(socket_servidor);
+            continue;
+        }
+        break;
+    }
+
+	listen(socket_servidor, SOMAXCONN);
+    freeaddrinfo(servinfo);
+
+   // log_trace(logger, "Listo para escuchar a mi cliente");
+    return socket_servidor;
+}
+
+int esperar_cliente(int socket_servidor)
+{
+	struct sockaddr_in dir_cliente;
+	int tam_direccion = sizeof(struct sockaddr_in);
+
+	int socket_cliente = accept(socket_servidor, (void*) &dir_cliente, &tam_direccion);
+
+	//log_info(logger, "Se conecto un cliente!");
+
+	return socket_cliente;
+}
+
+
 int crear_conexion(char *ip, char* puerto)
 {
 	struct addrinfo hints;
@@ -45,7 +90,6 @@ int crear_conexion(char *ip, char* puerto)
 	}
 
 	freeaddrinfo(server_info);
-
 	return socket_cliente;
 }
 
@@ -231,12 +275,99 @@ t_buffer* serializar_solicitar_bitacora(uint32_t id)
 	return buffer;
 }
 
+t_buffer* invocar_fsck(uint32_t id)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(sizeof(uint32_t));
+	int desplazamiento = 0;
+
+	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}
+
 
 void eliminar_paquete(t_paquete* paquete)
 {
 	free(paquete->buffer->stream);
 	free(paquete->buffer);
 	free(paquete);
+}
+
+t_sabotaje* recibir_datos_sabotaje(int socket_cliente)
+{
+	int size;
+	int desplazamiento = 0;
+	void * buffer;
+	t_sabotaje* data = malloc(sizeof(t_sabotaje));
+
+	buffer = recibir_buffer(&size, socket_cliente);
+	memcpy(&(data->x), buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+	memcpy(&(data->y), buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
+	free(buffer);
+	return data;
+	return NULL;
+}
+
+int recibir_hay_lugar(int socket_cliente)
+{
+	int size;
+	int desplazamiento = 0;
+	void* buffer;
+
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	void* lugar = malloc(sizeof(uint32_t));
+	memcpy(&lugar, buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
+	free(buffer);
+	return lugar;
+	return NULL;
+}
+
+char* recibir_bitacora(int socket_cliente)
+{
+	int size;
+	int desplazamiento = 0;
+	void* buffer;
+
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	void* bit_len = malloc(sizeof(uint32_t));
+	memcpy(&bit_len, (buffer+desplazamiento), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	char* bit = malloc(bit_len);
+	memcpy(bit, buffer+desplazamiento, bit_len);
+	desplazamiento += bit_len;
+
+	free(buffer);
+	return bit;
+	return NULL;
+}
+
+char* recibir_tarea(int socket_cliente) {
+	int size;
+	int desplazamiento = 0;
+	void* buffer;
+
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	void* tarea_len = malloc(sizeof(uint32_t));
+	memcpy(&tarea_len, buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	char* tarea = malloc(tarea_len);
+	memcpy(tarea, buffer+desplazamiento, &tarea_len);
+
+	return tarea;
 }
 
 void liberar_conexion(int socket_cliente)
@@ -267,22 +398,6 @@ int recibir_operacion(int socket_cliente)
 	}
 }
 
-char* recibir_tarea(int socket_cliente) {
-	int size;
-	int desplazamiento = 0;
-	void* buffer;
-
-	buffer = recibir_buffer(&size, socket_cliente);
-
-	void* tarea_len = malloc(sizeof(uint32_t));
-	memcpy(&tarea_len, buffer+desplazamiento, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	char* tarea = malloc(tarea_len);
-	memcpy(tarea, buffer+desplazamiento, &tarea_len);
-
-	return tarea;
-}
 
 void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_ciclo_cpu) {
       if(es_x) {
@@ -375,6 +490,24 @@ char estado_a_char(int estado){
    }
 }
 
+int atoi_tarea(char* tarea){
+	if(strcmp(tarea, "GENERAR_OXIGENO") == 0) {
+		return GENERAR_OXIGENO;
+	} else if (strcmp(tarea, "CONSUMIR_OXIGENO") == 0) {
+		return CONSUMIR_OXIGENO;
+	} else if (strcmp(tarea, "GENERAR_COMIDA") == 0) {
+		return GENERAR_COMIDA;
+	} else if (strcmp(tarea, "CONSUMIR_COMIDA") == 0) {
+		return CONSUMIR_COMIDA;
+	} else if (strcmp(tarea, "GENERAR_BASURA") == 0) {
+		return GENERAR_BASURA;
+	} else if (strcmp(tarea, "DESCARTAR_BASURA") == 0) {
+		return DESCARTAR_BASURA;
+	} else {
+		return -1;
+	}
+}
+
 void generar_oxigeno(int duracion, int id, int conexion_store){  //ESTA BIEN IMPLEMENTADO ESTO CO N1 PAR. MAS? PAG 18 DE LA CONSIGNA
 	t_buffer* buffer = serializar_hacer_tarea(duracion, GENERAR_OXIGENO, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
@@ -417,10 +550,12 @@ void generar_basura(int duracion, int id, int conexion_store){
 	free(paquete_hacer_tarea);
 }
 
-void descartar_basura(int duracion, int id, int conexion_hq){
+void destruir_basura(int duracion, int id, int conexion_store){
 	t_buffer* buffer = serializar_hacer_tarea(duracion, DESCARTAR_BASURA, id);
 	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_hq);
+	enviar_paquete(paquete_hacer_tarea, conexion_store);
+	free(buffer);
+	free(paquete_hacer_tarea);
 }
 
 void reportar_eliminar_tripulante(int id, int conexion_hq) {
@@ -437,10 +572,3 @@ void reportar_desplazamiento(int id, int nuevo_x, int nuevo_y, int conexion_hq) 
 	enviar_paquete(paquete, conexion_hq);
 }
 
-void destruir_basura(int duracion, int id, int conexion_store){
-	t_buffer* buffer = serializar_hacer_tarea(duracion, DESCARTAR_BASURA, id);
-	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_store);
-	free(buffer);
-	free(paquete_hacer_tarea);
-}

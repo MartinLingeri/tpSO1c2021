@@ -37,7 +37,7 @@ int main(void) {
 	}
 
 	int server_fd = iniciar_servidor();
-	log_info(logger, "Servidor listo para recibir al client-e");
+	log_info(logger, "Servidor listo para recibir al cliente");
 	int cliente_fd = esperar_cliente(server_fd);
 	t_tcb* tripulante = malloc(sizeof(t_tcb));
 	t_pcb* patota = malloc(sizeof(t_pcb));
