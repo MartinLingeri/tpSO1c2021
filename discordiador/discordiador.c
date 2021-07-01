@@ -249,16 +249,20 @@ void planificador(void* args) {
 	quantum = config_get_int_value(config, "QUANTUM");
 
 	while(1){
-		sem_wait(&planif);
-		puts("wait planif");
-		sem_wait(&multiprog);
-		puts("-1 espacio libre");
-		t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
-		cambiar_estado(tripulante->estado, e_trabajando, tripulante);
-		puts("Pasa a trabajando");
-		sem_post(&tripulante->semaforo);
-		sem_post(&planif);
-		puts("post planif");
+		while(list_size(listo) != 0){
+			sem_wait(&planif);
+			sem_wait(&multiprog);
+			puts("-1 espacio libre");
+			t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
+			printf("Turno de trabajar: %d --------- ", tripulante->TID);
+			cambiar_estado(tripulante->estado, e_trabajando, tripulante);
+			puts("Pasa a trabajando");
+			sem_post(&tripulante->semaforo);
+			puts("post semaforo tripulante");
+			sem_post(&tripulante->semaforo);
+			puts("post semaforo tripulante");
+			sem_post(&planif);
+		}
 	}
 }
 
@@ -278,7 +282,7 @@ void iniciar_patota(char** instruccion, char* leido) {
 	//INICIAR_PATOTA 1 home/utnso/tareas.txt
 	uint32_t cantidad = atoi(instruccion[1]);
 	char* tareas = instruccion[2];
-	sem_wait(&recibido_hay_lugar);
+	//sem_wait(&recibido_hay_lugar);
 
 	FILE* archivo_tareas =  fopen(tareas, "r");
 	char* contenido_tareas = string_new();
@@ -302,7 +306,7 @@ void iniciar_patota(char** instruccion, char* leido) {
 	free(buffer);
 	free(paquete_pcb);
 
-	sem_wait(&recibido_hay_lugar);
+	//sem_wait(&recibido_hay_lugar);
 	if(lugar_en_memoria != 0){
 		pthread_t hilos[longitud];
 		for(int i = 0 ; i<cantidad ; i++) {
@@ -380,21 +384,24 @@ void circular(void* args) {
 	char* tarea = NULL;
 	serializar_pedir_tarea(argumentos->tripulante->TID);*/
 
-	char* tarea = "GENERAR_OXIGENO 12;2;3;5";
+	char* tarea = "EVADIR_IMPUESTOS 12;2;3;3";
 	cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
-
+	int tarea_hecha = 0;
 	//PARTE CON BLOQUEOS PORQUE TIENE QUE ESTAR PLANIFICADO
-	sem_init(&argumentos->tripulante->semaforo, 0, 0);
+	sem_init(&argumentos->tripulante->semaforo, 0, 1);
 //	while(strcmp(tarea, "") != 1) {
-		sem_wait(&argumentos->tripulante->semaforo);
-		puts("Despues del wait sem de tripulante");
-		leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
-		cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
-		puts("Vuelve a listo");
-		sem_post(&multiprog);
-		puts("+1 espacio libre");
+		while(tarea_hecha != 1) {
+			puts("antes semaforo tripulante");
+			sem_wait(&argumentos->tripulante->semaforo);
+			puts("wait sem de tripulante");
+			sem_wait(&argumentos->tripulante->semaforo);
+			puts("wait sem de tripulante");
+			tarea_hecha = leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
+			cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
+		}
 //	}
 	cambiar_estado(argumentos->tripulante->estado, e_fin, argumentos->tripulante);
+	puts("Fin tripulante");
 	free(argumentos);
 	//free(tarea);
 }
@@ -452,7 +459,7 @@ void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripula
    enviar_cambio_estado_hq(tripulante);
 }
 
-void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
+int leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	int quantum_ejec = 0;
     char** parametros_tarea = string_split(tarea, ";");
 	char** nombre_tarea = string_split(parametros_tarea[0], " ");
@@ -465,22 +472,37 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 		logear_despl(tripulante->pos_x, tripulante->pos_y, parametros_tarea[1], parametros_tarea[2], tripulante->TID, conexion_hq);
 	}
 
-	if(strcmp(algoritmo,"RR") == 1) {
-		while(pos_x != tripulante->pos_x && quantum_ejec < quantum) {
-			quantum_ejec++;
-			mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
+	if(strcmp(algoritmo,"RR") == 0) {
+		while(pos_x != tripulante->pos_x) {
+			while(quantum_ejec < quantum && pos_x != tripulante->pos_x){
+				quantum_ejec++;
+				mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
+			}
+			if(quantum_ejec == quantum) {
+				cambiar_estado(tripulante->estado, e_listo,tripulante);
+				quantum_ejec = 0;
+				sem_post(&multiprog);
+				sem_wait(&tripulante->semaforo);
+				puts("wait sem de tripulante");
+				sem_wait(&tripulante->semaforo);
+				puts("wait sem de tripulante");
+			}
 		}
-		if(quantum_ejec == quantum) {
-			cambiar_estado(tripulante->estado, e_listo, tripulante);
-			sem_wait(&tripulante->semaforo);
-		}
-		while(pos_y != tripulante->pos_y && quantum_ejec < quantum) {
-			quantum_ejec++;
-			mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
-		}
-		if(quantum_ejec == quantum) {
-			cambiar_estado(tripulante->estado, e_listo, tripulante);
-			sem_wait(&tripulante->semaforo);
+
+		while(pos_y != tripulante->pos_y) {
+			while(quantum_ejec < quantum && pos_y != tripulante->pos_y){
+				quantum_ejec++;
+				mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
+			}
+			if(quantum_ejec == quantum) {
+				cambiar_estado(tripulante->estado, e_listo,tripulante);
+				quantum_ejec = 0;
+				sem_post(&multiprog);
+				sem_wait(&tripulante->semaforo);
+				puts("wait sem de tripulante");
+				sem_wait(&tripulante->semaforo);
+				puts("wait sem de tripulante");
+			}
 		}
 	}else{
 		while(pos_x != tripulante->pos_x){
@@ -499,23 +521,31 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 			pthread_mutex_unlock(&sabotaje);
 		}
 		cambiar_estado(tripulante->estado, e_listo, tripulante);
-
 	}else{	//TAREAS NO DE IO
 		for(int i = 0; i < duracion; i++) {
 			sleep(retardo_ciclo_cpu);
-			if(strcmp(algoritmo,"RR")) {
+			if(strcmp(algoritmo,"RR") == 0) {
 				quantum_ejec++;
+				printf("Quantum consumido por wait: %d", quantum_ejec);
 				if(quantum_ejec == quantum) {
-					cambiar_estado(tripulante->estado, e_listo, tripulante);
+					cambiar_estado(tripulante->estado, e_listo,tripulante);
+					quantum_ejec = 0;
+					sem_post(&multiprog);
 					sem_wait(&tripulante->semaforo);
+					puts("wait sem de tripulante");
+					sem_wait(&tripulante->semaforo);
+					puts("wait sem de tripulante");
 				}
 			}
 		}
 	}
 	realizar_tarea(nombre_tarea[0],duracion,tripulante->TID);
+
+	sem_post(&multiprog);
+	puts("+1 espacio libre");
 	free(parametros_tarea);
 	free(nombre_tarea);
-	puts("Fin tarea");
+	return 1;
 }
 
 void realizar_tarea(char* tarea, int duracion, int id){
