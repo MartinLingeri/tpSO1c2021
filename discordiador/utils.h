@@ -127,11 +127,5 @@ int atoi_tarea(char* tarea);
 void reportar_desplazamiento(int id, int nuevo_x, int nuevo_y, int conexion_hq);
 void reportar_eliminar_tripulante(int id, int conexion_hq);
 
-void generar_oxigeno(int duracion, int id, int conexion_hq);
-void consumir_oxigeno(int duracion, int id, int conexion_hq);
-void generar_comida(int duracion, int id, int conexion_hq);
-void consumir_comida(int duracion, int id, int conexion_hq);
-void generar_basura(int duracion, int id, int conexion_hq);
-void destruir_basura(int duracion, int id, int conexion_hq);
 
 #endif /* UTILS_H_ */

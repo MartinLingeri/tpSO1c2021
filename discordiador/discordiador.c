@@ -171,6 +171,7 @@ void* esperar_conexion_hq() {
 		switch(cod_op){
 		case LUGAR_MEMORIA:
 			lugar_en_memoria = recibir_hay_lugar(cliente_hq);
+			//IF
 			sem_post(&recibido_hay_lugar);
 			sem_post(&recibido_hay_lugar); //HAY 2 POST XQ EL SEM = -1 ACA
 			return 1;
@@ -512,30 +513,6 @@ void leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 		}
 	}
 	realizar_tarea(nombre_tarea[0],duracion,tripulante->TID);
-/*
-	if(strcmp(nombre_tarea[0], "GENERAR_OXIGENO") == 0) {
-		generar_oxigeno(duracion, tripulante->TID, conexion_store); //TODAS ESTAS FUNCIONES SON BASICAMENTE LA MISMA, cuando lo pensas el switch este no es necesario
-		puts("Genera oxigeno");
-	} else if (strcmp(nombre_tarea[0], "CONSUMIR_OXIGENO") == 0) {
-		consumir_oxigeno(duracion, tripulante->TID, conexion_store);
-	} else if (strcmp(nombre_tarea[0], "GENERAR_COMIDA") == 0) {
-		generar_comida(duracion, tripulante->TID, conexion_store);
-	} else if (strcmp(nombre_tarea[0], "CONSUMIR_COMIDA") == 0) {
-		consumir_comida(duracion, tripulante->TID, conexion_store);
-	} else if (strcmp(nombre_tarea[0], "GENERAR_BASURA") == 0) {
-		generar_basura(duracion, tripulante->TID, conexion_store);
-	} else if (strcmp(nombre_tarea[0], "DESCARTAR_BASURA") == 0) {
-		destruir_basura(duracion, tripulante->TID, conexion_store);
-	} else {
-		t_buffer* buffer = serializar_hacer_tarea(duracion, atoi(nombre_tarea[0]), tripulante->TID);
-		t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-		pthread_mutex_lock(&hq);
-		enviar_paquete(paquete_hacer_tarea, conexion_hq);
-		pthread_mutex_unlock(&hq);
-		free(buffer);
-		free(paquete_hacer_tarea);
-	}
-	reportar_bitacora(logs_bitacora(FIN_TAREA, nombre_tarea[0], " "), tripulante->TID, conexion_store);*/
 	free(parametros_tarea);
 	free(nombre_tarea);
 	puts("Fin tarea");

@@ -506,56 +506,6 @@ int atoi_tarea(char* tarea){
 	}
 }
 
-void generar_oxigeno(int duracion, int id, int conexion_store){  //ESTA BIEN IMPLEMENTADO ESTO CO N1 PAR. MAS? PAG 18 DE LA CONSIGNA
-	t_buffer* buffer = serializar_hacer_tarea(duracion, GENERAR_OXIGENO, id);
-	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_store);
-	free(buffer);
-	free(paquete_hacer_tarea);
-}
-
-void consumir_oxigeno(int duracion, int id, int conexion_store){
-	t_buffer* buffer = serializar_hacer_tarea(duracion, CONSUMIR_OXIGENO, id);
-	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_store);
-	free(buffer);
-	free(paquete_hacer_tarea);
-}
-
-void generar_comida(int duracion, int id, int conexion_store){
-	t_buffer* buffer = serializar_hacer_tarea(duracion, GENERAR_COMIDA, id);
-	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_store);
-	free(buffer);
-	free(paquete_hacer_tarea);
-}
-
-void consumir_comida(int duracion, int id, int conexion_store){
-	t_buffer* buffer = serializar_hacer_tarea(duracion, CONSUMIR_COMIDA, id);
-	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_store);
-	free(buffer);
-	free(paquete_hacer_tarea);
-}
-
-void generar_basura(int duracion, int id, int conexion_store){
-	t_buffer* buffer = serializar_hacer_tarea(duracion, GENERAR_BASURA, id);
-	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	//pthread_mutex_lock(&store);
-	enviar_paquete(paquete_hacer_tarea, conexion_store);
-	//pthread_mutex_unlock(&store);
-	free(buffer);
-	free(paquete_hacer_tarea);
-}
-
-void destruir_basura(int duracion, int id, int conexion_store){
-	t_buffer* buffer = serializar_hacer_tarea(duracion, DESCARTAR_BASURA, id);
-	t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
-	enviar_paquete(paquete_hacer_tarea, conexion_store);
-	free(buffer);
-	free(paquete_hacer_tarea);
-}
-
 void reportar_eliminar_tripulante(int id, int conexion_hq) {
     t_buffer* buffer = serializar_eliminar_tripulante(id);
 	t_paquete* paquete = crear_mensaje(buffer, ELIMINAR_TRIPULANTE);
