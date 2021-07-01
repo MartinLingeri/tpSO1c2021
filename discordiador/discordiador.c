@@ -65,7 +65,6 @@ int main(void)
 
 void conexion_con_hq() {
 	conexion_hq = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
-	printf("socket: %d\n", conexion_hq);
 }
 
 void conexion_con_store() {
@@ -175,16 +174,10 @@ void leer_consola(t_log* logger)
 			atender_sabotaje(data);
 
 		} else if (strcmp(instruccion[0], "ELIMINAR_TRIPULANTE") == 0) {
-			printf("entro al eliminar");
 			int id = atoi(instruccion[1]);
-			printf("id: %d\n", id);
-			printf("conexion hq: %d\n", conexion_hq);
 			reportar_eliminar_tripulante(id, conexion_hq);
-
-			//free(data);
 		} else {
 			log_info(logger, "No se reconocio la instruccion");
-			printf("No se reconocio la instruccion");
 		}
 
 		leido = readline(">");
@@ -333,7 +326,6 @@ void circular(void* args) {
 	sem_init(&argumentos->tripulante->semaforo, 0, 0);
 //	while(strcmp(tarea, "") != 1) {
 		sem_wait(&argumentos->tripulante->semaforo);
-		puts("despues del wait");
 		leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
 		cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
 		sem_post(&planif);
@@ -566,16 +558,10 @@ void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_y_nuevo, in
 void atender_sabotaje(t_sabotaje* datos){
     //HILO O ALGO QUE ESPERE SABOTAJE SIN ESPERA ACTIVA Y LLAME A ESTO
 	//CONTROLAR PLANIF. ACTIVADA
-	puts("Atendiendo sabotaje...");
-	puts("1");
    mover_trips(e_bloqueado_emergencia);
-	puts("2");
    t_tripulante* asignado = tripulante_mas_cercano(datos->x, datos->y);
-	puts("3");
    resolver_sabotaje(asignado, datos);
-	puts("4");
    cambiar_estado(asignado->estado, e_listo, asignado);
-	puts("5");
    //VER TEMA EXACTO DEL ORDEN
    desbloquear_trips_inverso(bloqueado_emergencia);
    puts("Sabotaje atendido...");
@@ -603,11 +589,8 @@ void pasar_menor_id(t_list* lista, int estado_nuevo){
 	}
 
     while(list_size(lista) != 0){
-    	puts("132");
         t_tripulante* cambio = list_get_minimum(lista, (void*)menor_ID);
-        puts("133");
         cambiar_estado(cambio->estado, estado_nuevo, cambio);
-        puts("134");
     }
 	return;
 }
