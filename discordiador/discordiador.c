@@ -55,9 +55,10 @@ int main(void)
 	pthread_create(&hilo_conexion_hq, NULL, (void*) conexion_con_hq, NULL);
 	pthread_detach((pthread_t) hilo_conexion_hq);
 
-	pthread_t hilo_conexion_store;
+/*	pthread_t hilo_conexion_store;
 	pthread_create(&hilo_conexion_store, NULL, (void*) conexion_con_store, NULL);
 	pthread_detach((pthread_t) hilo_conexion_store);
+
 /*
 	pthread_t hilo_recibir_store;
 	pthread_create(&hilo_recibir_store, NULL, (void*) esperar_conexion_store, NULL);
@@ -67,6 +68,7 @@ int main(void)
 	pthread_create(&hilo_recibir_hq, NULL, (void*) esperar_conexion_hq, NULL);
 	pthread_detach((pthread_t) hilo_recibir_hq);
 */
+
 	pthread_t hilo_planificador;
 	pthread_create(&hilo_planificador, NULL, (void*) planificador, NULL);
 	pthread_detach((pthread_t) hilo_planificador);
@@ -78,7 +80,6 @@ int main(void)
 
 void conexion_con_hq() {
 	conexion_hq = crear_conexion(config_get_string_value(config, "IP_MI_RAM_HQ"), config_get_string_value(config, "PUERTO_MI_RAM_HQ"));
-	printf("socket: %d\n", conexion_hq);
 }
 
 void conexion_con_store() {
@@ -231,10 +232,7 @@ void leer_consola(t_log* logger)
 			expulsar_tripulante(instruccion[1]);
 			printf("entro al eliminar");
 			int id = atoi(instruccion[1]);
-			printf("id: %d\n", id);
-			printf("conexion hq: %d\n", conexion_hq);
 			reportar_eliminar_tripulante(id, conexion_hq);
-
 		} else {
 			pthread_mutex_lock(&logs);
 			log_info(logger, "No se reconocio la instruccion");

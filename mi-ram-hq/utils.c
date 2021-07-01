@@ -198,7 +198,6 @@ void recibir_cambio_estado(int socket_cliente) {
 	/*DEVOLVER PROXIMA TAREA, SI ERA LA ULTIMA Y NO HAY MAS, CHAR* VACIO*/
 }
 
-t_buffer *serializar_enviar_tarea(char *tarea){
 void recibir_desplazamiento(int socket_cliente) {
 	int size;
 	void* buffer;

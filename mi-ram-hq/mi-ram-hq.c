@@ -43,7 +43,6 @@ int main(void) {
 	t_pcb* patota = malloc(sizeof(t_pcb));
 	while(1)
 	{
-		printf("socket: %d\n", cliente_fd);
 		int cod_op = recibir_operacion(cliente_fd);
 		switch(cod_op)
 		{
@@ -52,7 +51,6 @@ int main(void) {
 			//mostrar_tcb(tripulante);
 			break;
 		case PCB_MENSAJE:
-			printf("COD OP: %d\n", cod_op);
 			patota = recibir_pcb(cliente_fd);
 			//mostrar_tcb(patota);
 			break;
@@ -63,13 +61,9 @@ int main(void) {
 			recibir_cambio_estado(cliente_fd);
 			break;
 		case DESPLAZAMIENTO:
-			printf("COD OP: %d\n", cod_op);
-			printf("entra en msj desplazamiento");
 			recibir_desplazamiento(cliente_fd);
 			break;
 		case ELIMINAR_TRIPULANTE:
-			printf("COD OP: %d\n", cod_op);
-			printf("entra en msj ELIM TRIP");
 			recibir_eliminar_tripulante(cliente_fd);
 			break;
 		case -1:

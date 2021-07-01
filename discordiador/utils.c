@@ -407,7 +407,6 @@ void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_c
 				tripulante->pos_x--;
 			}
 			sleep(retardo_ciclo_cpu);
-		printf("X: %d\n", tripulante->pos_x);
 
       } else {
   			if(tripulante->pos_y < valor_nuevo) {
@@ -416,7 +415,6 @@ void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_c
   				tripulante->pos_y--;
   			}
   			sleep(retardo_ciclo_cpu);
-  		printf("Y: %d\n", tripulante->pos_y);
       }
 }
 
@@ -566,9 +564,7 @@ void reportar_eliminar_tripulante(int id, int conexion_hq) {
 
 void reportar_desplazamiento(int id, int nuevo_x, int nuevo_y, int conexion_hq) {
     t_buffer* buffer = serializar_desplazamiento(id, nuevo_x, nuevo_y);
-    printf("buffer size: %d\n", buffer->size);
 	t_paquete* paquete = crear_mensaje(buffer, DESPLAZAMIENTO);
-	printf("conexion hq: %d\n", conexion_hq);
 	enviar_paquete(paquete, conexion_hq);
 }
 
