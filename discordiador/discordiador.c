@@ -25,6 +25,7 @@ pthread_mutex_t logs;
 sem_t recibido_hay_lugar;
 sem_t planif;
 sem_t multiprog;
+sem_t listo_para_trabajar;
 
 int quantum = 0;
 char* algoritmo;
@@ -50,6 +51,7 @@ int main(void)
 	sem_init(&planif,0,0);
 	sem_init(&recibido_hay_lugar,0,1);
 	sem_init(&multiprog,0, grado_multitarea);
+	sem_init(&listo_para_trabajar,0,0);
 
 	pthread_t hilo_conexion_hq;
 	pthread_create(&hilo_conexion_hq, NULL, (void*) conexion_con_hq, NULL);
@@ -249,20 +251,17 @@ void planificador(void* args) {
 	quantum = config_get_int_value(config, "QUANTUM");
 
 	while(1){
-		while(list_size(listo) != 0){
-			sem_wait(&planif);
-			sem_wait(&multiprog);
-			puts("-1 espacio libre");
-			t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
-			printf("Turno de trabajar: %d --------- ", tripulante->TID);
-			cambiar_estado(tripulante->estado, e_trabajando, tripulante);
-			puts("Pasa a trabajando");
-			sem_post(&tripulante->semaforo);
-			puts("post semaforo tripulante");
-			sem_post(&tripulante->semaforo);
-			puts("post semaforo tripulante");
-			sem_post(&planif);
-		}
+        sem_wait(&listo_para_trabajar);
+		sem_wait(&planif);
+		sem_wait(&multiprog);
+		puts("-1 espacio libre");
+		t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
+		printf("Turno de trabajar: %d --------- ", tripulante->TID);
+		cambiar_estado(tripulante->estado, e_trabajando, tripulante);
+		puts("Pasa a trabajando");
+		sem_post(&tripulante->semaforo);
+		sem_post(&tripulante->semaforo);
+		sem_post(&planif);
 	}
 }
 
@@ -347,9 +346,9 @@ void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int lo
 		tripulante->pos_x = 0;
 		tripulante->pos_y = 0;
 	} else {
-		 posicion = string_split(instruccion[3+cantidad_ya_iniciada], "|");
-		 tripulante->pos_x = atoi(posicion[0]);
-		 tripulante->pos_y = atoi(posicion[1]);
+		posicion = string_split(instruccion[3+cantidad_ya_iniciada], "|");
+		tripulante->pos_x = atoi(posicion[0]);
+		tripulante->pos_y = atoi(posicion[1]);
 	}
 	tripulante->estado = e_llegada;
 	id_ultimo_tripulante++;
@@ -387,15 +386,13 @@ void circular(void* args) {
 	char* tarea = "EVADIR_IMPUESTOS 12;2;3;3";
 	cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
 	int tarea_hecha = 0;
-	//PARTE CON BLOQUEOS PORQUE TIENE QUE ESTAR PLANIFICADO
 	sem_init(&argumentos->tripulante->semaforo, 0, 1);
+
 //	while(strcmp(tarea, "") != 1) {
 		while(tarea_hecha != 1) {
 			puts("antes semaforo tripulante");
 			sem_wait(&argumentos->tripulante->semaforo);
-			puts("wait sem de tripulante");
 			sem_wait(&argumentos->tripulante->semaforo);
-			puts("wait sem de tripulante");
 			tarea_hecha = leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
 			cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
 		}
@@ -441,6 +438,7 @@ void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripula
         break;
     case e_listo:
         list_add(listo, tripulante);
+        sem_post(&listo_para_trabajar);
         break;
     case e_fin:
         list_add(fin, tripulante);
@@ -483,9 +481,7 @@ int leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 				quantum_ejec = 0;
 				sem_post(&multiprog);
 				sem_wait(&tripulante->semaforo);
-				puts("wait sem de tripulante");
 				sem_wait(&tripulante->semaforo);
-				puts("wait sem de tripulante");
 			}
 		}
 
@@ -499,9 +495,7 @@ int leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 				quantum_ejec = 0;
 				sem_post(&multiprog);
 				sem_wait(&tripulante->semaforo);
-				puts("wait sem de tripulante");
 				sem_wait(&tripulante->semaforo);
-				puts("wait sem de tripulante");
 			}
 		}
 	}else{
@@ -526,21 +520,17 @@ int leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 			sleep(retardo_ciclo_cpu);
 			if(strcmp(algoritmo,"RR") == 0) {
 				quantum_ejec++;
-				printf("Quantum consumido por wait: %d", quantum_ejec);
 				if(quantum_ejec == quantum) {
 					cambiar_estado(tripulante->estado, e_listo,tripulante);
 					quantum_ejec = 0;
 					sem_post(&multiprog);
 					sem_wait(&tripulante->semaforo);
-					puts("wait sem de tripulante");
 					sem_wait(&tripulante->semaforo);
-					puts("wait sem de tripulante");
 				}
 			}
 		}
 	}
 	realizar_tarea(nombre_tarea[0],duracion,tripulante->TID);
-
 	sem_post(&multiprog);
 	puts("+1 espacio libre");
 	free(parametros_tarea);
