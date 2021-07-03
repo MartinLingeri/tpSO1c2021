@@ -53,23 +53,22 @@ int main(void)
 	sem_init(&multiprog,0, grado_multitarea);
 	sem_init(&listo_para_trabajar,0,0);
 
-	pthread_t hilo_conexion_hq;
+	/*pthread_t hilo_conexion_hq;
 	pthread_create(&hilo_conexion_hq, NULL, (void*) conexion_con_hq, NULL);
 	pthread_detach((pthread_t) hilo_conexion_hq);
 
-/*	pthread_t hilo_conexion_store;
+	pthread_t hilo_conexion_store;
 	pthread_create(&hilo_conexion_store, NULL, (void*) conexion_con_store, NULL);
 	pthread_detach((pthread_t) hilo_conexion_store);
 
-/*
 	pthread_t hilo_recibir_store;
 	pthread_create(&hilo_recibir_store, NULL, (void*) esperar_conexion_store, NULL);
-	pthread_detach((pthread_t) hilo_recibir_store);
+	pthread_detach((pthread_t) hilo_recibir_store);*/
 
 	pthread_t hilo_recibir_hq;
 	pthread_create(&hilo_recibir_hq, NULL, (void*) esperar_conexion_hq, NULL);
 	pthread_detach((pthread_t) hilo_recibir_hq);
-*/
+
 
 	pthread_t hilo_planificador;
 	pthread_create(&hilo_planificador, NULL, (void*) planificador, NULL);
@@ -173,10 +172,13 @@ void* esperar_conexion_hq() {
 		switch(cod_op){
 		case LUGAR_MEMORIA:
 			lugar_en_memoria = recibir_hay_lugar(cliente_hq);
-			//IF
-			sem_post(&recibido_hay_lugar);
-			sem_post(&recibido_hay_lugar); //HAY 2 POST XQ EL SEM = -1 ACA
-			return 1;
+			if(lugar_en_memoria > 0){
+				sem_post(&recibido_hay_lugar);
+				sem_post(&recibido_hay_lugar); //HAY 2 POST XQ EL SEM = -1 ACA
+			}else{
+				return(void *)0;
+			}
+			return (void *)0;
 
 		case TAREA:
 			tarea = recibir_tarea(cliente_hq);
@@ -248,20 +250,22 @@ void leer_consola(t_log* logger)
 }
 
 void planificador(void* args) {
-	quantum = config_get_int_value(config, "QUANTUM");
+	int multitarea = config_get_int_value(config, "GRADO_MULTITAREA");
 
 	while(1){
-        sem_wait(&listo_para_trabajar);
-		sem_wait(&planif);
-		sem_wait(&multiprog);
-		puts("-1 espacio libre");
-		t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
-		printf("Turno de trabajar: %d --------- ", tripulante->TID);
-		cambiar_estado(tripulante->estado, e_trabajando, tripulante);
-		puts("Pasa a trabajando");
-		sem_post(&tripulante->semaforo);
-		sem_post(&tripulante->semaforo);
-		sem_post(&planif);
+		sem_wait(&listo_para_trabajar);
+		while(list_size(listo) != 0 && list_size(trabajando) < multitarea){
+			sem_wait(&planif);
+			sem_wait(&multiprog);
+			puts("-1 espacio libre");
+			t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
+			printf("Turno de trabajar: %d --------- ", tripulante->TID);
+			cambiar_estado(tripulante->estado, e_trabajando, tripulante);
+			puts("Pasa a trabajando");
+			sem_post(&tripulante->semaforo);
+			sem_post(&tripulante->semaforo);
+			sem_post(&planif);
+		}
 	}
 }
 
@@ -395,6 +399,7 @@ void circular(void* args) {
 			sem_wait(&argumentos->tripulante->semaforo);
 			tarea_hecha = leer_tarea(argumentos->tripulante, tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
 			cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
+			puts("sale de quantum");
 		}
 //	}
 	cambiar_estado(argumentos->tripulante->estado, e_fin, argumentos->tripulante);
@@ -472,6 +477,7 @@ int leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 
 	if(strcmp(algoritmo,"RR") == 0) {
 		while(pos_x != tripulante->pos_x) {
+			puts("circula x");
 			while(quantum_ejec < quantum && pos_x != tripulante->pos_x){
 				quantum_ejec++;
 				mover_a(tripulante, true, pos_x, retardo_ciclo_cpu);
@@ -486,6 +492,7 @@ int leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 		}
 
 		while(pos_y != tripulante->pos_y) {
+			puts("circula y");
 			while(quantum_ejec < quantum && pos_y != tripulante->pos_y){
 				quantum_ejec++;
 				mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
@@ -518,6 +525,7 @@ int leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	}else{	//TAREAS NO DE IO
 		for(int i = 0; i < duracion; i++) {
 			sleep(retardo_ciclo_cpu);
+			puts("espera 1");
 			if(strcmp(algoritmo,"RR") == 0) {
 				quantum_ejec++;
 				if(quantum_ejec == quantum) {
@@ -701,9 +709,8 @@ t_tripulante* tripulante_mas_cercano(int x, int y){
 }
 
 double distancia(t_tripulante* trip, int x, int y){
-    double result = ((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
-    //double result = sqrt((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
-    return result;
+    double valor = ((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
+    return sqrt(valor);
 }
 
 void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos){

@@ -61,7 +61,7 @@ int iniciar_servidor(char* ip, char* puerto)
 int esperar_cliente(int socket_servidor)
 {
 	struct sockaddr_in dir_cliente;
-	int tam_direccion = sizeof(struct sockaddr_in);
+	uint32_t tam_direccion = sizeof(struct sockaddr_in);
 
 	int socket_cliente = accept(socket_servidor, (void*) &dir_cliente, &tam_direccion);
 
@@ -113,7 +113,7 @@ t_buffer* serializar_patota(uint32_t id, char* tareas, uint32_t trips)
 	memcpy(stream + desplazamiento, &trips, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	void* tareas_len = malloc(sizeof(uint32_t));
+	uint32_t tareas_len;
 	tareas_len = strlen(tareas) + 1;
 	memcpy(stream + desplazamiento, (void*)(&tareas_len), sizeof(uint32_t));
 	desplazamiento += sizeof(strlen(tareas) + 1);
@@ -196,7 +196,7 @@ t_buffer* serializar_reporte_bitacora(uint32_t id, char* reporte)
 	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	void* reporte_len = malloc(sizeof(uint32_t));
+	uint32_t reporte_len;
 	reporte_len = strlen(reporte) + 1;
 	memcpy(stream + desplazamiento, (void*)(&reporte_len), sizeof(uint32_t));
 	desplazamiento += sizeof(strlen(reporte) + 1);
@@ -323,13 +323,13 @@ int recibir_hay_lugar(int socket_cliente)
 
 	buffer = recibir_buffer(&size, socket_cliente);
 
-	void* lugar = malloc(sizeof(uint32_t));
+	uint32_t lugar;
 	memcpy(&lugar, buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
 
 	free(buffer);
 	return lugar;
-	return NULL;
+	//return NULL; //XQ RETORNA NULL ACA?
 }
 
 char* recibir_bitacora(int socket_cliente)
@@ -340,7 +340,7 @@ char* recibir_bitacora(int socket_cliente)
 
 	buffer = recibir_buffer(&size, socket_cliente);
 
-	void* bit_len = malloc(sizeof(uint32_t));
+	uint32_t bit_len;
 	memcpy(&bit_len, (buffer+desplazamiento), sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
@@ -360,7 +360,7 @@ char* recibir_tarea(int socket_cliente) {
 
 	buffer = recibir_buffer(&size, socket_cliente);
 
-	void* tarea_len = malloc(sizeof(uint32_t));
+	uint32_t tarea_len;
 	memcpy(&tarea_len, buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
@@ -506,7 +506,7 @@ int atoi_tarea(char* tarea){
 	}
 }
 
-void reportar_eliminar_tripulante(int id, int conexion_hq) {
+void reportar_eliminar_tripulante(int id, int conexion_hq) { // para q es esto?
     t_buffer* buffer = serializar_eliminar_tripulante(id);
 	t_paquete* paquete = crear_mensaje(buffer, ELIMINAR_TRIPULANTE);
 	enviar_paquete(paquete, conexion_hq);
