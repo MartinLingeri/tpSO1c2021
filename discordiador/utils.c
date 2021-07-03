@@ -228,10 +228,10 @@ t_buffer* serializar_desplazamiento(uint32_t tid, uint32_t x_nuevo, uint32_t y_n
 	return buffer;
 }
 
-t_buffer* serializar_hacer_tarea(uint32_t cantidad, int tarea, int tid)
+t_buffer* serializar_hacer_tarea(uint32_t cantidad, int tarea)
 {
 	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t));
+	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t));
 	int desplazamiento = 0;
 
 	memcpy(stream + desplazamiento, &cantidad, sizeof(uint32_t));
@@ -240,8 +240,6 @@ t_buffer* serializar_hacer_tarea(uint32_t cantidad, int tarea, int tid)
 	memcpy(stream + desplazamiento, &tarea, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	memcpy(stream + desplazamiento, &tid, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
 	buffer->size = desplazamiento;
 	buffer->stream = stream;
 	return buffer;

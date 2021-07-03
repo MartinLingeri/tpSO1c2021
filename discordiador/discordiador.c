@@ -550,7 +550,7 @@ void realizar_tarea(char* tarea, int duracion, int id){
 	int tarea_io = atoi_tarea(tarea);
 
 	if(tarea_io != -1){
-		t_buffer* buffer = serializar_hacer_tarea(duracion, tarea_io, id);
+		t_buffer* buffer = serializar_hacer_tarea(duracion, tarea_io);
 		t_paquete* paquete_hacer_tarea = crear_mensaje(buffer, HACER_TAREA);
 		pthread_mutex_lock(&store);
 		enviar_paquete(paquete_hacer_tarea, conexion_store);
