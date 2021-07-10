@@ -20,9 +20,10 @@ typedef struct {
 
 t_log* iniciar_logger(void);
 t_config* leer_config(void);
-void* esperar_conexion_hq();
-void* esperar_conexion_store();
-
+void* esperar_conexion();
+int iniciar_servidor(char* ip, char* puerto);
+int esperar_cliente(int socket_servidor);
+int recibir_operacion(int socket_cliente);
 void leer_consola(t_log* logger);
 void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_config* config);
 int longitud_instr(char** instruccion);

@@ -91,9 +91,9 @@ typedef struct{
 }t_sabotaje;
 
 void* serializar_paquete(t_paquete* paquete, int bytes);
-void enviar_paquete(t_paquete* paquete, int socket_cliente);
+void enviar_paquete(t_paquete* paquete, int socket_cliente);/*
 int iniciar_servidor(char* ip, char* puerto);
-int esperar_cliente(int socket_servidor);
+int esperar_cliente(int socket_servidor);*/
 
 int crear_conexion(char* ip, char* puerto);
 t_paquete* crear_mensaje(t_buffer* buffer, op_code codigo);
@@ -113,7 +113,7 @@ t_buffer* invocar_fsck(uint32_t id);
 void eliminar_paquete(t_paquete* paquete);
 void liberar_conexion(int socket_cliente);
 void* recibir_buffer(int* size, int socket_cliente);
-int recibir_operacion(int socket_cliente);
+//int recibir_operacion(int socket_cliente);
 
 t_sabotaje* recibir_datos_sabotaje(int socket_cliente);
 int recibir_hay_lugar(int socket_cliente);

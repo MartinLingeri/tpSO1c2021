@@ -53,7 +53,7 @@ int main(void)
 	sem_init(&multiprog,0, grado_multitarea);
 	sem_init(&listo_para_trabajar,0,0);
 
-	/*pthread_t hilo_conexion_hq;
+	pthread_t hilo_conexion_hq;
 	pthread_create(&hilo_conexion_hq, NULL, (void*) conexion_con_hq, NULL);
 	pthread_detach((pthread_t) hilo_conexion_hq);
 
@@ -61,14 +61,9 @@ int main(void)
 	pthread_create(&hilo_conexion_store, NULL, (void*) conexion_con_store, NULL);
 	pthread_detach((pthread_t) hilo_conexion_store);
 
-	pthread_t hilo_recibir_store;
-	pthread_create(&hilo_recibir_store, NULL, (void*) esperar_conexion_store, NULL);
-	pthread_detach((pthread_t) hilo_recibir_store);*/
-
-	pthread_t hilo_recibir_hq;
-	pthread_create(&hilo_recibir_hq, NULL, (void*) esperar_conexion_hq, NULL);
-	pthread_detach((pthread_t) hilo_recibir_hq);
-
+	pthread_t hilo_recibir_conexiones;
+	pthread_create(&hilo_recibir_conexiones, NULL, (void*) esperar_conexion, NULL);
+	pthread_detach((pthread_t) hilo_recibir_conexiones);
 
 	pthread_t hilo_planificador;
 	pthread_create(&hilo_planificador, NULL, (void*) planificador, NULL);
@@ -107,37 +102,107 @@ void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_con
 	sem_destroy(&recibido_hay_lugar);
 }
 
-void* esperar_conexion_store() {
-	/*
-	 * Vamos a esperar conexiones de 2 lados distintos, como se haria? con 2 hilos y 2 funcs de recibir?
-	 * abriendo y cerrando conexiones cada vez q sea necesario?
-	 * tmb vamos a necesitar una conexión abierta escuchando constantemente si hay sabotaje asi q
-	 * eso seria una tercera o la misma q recv bitacora?
-	 * si fuera la misma como gestionar si llegan 2 cosas al mismo tiempo
-	 */
+
+int iniciar_servidor(char* ip, char* puerto)
+{
+	int socket_servidor;
+
+    struct addrinfo hints, *servinfo, *p;
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+
+    getaddrinfo(ip, puerto, &hints, &servinfo);
+
+    for (p=servinfo; p != NULL; p = p->ai_next)
+    {
+        if ((socket_servidor = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
+            continue;
+
+        if (bind(socket_servidor, p->ai_addr, p->ai_addrlen) == -1) {
+            close(socket_servidor);
+            continue;
+        }
+        break;
+    }
+
+	listen(socket_servidor, SOMAXCONN);
+    freeaddrinfo(servinfo);
+
+    log_trace(logger, "Listo para escuchar a mi cliente");
+    return socket_servidor;
+}
+
+int recibir_operacion(int socket_cliente)
+{
+	int cod_op;
+	puts("antes recibir");
+	if(recv(socket_cliente, &cod_op, sizeof(int), MSG_WAITALL) != 0){
+		printf("CODIGO: %d", cod_op);
+		return cod_op;
+	}else{
+		close(socket_cliente);
+		return -1;
+	}
+	puts("loop");
+}
+
+int esperar_cliente(int socket_servidor)
+{
+	struct sockaddr_in dir_cliente;
+	uint32_t tam_direccion = sizeof(struct sockaddr_in);
+
+	int socket_cliente = accept(socket_servidor, (void*) &dir_cliente, &tam_direccion);
+
+	log_info(logger, "Se conecto un cliente!");
+
+	return socket_cliente;
+}
+
+void* esperar_conexion() {
 	char* ip = config_get_string_value(config, "IP");
 	char* puerto = config_get_string_value(config, "PUERTO");
-	int server_st = iniciar_servidor(ip, puerto);
+	int server = iniciar_servidor(ip, puerto);
+
 	pthread_mutex_lock(&logs);
 	log_info(logger, "Servidor listo para recibir al store");
 	pthread_mutex_unlock(&logs);
-	int cliente_st = esperar_cliente(server_st);
 
+	int cliente = esperar_cliente(server);
 	char* bitacora;
+	char* tarea;
 	t_sabotaje* data = malloc(sizeof(t_sabotaje));
 
 	while(1){
-		int cod_op = recibir_operacion(cliente_st);
+		int cod_op = recibir_operacion(cliente);
 		switch(cod_op){
 		case BITACORA:
-			bitacora = recibir_bitacora(cliente_st);
+			bitacora = recibir_bitacora(cliente);
 			log_info(logger, bitacora);
 			pthread_mutex_unlock(&logs);
 			break;
 
 		case ALERTA_SABOTAJE:
-			data = recibir_datos_sabotaje(cliente_st);
+			data = recibir_datos_sabotaje(cliente);
 			atender_sabotaje(data);
+			break;
+
+		case LUGAR_MEMORIA:
+			lugar_en_memoria = recibir_hay_lugar(cliente);
+			if(lugar_en_memoria > 0){
+				sem_post(&recibido_hay_lugar);
+				sem_post(&recibido_hay_lugar); //HAY 2 POST XQ EL SEM = -1 ACA
+			}else{
+				return(void *)0;
+			}
+			return (void *)0;
+
+		case TAREA:
+			tarea = recibir_tarea(cliente);
+			//ver forma de pasar tarea al hilo del trip
+			return tarea;
 			break;
 
 		case -1:
@@ -153,52 +218,8 @@ void* esperar_conexion_store() {
 	free(ip);
 	free(puerto);
 	free(bitacora);
-	free(data);
-}
-
-void* esperar_conexion_hq() {
-	char* ip = config_get_string_value(config, "IP");
-	char* puerto = config_get_string_value(config, "PUERTO");
-	int server_hq = iniciar_servidor(ip, puerto);
-	pthread_mutex_lock(&logs);
-	log_info(logger, "Servidor listo para recibir al hq");
-	pthread_mutex_unlock(&logs);
-	int cliente_hq = esperar_cliente(server_hq);
-
-	char* tarea;
-
-	while(1){
-		int cod_op = recibir_operacion(cliente_hq);
-		switch(cod_op){
-		case LUGAR_MEMORIA:
-			lugar_en_memoria = recibir_hay_lugar(cliente_hq);
-			if(lugar_en_memoria > 0){
-				sem_post(&recibido_hay_lugar);
-				sem_post(&recibido_hay_lugar); //HAY 2 POST XQ EL SEM = -1 ACA
-			}else{
-				return(void *)0;
-			}
-			return (void *)0;
-
-		case TAREA:
-			tarea = recibir_tarea(cliente_hq);
-			//ver forma de pasar tarea al hilo del trip
-			return tarea;
-			break;
-
-		case -1:
-			pthread_mutex_lock(&logs);
-			log_error(logger, "Mi-RAM-HQ se desconecto. Terminando servidor");
-			pthread_mutex_unlock(&logs);
-			return 0;
-
-		default:
-			break;
-		}
-	}
-	free(ip);
-	free(puerto);
 	free(tarea);
+	free(data);
 }
 
 void leer_consola(t_log* logger)

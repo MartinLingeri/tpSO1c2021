@@ -25,7 +25,7 @@ void enviar_paquete(t_paquete* paquete, int socket_cliente)
 
 	free(a_enviar);
 }
-
+/*
 int iniciar_servidor(char* ip, char* puerto)
 {
 	int socket_servidor;
@@ -69,7 +69,7 @@ int esperar_cliente(int socket_servidor)
 
 	return socket_cliente;
 }
-
+*/
 
 int crear_conexion(char *ip, char* puerto)
 {
@@ -383,18 +383,20 @@ void* recibir_buffer(int* size, int socket_cliente)
 
 	return buffer;
 }
-
+/*
 int recibir_operacion(int socket_cliente)
 {
 	int cod_op;
-	if(recv(socket_cliente, &cod_op, sizeof(int), MSG_WAITALL) != 0)
+	puts("antes recibir");
+	if(recv(socket_cliente, &cod_op, sizeof(int), MSG_WAITALL) != 0){
+		printf("CODOP: %d", cod_op);
 		return cod_op;
-	else
-	{
+	}else{
 		close(socket_cliente);
 		return -1;
 	}
-}
+	puts("loop");
+}*/
 
 
 void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_ciclo_cpu) {
