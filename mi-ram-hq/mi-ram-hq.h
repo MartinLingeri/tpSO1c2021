@@ -14,6 +14,7 @@
 #include <nivel-gui/tad_nivel.h>
 
 #include "utils.h"
+#include "segmentacion.c"
 
 #define ASSERT_CREATE(nivel, id, err)                                                   \
     if(err) {                                                                           \
@@ -22,18 +23,6 @@
         fprintf(stderr, "Error al crear '%c': %s\n", id, nivel_gui_string_error(err));  \
         return EXIT_FAILURE;                                                            \
 }
-
-/*typedef struct
-{
-	int size;
-	void* stream;
-} t_buffer;
-
-typedef struct
-{
-	op_code codigo_operacion;
-	t_buffer* buffer;
-} t_paquete;*/
 
 void eliminar_paquete(t_paquete* paquete);
 void enviar_mensaje(char* mensaje, int socket_cliente);
