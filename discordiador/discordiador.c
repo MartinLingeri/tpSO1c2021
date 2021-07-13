@@ -295,17 +295,20 @@ void planificador(void* args) {
 
 	while(1){
 		sem_wait(&listo_para_trabajar);
-		while(list_size(listo) != 0 && list_size(trabajando) < multitarea) {
+		while(list_size(listo) > 0 && list_size(trabajando) < multitarea) {
 			sem_wait(&planif);
 			sem_wait(&multiprog);
 			puts("-1 espacio libre");
-			t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
-			printf("Turno de trabajar: %d --------- ", tripulante->TID);
-			cambiar_estado(tripulante->estado, e_trabajando, tripulante);
-			puts("Pasa a trabajando");
-			sem_post(&tripulante->semaforo);
-			sem_post(&tripulante->semaforo);
-			sem_post(&planif);
+			if(list_size(listo) > 0) {
+				printf("@@ SIZE DE LISTO: %d\n", list_size(listo));
+				t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
+				printf("Turno de trabajar: %d --------- ", tripulante->TID);
+				cambiar_estado(tripulante->estado, e_trabajando, tripulante);
+				puts("Pasa a trabajando");
+				sem_post(&tripulante->semaforo);
+				sem_post(&tripulante->semaforo);
+				sem_post(&planif);
+			}
 		}
 	}
 }
