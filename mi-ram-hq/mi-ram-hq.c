@@ -18,7 +18,7 @@ int main(void) {
 													//del segmento reservado para memoria
 
 	//Dibuja el mapa inicial vacío
-	NIVEL* nivel;
+	/*NIVEL* nivel;
 
 	int cols, rows;
 	int err;
@@ -27,7 +27,7 @@ int main(void) {
 
 	nivel_gui_get_area_nivel(&cols, &rows);
 
-	nivel = nivel_crear("A-MongOs");
+	nivel = nivel_crear("A-MongOs");*/
 
 	//Conecta con el servidor
 
@@ -37,7 +37,7 @@ int main(void) {
 	}
 
 	int server_fd = iniciar_servidor();
-	log_info(logger, "Servidor listo para recibir al cliente");
+	//log_info(logger, "Servidor listo para recibir al cliente");
 	int cliente_fd = esperar_cliente(server_fd);
 	t_tcb* tripulante = malloc(sizeof(t_tcb));
 	t_pcb* patota = malloc(sizeof(t_pcb));
@@ -47,23 +47,33 @@ int main(void) {
 		switch(cod_op)
 		{
 		case TCB_MENSAJE:
+			printf("@COD OP: %d@\n", TCB_MENSAJE);
 			tripulante = recibir_tcb(cliente_fd);
 			//mostrar_tcb(tripulante);
 			break;
 		case PCB_MENSAJE:
+			printf("@COD OP: %d@\n", PCB_MENSAJE);
 			patota = recibir_pcb(cliente_fd);
 			//mostrar_tcb(patota);
 			break;
 		case PEDIR_SIGUIENTE_TAREA:
+			printf("@COD OP: %d@\n", PEDIR_SIGUIENTE_TAREA);
 			recibir_pedir_tarea(cliente_fd);
 			break;
+		case REPORTE_BITACORA:
+			printf("@COD OP: %d. EL DEL STORE@\n", 5);//ES ALGO DEL STORE PEROLO NECESITABA PARA PROBAR COSAS DE DISCORDIADOR
+			recibir_reporte(cliente_fd);
+			break;
 		case CAMBIO_ESTADO_MENSAJE:
+			printf("@COD OP: %d@\n", CAMBIO_ESTADO_MENSAJE);
 			recibir_cambio_estado(cliente_fd);
 			break;
 		case DESPLAZAMIENTO:
+			printf("@COD OP: %d@\n", DESPLAZAMIENTO);
 			recibir_desplazamiento(cliente_fd);
 			break;
 		case ELIMINAR_TRIPULANTE:
+			printf("@COD OP: %d@\n", ELIMINAR_TRIPULANTE);
 			recibir_eliminar_tripulante(cliente_fd);
 			break;
 		case -1:

@@ -20,7 +20,8 @@ void enviar_paquete(t_paquete* paquete, int socket_cliente)
 {
 	int bytes = paquete->buffer->size + 2*sizeof(int);
 	void* a_enviar = serializar_paquete(paquete, bytes);
-
+	printf("CODIGO OP: %d\n", paquete->codigo_operacion);
+	printf("SIZE DEL BUFFER: %d\n", paquete->buffer->size);
 	send(socket_cliente, a_enviar, bytes, 0);
 
 	free(a_enviar);
@@ -123,6 +124,9 @@ t_buffer* serializar_patota(uint32_t id, char* tareas, uint32_t trips)
 
 	buffer->size = desplazamiento;
 	buffer->stream = stream;
+
+	printf("desplazamiento: %d\n", desplazamiento);
+	printf("stream: %d\n", sizeof(uint32_t) + sizeof(uint32_t) + sizeof(uint32_t) + strlen(tareas) + 1);
 	return buffer;
 }
 
@@ -205,6 +209,8 @@ t_buffer* serializar_reporte_bitacora(uint32_t id, char* reporte)
 
 	buffer->size = desplazamiento;
 	buffer->stream = stream;
+	printf("desplazamiento: %d\n", desplazamiento);
+	printf("stream: %d\n", sizeof(uint32_t) + sizeof(uint32_t) + strlen(reporte) + 1);
 	return buffer;
 }
 
