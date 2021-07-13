@@ -94,14 +94,20 @@ t_config* leer_config(void)
 
 void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_config* config)
 {
+	void destruir_tripulante(t_tripulante t){
+		sem_destroy(&(t->semaforo));
+	}
+
 	liberar_conexion(conexion_hq);
 	log_destroy(logger);
 	config_destroy(config);
 	sem_destroy(&planif);
 	sem_destroy(&multiprog);
 	sem_destroy(&recibido_hay_lugar);
+	sem_destroy(&listo_para_trabajar);
+	list_destroy_and_destroy_elements(listo,(void*)destruir_tripulante);
+	//TEST Y AGREGAR LAS DEMAS LISTAS
 }
-
 
 int iniciar_servidor(char* ip, char* puerto)
 {
@@ -229,13 +235,21 @@ void leer_consola(t_log* logger)
 	while (strcmp(leido, "FIN") != 0) {
 		char** instruccion = string_split(leido, " ");
 		if(strcmp(instruccion[0], "INICIAR_PATOTA") == 0) {
-			iniciar_patota(instruccion, leido);
+			if(instruccion[2] != NULL){
+				iniciar_patota(instruccion, leido);
+			}else{
+				logear_error();
+			}
 
 		} else if (strcmp(instruccion[0], "LISTAR_TRIPULANTES") == 0) {
 			listar_tripulantes();
 
 		} else if (strcmp(instruccion[0], "EXPULSAR_TRIPULANTE") == 0) {
-			expulsar_tripulante(instruccion[1]);
+			if(instruccion[1] != NULL){
+				expulsar_tripulante(instruccion[1]);
+			}else{
+				logear_error();
+			}
 
 		} else if (strcmp(instruccion[0], "INICIAR_PLANIFICACION") == 0) {
 			sem_post(&planif);
@@ -244,7 +258,11 @@ void leer_consola(t_log* logger)
 			sem_wait(&planif);
 
 		} else if (strcmp(instruccion[0], "OBTENER_BITACORA") == 0) {
-			obtener_bitacora(instruccion[1]);
+			if(instruccion[1] != NULL){
+				obtener_bitacora(instruccion[1]);
+			}else{
+				logear_error();
+			}
 
 		} else if (strcmp(instruccion[0], "SIMULAR_SABOTAJE") == 0) {
 			//ESTO SIRVE PARA TESTEAR MIENTRAS NO ESTÉ EL IMONGO
@@ -254,20 +272,19 @@ void leer_consola(t_log* logger)
 			atender_sabotaje(data);
 			free(data);
 
-		} else if (strcmp(instruccion[0], "ELIMINAR_TRIPULANTE") == 0) {
-			expulsar_tripulante(instruccion[1]);
-			printf("entro al eliminar");
-			int id = atoi(instruccion[1]);
-			reportar_eliminar_tripulante(id, conexion_hq);
 		} else {
-			pthread_mutex_lock(&logs);
-			log_info(logger, "No se reconocio la instruccion");
-			pthread_mutex_unlock(&logs);
+			logear_error();
 		}
 
 		leido = readline(">");
 	}
 	free(leido);
+}
+
+void logear_error(){
+	pthread_mutex_lock(&logs);
+	log_info(logger, "No se reconocio la instruccion");
+	pthread_mutex_unlock(&logs);
 }
 
 void planificador(void* args) {
@@ -290,7 +307,6 @@ void planificador(void* args) {
 	}
 }
 
-
 int longitud_instr(char** instruccion) {
 	int largo = 0;
 	int i = 0;
@@ -307,6 +323,11 @@ void iniciar_patota(char** instruccion, char* leido) {
 	uint32_t cantidad = atoi(instruccion[1]);
 	char* tareas = instruccion[2];
 	//sem_wait(&recibido_hay_lugar);
+
+	if(cantidad == 0 || !string_ends_with(tareas,".txt")){
+		void logear_error();
+		return;
+	}
 
 	FILE* archivo_tareas =  fopen(tareas, "r");
 	char* contenido_tareas = string_new();
@@ -361,6 +382,16 @@ void enviar_cambio_estado_hq(t_tripulante* tripulante) {
 	pthread_mutex_unlock(&hq);
 	free(buffer);
 	free(paquete_cambio_estado);
+}
+
+void enviar_desplazamiento_hq(t_tripulante* tripulante){
+	t_buffer* buffer = serializar_desplazamiento(tripulante->TID, tripulante->pos_x, tripulante->pos_y);
+	t_paquete* paquete_d = crear_mensaje(buffer, DESPLAZAMIENTO);
+	pthread_mutex_lock(&hq);
+	enviar_paquete(paquete_d, conexion_hq);
+	pthread_mutex_unlock(&hq);
+	free(buffer);
+	free(paquete_d);
 }
 
 void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int longitud, int id_patota, pthread_t hilo) {
@@ -534,6 +565,7 @@ int leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 			mover_a(tripulante, false, pos_y, retardo_ciclo_cpu);
 		}
 	}
+	enviar_desplazamiento_hq(tripulante);
 
 	if(atoi_tarea(nombre_tarea[0]) != -1){
 		cambiar_estado(tripulante->estado, e_bloqueado_IO, tripulante); //TAREAS_IO
@@ -559,7 +591,7 @@ int leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 			}
 		}
 	}
-	realizar_tarea(nombre_tarea[0],duracion,tripulante->TID);
+	realizar_tarea(nombre_tarea[0],duracion,tripulante);
 	sem_post(&multiprog);
 	puts("+1 espacio libre");
 	free(parametros_tarea);
@@ -567,7 +599,7 @@ int leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 	return 1;
 }
 
-void realizar_tarea(char* tarea, int duracion, int id){
+void realizar_tarea(char* tarea, int duracion, t_tripulante* tripulante){
 	int tarea_io = atoi_tarea(tarea);
 
 	if(tarea_io != -1){
@@ -579,7 +611,7 @@ void realizar_tarea(char* tarea, int duracion, int id){
 		free(buffer);
 		free(paquete_hacer_tarea);
 	}
-	reportar_bitacora(logs_bitacora(FIN_TAREA, tarea, " "), id , conexion_store);
+	reportar_bitacora(logs_bitacora(FIN_TAREA, tarea, " "), tripulante->TID , conexion_store);
 }
 
 void listar_tripulantes(){
@@ -617,6 +649,11 @@ void listar_tripulantes(){
 
 void expulsar_tripulante(char* i) {
 	int id = atoi(i);
+	if (id == 0){
+		void logear_error();
+		return;
+	};
+
 	if(id < id_ultimo_tripulante+1){
 		bool es_el_tripulante(void* tripulante_en_lista) {
 			return ((t_tripulante*)tripulante_en_lista)->TID == id;
@@ -750,10 +787,15 @@ void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos){
 			mover_a(asignado, false, datos->y, config_get_int_value(config, "RETARDO_CICLO_CPU")); //RETARDO CPU
 		}
 	}
+	enviar_desplazamiento_hq(asignado);
 	t_buffer* buffer = invocar_fsck(asignado->TID);
 	t_paquete* no_paquete = crear_mensaje(buffer, INVOCAR_FSCK);
 	pthread_mutex_lock(&store);
-	enviar_paquete(no_paquete, conexion_store);
+	enviar_paquete(no_paquete, conexion_store);			//ESTO SIRVE PARA TESTEAR MIENTRAS NO ESTÉ EL IMONGO
+	t_sabotaje* data = malloc(sizeof(t_sabotaje));
+	data->x = 1;
+	data->y = 2;
+	atender_sabotaje(data);
 	pthread_mutex_unlock(&store);
 	free(buffer);
 	free(no_paquete);
@@ -774,13 +816,17 @@ void reportar_bitacora(char* log, int id, int conexion_store){
 
 void obtener_bitacora (char* i) {
 	int id = atoi(i);
+	if(id == 0 || id > id_ultimo_tripulante){
+		void logear_error();
+		return;
+	}
 	t_buffer* buffer = serializar_solicitar_bitacora(id);
 	t_paquete* paquete_b = crear_mensaje(buffer, PEDIR_BITACORA);
 	pthread_mutex_lock(&store);
 	enviar_paquete(paquete_b, conexion_store);
 	pthread_mutex_unlock(&store);
 	pthread_mutex_lock(&logs);
-	log_info(logger, "Bitácora del tripulante N°"); //poner el numero
+	log_info(logger, "Bitácora del tripulante N°");//poner el numero
     free(buffer);
     free(paquete_b);
 }
