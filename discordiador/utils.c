@@ -19,8 +19,8 @@ void enviar_paquete(t_paquete* paquete, int socket_cliente)
 {
 	int bytes = paquete->buffer->size + 2*sizeof(int);
 	void* a_enviar = serializar_paquete(paquete, bytes);
-	printf("CODIGO OP: %d\n", paquete->codigo_operacion);
-	printf("SIZE DEL BUFFER: %d\n", paquete->buffer->size);
+	//printf("CODIGO OP: %d\n", paquete->codigo_operacion);
+	//printf("SIZE DEL BUFFER: %d\n", paquete->buffer->size);
 	send(socket_cliente, a_enviar, bytes, 0);
 
 	free(a_enviar);

@@ -21,6 +21,7 @@ pthread_mutex_t store;
 pthread_mutex_t hq;
 pthread_mutex_t sabotaje;
 pthread_mutex_t logs;
+pthread_mutex_t io;
 
 sem_t recibido_hay_lugar;
 sem_t planif;
@@ -165,21 +166,29 @@ void* esperar_conexion() {
 	free(data);
 }
 
-void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_config* config)
-{
+void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_config* config){
 	void destruir_tripulante(t_tripulante* t){
 		sem_destroy(&(t->semaforo));
 	}
 
 	liberar_conexion(conexion_hq);
+	liberar_conexion(conexion_store);
 	log_destroy(logger);
 	config_destroy(config);
 	sem_destroy(&planif);
 	sem_destroy(&multiprog);
 	sem_destroy(&recibido_hay_lugar);
 	sem_destroy(&listo_para_trabajar);
+	list_destroy_and_destroy_elements(llegada,(void*)destruir_tripulante);
 	list_destroy_and_destroy_elements(listo,(void*)destruir_tripulante);
-	//TEST Y AGREGAR LAS DEMAS LISTAS
+	list_destroy_and_destroy_elements(fin,(void*)destruir_tripulante);
+	list_destroy_and_destroy_elements(trabajando,(void*)destruir_tripulante);
+	list_destroy_and_destroy_elements(bloqueado_IO,(void*)destruir_tripulante);
+	list_destroy_and_destroy_elements(bloqueado_emergencia,(void*)destruir_tripulante);
+
+	pthread_mutex_lock(&logs);
+	log_info(logger, "Programa finalizado ");
+	pthread_mutex_unlock(&logs);
 }
 
 int iniciar_servidor(char* ip, char* puerto)
@@ -235,7 +244,7 @@ void leer_consola(t_log* logger)
 	while (strcmp(leido, "FIN") != 0) {
 		char** instruccion = string_split(leido, " ");
 		if(strcmp(instruccion[0], "INICIAR_PATOTA") == 0) {
-			if(instruccion[2] != NULL){
+			if(instruccion[2] != NULL && instruccion[1] != NULL){
 				iniciar_patota(instruccion, leido);
 			}else{
 				logear_error();
@@ -272,9 +281,6 @@ void leer_consola(t_log* logger)
 			atender_sabotaje(data);
 			free(data);
 
-		} else if (strcmp(instruccion[0], "ELIMINAR_TRIPULANTE") == 0) {
-			expulsar_tripulante(instruccion[1]);
-			int id = atoi(instruccion[1]);
 		} else {
 			logear_error();
 		}
@@ -299,13 +305,14 @@ void planificador(void* args) {
 			sem_wait(&planif);
 			sem_wait(&multiprog);
 			puts("-1 espacio libre");
-			t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
-			printf("Turno de trabajar: %d --------- ", tripulante->TID);
-			cambiar_estado(tripulante->estado, e_trabajando, tripulante);
-			puts("Pasa a trabajando");
-			sem_post(&tripulante->semaforo);
-			sem_post(&tripulante->semaforo);
-			sem_post(&planif);
+			if(list_size(listo) != 0){
+				t_tripulante* tripulante = (t_tripulante*) list_get(listo, 0);
+				printf("Turno de trabajar: %d --------- ", tripulante->TID);
+				cambiar_estado(tripulante->estado, e_trabajando, tripulante);
+				sem_post(&tripulante->semaforo);
+				sem_post(&tripulante->semaforo);
+				sem_post(&planif);
+			}
 		}
 	}
 }
@@ -500,6 +507,7 @@ void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripula
     case e_listo:
         list_add(listo, tripulante);
         sem_post(&listo_para_trabajar);
+        printf("+1 Listo para trabajar");
         break;
     case e_fin:
         list_add(fin, tripulante);
@@ -573,11 +581,13 @@ int leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu) {
 
 	if(atoi_tarea(nombre_tarea[0]) != -1){
 		cambiar_estado(tripulante->estado, e_bloqueado_IO, tripulante); //TAREAS_IO
+		pthread_mutex_lock(&io);
 		for(int i = 0; i < duracion; i++) {
 			pthread_mutex_lock(&sabotaje);
 			sleep(retardo_ciclo_cpu);
 			pthread_mutex_unlock(&sabotaje);
 		}
+		pthread_mutex_unlock(&io);
 		cambiar_estado(tripulante->estado, e_listo, tripulante);
 	}else{	//TAREAS NO DE IO
 		for(int i = 0; i < duracion; i++) {
@@ -659,7 +669,7 @@ void listar_tripulantes(){
 void expulsar_tripulante(char* i) {
 	int id = atoi(i);
 	if (id == 0){
-		void logear_error();
+		logear_error();
 		return;
 	};
 
@@ -689,7 +699,9 @@ void expulsar_tripulante(char* i) {
 			cambiar_estado(e_trabajando, e_fin, tripulante);
 		}
 	}else{
+		pthread_mutex_lock(&logs);
 		log_info(logger, "El tripulante no existe o ya fue eliminado");
+		pthread_mutex_unlock(&logs);
 	}
 	t_buffer* buffer = serializar_eliminar_tripulante(id);
 	t_paquete* paquete_r = crear_mensaje(buffer, ELIMINAR_TRIP);
@@ -825,7 +837,6 @@ void reportar_bitacora(char* log, int id, int conexion_store){
 	} else {
 		puts("no envio a store");
 	}
-
 	pthread_mutex_unlock(&store);
 	free(buffer);
 	free(paquete_bitacora);
@@ -833,10 +844,19 @@ void reportar_bitacora(char* log, int id, int conexion_store){
 
 void obtener_bitacora (char* i) {
 	int id = atoi(i);
-	if(id == 0 || id > id_ultimo_tripulante){
-		void logear_error();
+	if(id == 0){
+		logear_error();
 		return;
 	}
+	int ultimo = id_ultimo_tripulante;
+
+	if(id > ultimo || id < 0){
+		pthread_mutex_lock(&logs);
+		log_info(logger, "El tripulante no existe");
+		pthread_mutex_unlock(&logs);
+		return;
+	}
+
 	t_buffer* buffer = serializar_solicitar_bitacora(id);
 	t_paquete* paquete_b = crear_mensaje(buffer, PEDIR_BITACORA);
 	pthread_mutex_lock(&store);
