@@ -8,14 +8,6 @@ t_config* config;
 uint32_t id_ultima_patota = -1;
 uint32_t id_ultimo_tripulante = -1;
 
-t_list* llegada;
-t_list* listo;
-t_list* fin;
-t_list* trabajando;
-t_list* bloqueado_IO;
-t_list* bloqueado_emergencia;
-
-bool planificacion_activada = false;
 pthread_mutex_t estados[6];
 pthread_mutex_t store;
 pthread_mutex_t hq;
@@ -315,16 +307,6 @@ void planificador(void* args) {
 			}
 		}
 	}
-}
-
-int longitud_instr(char** instruccion) {
-	int largo = 0;
-	int i = 0;
-	while(instruccion[i] != NULL){
-		largo++;
-		i++;
-	}
-	return largo;
 }
 
 void iniciar_patota(char** instruccion, char* leido) {
@@ -736,16 +718,16 @@ void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_y_nuevo, in
 
 void atender_sabotaje(t_sabotaje* datos){
 	//CONTROLAR PLANIF. ACTIVADA (O NO, PREGUNTAR)
-	puts("Atendiendo sabotaje...");
-   mover_trips(e_bloqueado_emergencia);
-   pthread_mutex_lock(&sabotaje);
-   t_tripulante* asignado = tripulante_mas_cercano(datos->x, datos->y);
-   resolver_sabotaje(asignado, datos);
-   cambiar_estado(asignado->estado, e_listo, asignado);
-   desbloquear_trips_inverso(bloqueado_emergencia);
-   pthread_mutex_unlock(&sabotaje);
-   puts("Sabotaje atendido...");
-   return;
+	log_info(logger,"Iniciando atención de sabotaje");
+	mover_trips(e_bloqueado_emergencia);
+	pthread_mutex_lock(&sabotaje);
+	t_tripulante* asignado = tripulante_mas_cercano(datos->x, datos->y);
+	resolver_sabotaje(asignado, datos);
+	cambiar_estado(asignado->estado, e_listo, asignado);
+	desbloquear_trips_inverso(bloqueado_emergencia);
+	pthread_mutex_unlock(&sabotaje);
+	log_info(logger,"Sabotaje atendido correctamente");
+	return;
 }
 
 void mover_trips(int nuevo_estado){
@@ -785,11 +767,6 @@ t_tripulante* tripulante_mas_cercano(int x, int y){
     }
     t_tripulante* asignado = list_get_minimum(bloqueado_emergencia, (void*)t_distancia);
     return asignado;
-}
-
-double distancia(t_tripulante* trip, int x, int y){
-    double valor = ((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
-    return sqrt(valor);
 }
 
 void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos){

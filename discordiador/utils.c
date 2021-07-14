@@ -63,79 +63,6 @@ void eliminar_paquete(t_paquete* paquete)
 	free(paquete);
 }
 
-t_sabotaje* recibir_datos_sabotaje(int socket_cliente)
-{
-	int size;
-	int desplazamiento = 0;
-	void * buffer;
-	t_sabotaje* data = malloc(sizeof(t_sabotaje));
-
-	buffer = recibir_buffer(&size, socket_cliente);
-	memcpy(&(data->x), buffer+desplazamiento, sizeof(uint32_t));
-	desplazamiento+=sizeof(uint32_t);
-	memcpy(&(data->y), buffer+desplazamiento, sizeof(uint32_t));
-	desplazamiento+=sizeof(uint32_t);
-
-	free(buffer);
-	return data;
-	return NULL;
-}
-
-int recibir_hay_lugar(int socket_cliente)
-{
-	int size;
-	int desplazamiento = 0;
-	void* buffer;
-
-	buffer = recibir_buffer(&size, socket_cliente);
-
-	uint32_t lugar;
-	memcpy(&lugar, buffer+desplazamiento, sizeof(uint32_t));
-	desplazamiento+=sizeof(uint32_t);
-
-	free(buffer);
-	return lugar;
-	//return NULL; //XQ RETORNA NULL ACA?
-}
-
-char* recibir_bitacora(int socket_cliente)
-{
-	int size;
-	int desplazamiento = 0;
-	void* buffer;
-
-	buffer = recibir_buffer(&size, socket_cliente);
-
-	uint32_t bit_len;
-	memcpy(&bit_len, (buffer+desplazamiento), sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	char* bit = malloc(bit_len);
-	memcpy(bit, buffer+desplazamiento, bit_len);
-	desplazamiento += bit_len;
-
-	free(buffer);
-	return bit;
-	return NULL;
-}
-
-char* recibir_tarea(int socket_cliente) {
-	int size;
-	int desplazamiento = 0;
-	void* buffer;
-
-	buffer = recibir_buffer(&size, socket_cliente);
-
-	uint32_t tarea_len;
-	memcpy(&tarea_len, buffer+desplazamiento, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	char* tarea = malloc(tarea_len);
-	memcpy(tarea, buffer+desplazamiento, tarea_len);
-
-	return tarea;
-}
-
 void liberar_conexion(int socket_cliente)
 {
 	close(socket_cliente);
@@ -257,4 +184,19 @@ int atoi_tarea(char* tarea){
 	} else {
 		return -1;
 	}
+}
+
+int longitud_instr(char** instruccion) {
+	int largo = 0;
+	int i = 0;
+	while(instruccion[i] != NULL){
+		largo++;
+		i++;
+	}
+	return largo;
+}
+
+double distancia(t_tripulante* trip, int x, int y){
+    double valor = ((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
+    return sqrt(valor);
 }

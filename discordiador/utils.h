@@ -10,6 +10,15 @@
 #include<string.h>
 #include<commons/log.h>
 #include<semaphore.h>
+#include<commons/collections/list.h>
+#include<math.h>
+
+t_list* llegada;
+t_list* listo;
+t_list* fin;
+t_list* trabajando;
+t_list* bloqueado_IO;
+t_list* bloqueado_emergencia;
 
 typedef enum
 {
@@ -94,19 +103,15 @@ void* serializar_paquete(t_paquete* paquete, int bytes);
 void enviar_paquete(t_paquete* paquete, int socket_cliente);
 int crear_conexion(char* ip, char* puerto);
 t_paquete* crear_mensaje(t_buffer* buffer, op_code codigo);
-
 void eliminar_paquete(t_paquete* paquete);
 void liberar_conexion(int socket_cliente);
 void* recibir_buffer(int* size, int socket_cliente);
-
-t_sabotaje* recibir_datos_sabotaje(int socket_cliente);
-int recibir_hay_lugar(int socket_cliente);
-char* recibir_bitacora(int socket_cliente);
-char* recibir_tarea(int socket_cliente);
 
 void mover_a(t_tripulante* tripulante, bool xOy, int valor_nuevo, int retardo_ciclo_cpu);
 char* logs_bitacora(regs_bitacora asunto, char* dato1, char* dato2);
 char estado_a_char(int estado);
 int atoi_tarea(char* tarea);
+int longitud_instr(char** instruccion);
+double distancia(t_tripulante* trip, int x, int y);
 
 #endif /* UTILS_H_ */

@@ -2,7 +2,6 @@
 #define DISCORDIADOR_H_
 
 #include<stdio.h>
-#include<math.h>
 #include<stdlib.h>
 #include<commons/string.h>
 #include<commons/config.h>
@@ -31,7 +30,6 @@ void* esperar_conexion();
 void leer_consola(t_log* logger);
 void logear_error();
 void planificador(void* args);
-int longitud_instr(char** instruccion);
 void iniciar_patota(char** instruccion, char* leido);
 void iniciar_tripulante_en_hq(t_tripulante* tripulante);
 void enviar_cambio_estado_hq(t_tripulante* tripulante);
@@ -51,7 +49,6 @@ void desbloquear_trips_inverso(t_list* lista);
 void pasar_menor_id(t_list* lista, int estado_nuevo);
 void pasar_ultimo(t_list* lista, int nuevo);
 t_tripulante* tripulante_mas_cercano(int x, int y);
-double distancia(t_tripulante* trip, int x, int y);
 void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos);
 
 void reportar_bitacora(char* log, int id, int conexion_store);
