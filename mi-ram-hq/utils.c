@@ -26,6 +26,8 @@ int iniciar_servidor(void)
     t_config* config = leer_config();
 	char* ip = config_get_string_value(config, "IP");
 	char* puerto = config_get_string_value(config, "PUERTO");
+	printf("ip: %s", ip);
+	printf("puerto: %s", puerto);
     getaddrinfo(ip, puerto, &hints, &servinfo);
 
     for (p=servinfo; p != NULL; p = p->ai_next)
@@ -76,8 +78,8 @@ int recibir_operacion(int socket_cliente)
 void* recibir_buffer(int* size, int socket_cliente)
 {
 	void* buffer;
+
 	recv(socket_cliente, size, sizeof(int), MSG_WAITALL);
-	printf("@SIZE DEL BUFFER: %d@\n", *size);
 	buffer = malloc(*size);
 	recv(socket_cliente, buffer, *size, MSG_WAITALL);
 
@@ -130,6 +132,7 @@ t_tcb* recibir_tcb(int socket_cliente){
 }
 
 t_pcb* recibir_pcb(int socket_cliente){
+	puts("RECIBE PCB");
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
@@ -138,7 +141,6 @@ t_pcb* recibir_pcb(int socket_cliente){
 	buffer = recibir_buffer(&size, socket_cliente);
 
 	memcpy(&(patota->pid), (buffer+desplazamiento), sizeof(uint32_t));
-	printf("elPid: %d\n", (uint32_t)patota->pid);
 
 	desplazamiento+=sizeof(uint32_t);
 
@@ -182,12 +184,16 @@ void recibir_cambio_estado(int socket_cliente) {
 
 	void* tid = malloc(sizeof(uint32_t));
 	memcpy(&(tid), (buffer+desplazamiento), sizeof(uint32_t));
-	printf("eltid: %d\n", (uint32_t)tid);
+
+	printf("tip id: %d\n", (tid));
+
 	desplazamiento += sizeof(uint32_t);
 
 	void* nuevo_estado = malloc(sizeof(char));
 	memcpy(&(nuevo_estado), (buffer+desplazamiento), sizeof(char));
-	printf("elchar: %c\n", (char)nuevo_estado);
+
+	printf("nuevo estado: %c\n", (char)(nuevo_estado));
+
 	free(buffer);
 	/*DEVOLVER PROXIMA TAREA, SI ERA LA ULTIMA Y NO HAY MAS, CHAR* VACIO*/
 }
@@ -201,13 +207,16 @@ void recibir_desplazamiento(int socket_cliente) {
 	void* tid = malloc(sizeof(uint32_t));
 	memcpy(&(tid), (buffer), sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
+	printf("tid: %d\n", tid);
 
 	void* nuexo_x = malloc(sizeof(uint32_t));
 	memcpy(&(nuexo_x), (buffer), sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
+	printf("nuevo x: %d\n", tid);
 
 	void* nuexo_y = malloc(sizeof(uint32_t));
 	memcpy(&(nuexo_y), (buffer), sizeof(uint32_t));
+	printf("nuevo y: %d\n", tid);
 
 	free(buffer);
 }
@@ -222,31 +231,6 @@ void recibir_eliminar_tripulante(int socket_cliente) {
 
 	memcpy(&(id), (buffer), sizeof(uint32_t));
 	printf("EL ID A EXP: %d\n", id);
-
-	free(buffer);
-}
-
-void recibir_reporte(int socket_cliente){
-	int size;
-	int desplazamiento = 0;
-	void* buffer;
-
-	buffer = recibir_buffer(&size, socket_cliente);
-
-	void* id = malloc(sizeof(uint32_t));
-	memcpy(&(id), (buffer+desplazamiento), sizeof(uint32_t));
-	desplazamiento+=sizeof(uint32_t);
-	printf("@id: %d@\n", (uint32_t)id);
-
-	void* reporte_len = malloc(sizeof(uint32_t));
-	memcpy(&(reporte_len), (buffer+desplazamiento), sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-	printf("@reporte_len: %d@\n", (uint32_t)reporte_len);
-
-	void* reporte = malloc(reporte_len);
-	memcpy(reporte, buffer+desplazamiento, reporte_len);
-	desplazamiento += reporte_len;
-	printf("@reporte: %s@\n", (char*)reporte);
 
 	free(buffer);
 }

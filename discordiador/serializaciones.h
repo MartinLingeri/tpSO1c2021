@@ -14,4 +14,9 @@ t_buffer* serializar_eliminar_tripulante(uint32_t id);
 t_buffer* serializar_solicitar_bitacora(uint32_t id);
 t_buffer* invocar_fsck(uint32_t id);
 
+t_sabotaje* recibir_datos_sabotaje(int socket_cliente);
+int recibir_hay_lugar(int socket_cliente);
+char* recibir_bitacora(int socket_cliente);
+char* recibir_tarea(int socket_cliente);
+
 #endif /* SERIALIZACIONES_H_ */
