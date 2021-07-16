@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [INFO] 14:23:25:419 discordiador/(7542:7542): Iniciando Discordiador
 [INFO] 14:23:25:656 discordiador/(7542:7542): Discordiador iniciado correctamente
 [INFO] 14:23:25:658 discordiador/(7542:7542): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
@@ -160,3 +161,58 @@
 [INFO] 15:50:32:604 discordiador/(4641:4641): Discordiador iniciado correctamente
 [INFO] 15:50:32:604 discordiador/(4641:4641): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
 [INFO] 15:50:32:604 discordiador/(4641:4648): Servidor listo para recibir al store
+=======
+[INFO] 20:56:48:899 discordiador/(9072:9072): No se reconocio la instruccio
+[INFO] 18:27:32:667 discordiador/(5057:5057): No se reconocio la instruccion
+[INFO] 18:58:18:911 discordiador/(5731:5731): No se reconocio la instruccion
+[INFO] 19:07:33:181 discordiador/(6002:6002): No se reconocio la instruccion
+[INFO] 19:31:15:513 discordiador/(6553:6553): No se reconocio la instruccion
+[INFO] 12:01:44:611 discordiador/(11845:11853): Servidor listo para recibir al hq
+[INFO] 12:01:44:813 discordiador/(11845:11852): Servidor listo para recibir al store
+[INFO] 12:02:41:654 discordiador/(11912:11929): Servidor listo para recibir al store
+[INFO] 12:03:45:233 discordiador/(11993:12000): Servidor listo para recibir al hq
+[INFO] 12:04:10:029 discordiador/(12022:12031): Servidor listo para recibir al hq
+[INFO] 12:04:10:056 discordiador/(12022:12030): Servidor listo para recibir al store
+[INFO] 20:58:44:807 discordiador/(3838:3844): Servidor listo para recibir al hq
+[INFO] 20:58:44:835 discordiador/(3838:3843): Servidor listo para recibir al store
+[INFO] 20:59:31:247 discordiador/(3942:3948): Servidor listo para recibir al hq
+[INFO] 21:01:34:046 discordiador/(4357:4364): Servidor listo para recibir al store
+[INFO] 21:02:20:452 discordiador/(4400:4407): Servidor listo para recibir al store
+[INFO] 21:02:20:452 discordiador/(4400:4408): Servidor listo para recibir al hq
+[INFO] 21:02:48:891 discordiador/(4433:4440): Servidor listo para recibir al hq
+[INFO] 21:03:27:461 discordiador/(4484:4490): Servidor listo para recibir al hq
+[INFO] 21:03:27:462 discordiador/(4484:4489): Servidor listo para recibir al store
+[INFO] 21:05:28:257 discordiador/(4588:4596): Servidor listo para recibir al hq
+[INFO] 21:05:28:258 discordiador/(4588:4595): Servidor listo para recibir al store
+[INFO] 21:06:30:388 discordiador/(4627:4635): Servidor listo para recibir al hq
+[INFO] 21:06:30:388 discordiador/(4627:4634): Servidor listo para recibir al store
+[INFO] 21:10:50:712 discordiador/(4766:4774): Servidor listo para recibir al hq
+[INFO] 21:10:50:712 discordiador/(4766:4773): Servidor listo para recibir al store
+[INFO] 21:15:22:823 discordiador/(4917:4925): Servidor listo para recibir al hq
+[INFO] 21:15:22:823 discordiador/(4917:4924): Servidor listo para recibir al store
+[INFO] 21:15:44:332 discordiador/(4951:4959): Servidor listo para recibir al store
+[INFO] 21:18:57:780 discordiador/(5045:5052): Servidor listo para recibir al store
+[INFO] 21:19:54:254 discordiador/(5250:5257): Servidor listo para recibir al store
+[INFO] 21:20:36:566 discordiador/(5294:5301): Servidor listo para recibir al store
+[INFO] 21:22:12:870 discordiador/(5386:5394): Servidor listo para recibir al hq
+[INFO] 21:22:12:872 discordiador/(5386:5393): Servidor listo para recibir al store
+[INFO] 21:22:45:566 discordiador/(5424:5431): Servidor listo para recibir al hq
+[INFO] 21:23:04:543 discordiador/(5456:5464): Servidor listo para recibir al hq
+[INFO] 21:23:04:571 discordiador/(5456:5463): Servidor listo para recibir al store
+[INFO] 21:23:22:252 discordiador/(5475:5483): Servidor listo para recibir al hq
+[INFO] 21:23:22:253 discordiador/(5475:5482): Servidor listo para recibir al store
+[INFO] 21:23:43:010 discordiador/(5502:5510): Servidor listo para recibir al hq
+[INFO] 21:23:43:012 discordiador/(5502:5509): Servidor listo para recibir al store
+[INFO] 21:24:55:324 discordiador/(5539:5547): Servidor listo para recibir al hq
+[INFO] 21:24:55:324 discordiador/(5539:5546): Servidor listo para recibir al store
+[INFO] 21:25:49:318 discordiador/(5583:5591): Servidor listo para recibir al hq
+[INFO] 21:25:49:318 discordiador/(5583:5590): Servidor listo para recibir al store
+[INFO] 21:26:41:840 discordiador/(5621:5629): Servidor listo para recibir al hq
+[INFO] 21:26:41:840 discordiador/(5621:5628): Servidor listo para recibir al store
+[INFO] 21:27:48:452 discordiador/(5684:5692): Servidor listo para recibir al hq
+[INFO] 21:27:48:597 discordiador/(5684:5691): Servidor listo para recibir al store
+[INFO] 21:30:00:151 discordiador/(5804:5812): Servidor listo para recibir al hq
+[INFO] 15:54:26:662 discordiador/(4803:4803): Iniciando Discordiador
+[INFO] 15:54:26:675 discordiador/(4803:4803): Discordiador iniciado correctamente
+[INFO] 15:54:26:675 discordiador/(4803:4803): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 15:54:26:676 discordiador/(4803:4810): Servidor listo para recibir al store

@@ -285,7 +285,7 @@ void planificador(void* args) {
 
 	while(1){
 		sem_wait(&listo_para_trabajar);
-		while(list_size(listo) != 0 && list_size(trabajando) < multitarea) {
+		while(list_size(listo) > 0 && list_size(trabajando) < multitarea) {
 			sem_wait(&planif);
 			sem_wait(&multiprog);
 			puts("-1 espacio libre");
