@@ -13,6 +13,7 @@
 
 #include "utils.h"
 #include "serializaciones.h"
+#include "logs.h"
 
 typedef struct {
 	t_tripulante* tripulante;
@@ -41,7 +42,6 @@ int leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu);
 void realizar_tarea(char* tarea, int duracion, t_tripulante* tripulante);
 void listar_tripulantes();
 void expulsar_tripulante(char* id);
-void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_y_nuevo, int id, int conexion_hq);
 
 void atender_sabotaje(t_sabotaje* datos);
 void mover_trips(int nuevo_estado);
@@ -51,7 +51,6 @@ void pasar_ultimo(t_list* lista, int nuevo);
 t_tripulante* tripulante_mas_cercano(int x, int y);
 void resolver_sabotaje(t_tripulante* asignado, t_sabotaje* datos);
 
-void reportar_bitacora(char* log, int id, int conexion_store);
 void obtener_bitacora (char* i);
 
 #endif /* DISCORDIADOR_H_ */

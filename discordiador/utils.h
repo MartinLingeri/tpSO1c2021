@@ -13,6 +13,15 @@
 #include<commons/collections/list.h>
 #include<math.h>
 
+t_log* logger;
+
+pthread_mutex_t estados[6];
+pthread_mutex_t store;
+pthread_mutex_t hq;
+pthread_mutex_t sabotaje;
+pthread_mutex_t logs;
+pthread_mutex_t io;
+
 t_list* llegada;
 t_list* listo;
 t_list* fin;
@@ -108,7 +117,6 @@ void liberar_conexion(int socket_cliente);
 void* recibir_buffer(int* size, int socket_cliente);
 
 void mover_a(t_tripulante* tripulante, bool xOy, int valor_nuevo, int retardo_ciclo_cpu);
-char* logs_bitacora(regs_bitacora asunto, char* dato1, char* dato2);
 char estado_a_char(int estado);
 int atoi_tarea(char* tarea);
 int longitud_instr(char** instruccion);
