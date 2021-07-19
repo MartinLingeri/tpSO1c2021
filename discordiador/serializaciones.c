@@ -192,7 +192,7 @@ t_sabotaje* recibir_datos_sabotaje(int socket_cliente)
 {
 	int size;
 	int desplazamiento = 0;
-	void * buffer;
+	void* buffer;
 	t_sabotaje* data = malloc(sizeof(t_sabotaje));
 
 	buffer = recibir_buffer(&size, socket_cliente);
@@ -206,21 +206,38 @@ t_sabotaje* recibir_datos_sabotaje(int socket_cliente)
 	return NULL;
 }
 
-int recibir_hay_lugar(int socket_cliente)
+uint32_t recibir_hay_lugar(int socket_cliente)
 {
+	void* nrecibir_buffer(int* size, int socket_cliente)
+	{
+		void* buffer;
+
+		recv(socket_cliente, size, sizeof(int), MSG_WAITALL);
+		buffer = malloc(*size);
+		printf("BUFFER SIZE: %d\n", sizeof(buffer));
+		recv(socket_cliente, buffer, sizeof(buffer), MSG_WAITALL);
+
+		return buffer;
+	}
+
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
 
-	buffer = recibir_buffer(&size, socket_cliente);
+	buffer = nrecibir_buffer(&size, socket_cliente);
+	puts("buffer rcv");
 
-	uint32_t lugar;
-	memcpy(&lugar, buffer+desplazamiento, sizeof(uint32_t));
-	desplazamiento+=sizeof(uint32_t);
+	void* dato = malloc(sizeof(uint32_t));
+	printf("ESPACIO PARA ALOJAR: %d\n", sizeof(dato));
 
+	memcpy(&(dato), (buffer+desplazamiento), sizeof(uint32_t));
+
+	printf("VALOR RECIBIDO: %d\n", (dato));
+
+	desplazamiento += sizeof(uint32_t);
+	puts("dps memcpy y desplazar");
 	free(buffer);
-	return lugar;
-	//return NULL; //XQ RETORNA NULL ACA?
+	return 1;
 }
 
 char* recibir_bitacora(int socket_cliente)

@@ -1,7 +1,7 @@
 #include "utils.h"
 #include "mi-ram-hq.h"
 #include "segmentacion.h"
-
+/*
 typedef struct{
 	int locacion_inicio;
 	int tamanio;
@@ -107,5 +107,5 @@ void compactar(t_list* lista_de_segmentos){
 		}
 	}
 	printf("Se ha terminado de compactar.");
-}
+}*/
 

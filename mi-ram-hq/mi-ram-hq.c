@@ -7,7 +7,7 @@ int main(void) {
 
 	logger = iniciar_logger();
 	config = leer_config();
-
+/*
 	//Carga si es PAGINACION o SEGMENTACION del archivo de config
 	char* esquema_memoria = config_get_string_value(config, "ESQUEMA_MEMORIA");
 
@@ -32,7 +32,7 @@ int main(void) {
 	nivel_gui_get_area_nivel(&cols, &rows);
 
 	nivel = nivel_crear("A-MongOs");
-
+*/
 
 
 	//Conecta con el servidor
@@ -58,7 +58,15 @@ int main(void) {
 			break;
 		case PCB_MENSAJE:
 			patota = recibir_pcb(cliente_fd);
-			//mostrar_tcb(patota);
+			puts("Respondiendo a DS");
+			int conexion = crear_conexion("127.0.0.1", "5002");
+			uint32_t a = 10;
+			printf("TAMAÑO: %d\n", sizeof(a));
+			t_buffer* buffer = serializar_test(a);
+			printf("VALOR ENVIADO: %d\n", a);
+			t_paquete* paquete = crear_mensaje(buffer, 1);
+			enviar_paquete(paquete, conexion);
+
 			break;
 		case PEDIR_SIGUIENTE_TAREA:
 			recibir_pedir_tarea(cliente_fd);
@@ -83,17 +91,55 @@ int main(void) {
 	free(patota);
 
 	free(inicio_memoria);
-	terminar_programa(/*conexion_disc,*/ logger, config);
+	//terminar_programa(/*conexion_disc,*/ logger, config);
 
 	return EXIT_SUCCESS;
 }
 
-void terminar_programa(/*int conexion_disc,*/t_log* logger, t_config* config)
+int crear_conexion(char *ip, char* puerto)
+{
+	struct addrinfo hints;
+	struct addrinfo *server_info;
+
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;
+
+	getaddrinfo(ip, puerto, &hints, &server_info);
+
+	int socket_cliente = socket(server_info->ai_family, server_info->ai_socktype, server_info->ai_protocol);
+
+	if(connect(socket_cliente, server_info->ai_addr, server_info->ai_addrlen) == -1) {
+		return -1;
+	}
+
+	freeaddrinfo(server_info);
+	return socket_cliente;
+}
+
+t_buffer* serializar_test(uint32_t dato)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(sizeof(uint32_t));
+	int desplazamiento = 0;
+
+	memcpy(stream + desplazamiento, &dato, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}
+
+/*
+void terminar_programa(int conexion_disc,t_log* logger, t_config* config)
 {
 	//liberar_conexion(conexion_disc);
 	log_destroy(logger);
 	config_destroy(config);
 }
+*/
 
 void eliminar_paquete(t_paquete* paquete)
 {
@@ -116,6 +162,7 @@ void* serializar_paquete(t_paquete* paquete, int bytes)
 
 	return magic;
 }
+
 /*
 void enviar_tarea(char *tarea){
 		t_buffer *buffer = serializar_enviar_tarea(tarea);

@@ -79,7 +79,8 @@ t_log* iniciar_logger(void);
 //-------------------------
 
 void* recibir_buffer(int*, int);
-
+void enviar_paquete(t_paquete* paquete, int socket_cliente);
+t_paquete* crear_mensaje(t_buffer* buffer, op_code codigo);
 int iniciar_servidor(void);
 int esperar_cliente(int);
 t_list* recibir_paquete(int);

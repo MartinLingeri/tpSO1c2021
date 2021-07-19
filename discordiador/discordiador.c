@@ -92,90 +92,6 @@ int esperar_cliente(int socket_servidor)
 	return socket_cliente;
 }
 
-void* esperar_conexion() {
-	char* ip = config_get_string_value(config, "IP");
-	char* puerto = config_get_string_value(config, "PUERTO");
-	int server = iniciar_servidor(ip, puerto);
-
-	pthread_mutex_lock(&logs);
-	log_info(logger, "Servidor listo para recibir al store");
-	pthread_mutex_unlock(&logs);
-
-	int cliente = esperar_cliente(server);
-	char* bitacora;
-	char* tarea;
-	t_sabotaje* data = malloc(sizeof(t_sabotaje));
-
-	while(1){
-		int cod_op = recibir_operacion(cliente);
-		switch(cod_op){
-		case BITACORA:
-			bitacora = recibir_bitacora(cliente);
-			log_info(logger, bitacora);
-			pthread_mutex_unlock(&logs);
-			break;
-
-		case ALERTA_SABOTAJE:
-			logear(SABOTAJE_DETECTADO,0);
-			data = recibir_datos_sabotaje(cliente);
-			atender_sabotaje(data);
-			break;
-
-		case LUGAR_MEMORIA:
-			lugar_en_memoria = recibir_hay_lugar(cliente);
-			if(lugar_en_memoria > 0){
-				sem_post(&recibido_hay_lugar);
-				sem_post(&recibido_hay_lugar); //HAY 2 POST XQ EL SEM = -1 ACA
-			}else{
-				return(void *)0;
-			}
-			return (void *)0;
-
-		case TAREA:
-			tarea = recibir_tarea(cliente);
-			//ver forma de pasar tarea al hilo del trip
-			return tarea;
-			break;
-
-		case -1:
-			pthread_mutex_unlock(&logs);
-			log_error(logger, "I-Mongo-Store se desconecto. Terminando servidor");
-			pthread_mutex_unlock(&logs);
-			return 0;
-
-		default:
-			break;
-		}
-	}
-	free(ip);
-	free(puerto);
-	free(bitacora);
-	free(tarea);
-	free(data);
-}
-
-void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_config* config){
-	void destruir_tripulante(t_tripulante* t){
-		sem_destroy(&(t->semaforo));
-	}
-
-	liberar_conexion(conexion_hq);
-	liberar_conexion(conexion_store);
-	config_destroy(config);
-	sem_destroy(&planif);
-	sem_destroy(&multiprog);
-	sem_destroy(&recibido_hay_lugar);
-	sem_destroy(&listo_para_trabajar);
-	list_destroy_and_destroy_elements(llegada,(void*)destruir_tripulante);
-	list_destroy_and_destroy_elements(listo,(void*)destruir_tripulante);
-	list_destroy_and_destroy_elements(fin,(void*)destruir_tripulante);
-	list_destroy_and_destroy_elements(trabajando,(void*)destruir_tripulante);
-	list_destroy_and_destroy_elements(bloqueado_IO,(void*)destruir_tripulante);
-	list_destroy_and_destroy_elements(bloqueado_emergencia,(void*)destruir_tripulante);
-	logear(PROGRAMA_FINALIZADO,0);
-	log_destroy(logger);
-}
-
 int iniciar_servidor(char* ip, char* puerto)
 {
 	int socket_servidor;
@@ -210,16 +126,108 @@ int iniciar_servidor(char* ip, char* puerto)
 
 int recibir_operacion(int socket_cliente)
 {
-	int cod_op;
-	puts("antes recibir");
-	if(recv(socket_cliente, &cod_op, sizeof(int), MSG_WAITALL) != 0){
+	uint8_t cod_op;
+	puts("antes de recibir codigo");
+	if(recv(socket_cliente, &cod_op, sizeof(uint8_t), MSG_WAITALL) != 0){
 		printf("CODIGO: %d", cod_op);
 		return cod_op;
 	}else{
 		close(socket_cliente);
 		return -1;
 	}
-	puts("loop");
+}
+
+void* esperar_conexion() {
+	char* ip = config_get_string_value(config, "IP");
+	char* puerto = config_get_string_value(config, "PUERTO");
+	int server = iniciar_servidor(ip, puerto);
+
+	/*pthread_mutex_lock(&logs);
+	log_info(logger, "Servidor listo para recibir al store");
+	pthread_mutex_unlock(&logs);
+*/
+	int cliente = esperar_cliente(server);
+	char* bitacora;
+	char* tarea;
+	t_sabotaje* data = malloc(sizeof(t_sabotaje));
+	uint32_t lugar;
+
+	while(1){
+		int cod_op = recibir_operacion(cliente);
+		switch(cod_op){
+		case BITACORA:
+			bitacora = recibir_bitacora(cliente);
+			log_info(logger, bitacora);
+			pthread_mutex_unlock(&logs);
+			break;
+
+		case LUGAR_MEMORIA:
+			puts(" - LLEGADA");
+			lugar = recibir_hay_lugar(cliente);
+			puts("luego de rcv");
+			if(lugar == 10){
+				puts("LLEGÓ UN 10");
+			}
+			break;
+			/*lugar_en_memoria = recibir_hay_lugar(cliente);
+			if(lugar_en_memoria > 0){
+				sem_post(&recibido_hay_lugar);
+				sem_post(&recibido_hay_lugar); //HAY 2 POST XQ EL SEM = -1 ACA
+			}else{
+				return(void *)0;
+			}
+			return (void *)0;*/
+
+		case ALERTA_SABOTAJE:
+			logear(SABOTAJE_DETECTADO,0);
+			data = recibir_datos_sabotaje(cliente);
+			atender_sabotaje(data);
+			break;
+
+		case TAREA:
+			tarea = recibir_tarea(cliente);
+			//ver forma de pasar tarea al hilo del trip
+			return tarea;
+			break;
+
+		case -1:
+			pthread_mutex_unlock(&logs);
+			log_error(logger, "I-Mongo-Store se desconecto. Terminando servidor");
+			pthread_mutex_unlock(&logs);
+			return 0;
+
+		default:
+			puts(" OTRO CASO");
+			break;
+		}
+	}
+	free(ip);
+	free(puerto);
+	free(bitacora);
+	free(tarea);
+	free(data);
+}
+
+void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_config* config){
+	void destruir_tripulante(t_tripulante* t){
+		sem_destroy(&(t->semaforo));
+	}
+
+	liberar_conexion(conexion_hq);
+	liberar_conexion(conexion_store);
+	config_destroy(config);
+	sem_destroy(&planif);
+	sem_destroy(&multiprog);
+	sem_destroy(&recibido_hay_lugar);
+	sem_destroy(&listo_para_trabajar);
+	list_destroy_and_destroy_elements(llegada,(void*)destruir_tripulante);
+	list_destroy_and_destroy_elements(listo,(void*)destruir_tripulante);
+	list_destroy_and_destroy_elements(fin,(void*)destruir_tripulante);
+	list_destroy_and_destroy_elements(trabajando,(void*)destruir_tripulante);
+	list_destroy_and_destroy_elements(bloqueado_IO,(void*)destruir_tripulante);
+	list_destroy_and_destroy_elements(bloqueado_emergencia,(void*)destruir_tripulante);
+	logear(PROGRAMA_FINALIZADO,0);
+	log_destroy(logger);
 }
 
 void leer_consola(t_log* logger)
