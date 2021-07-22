@@ -121,9 +121,9 @@ int iniciar_servidor(char* ip, char* puerto)
 int recibir_operacion(int socket_cliente)
 {
 	uint8_t cod_op;
-	puts("antes de recibir codigo");
 	if(recv(socket_cliente, &cod_op, sizeof(uint8_t), MSG_WAITALL) != 0){
 		printf("CODIGO: %d", cod_op);
+		puts(" - LLEGADA");
 		return cod_op;
 	}else{
 		close(socket_cliente);
@@ -136,15 +136,15 @@ void* esperar_conexion() {
 	char* puerto = config_get_string_value(config, "PUERTO");
 	int server = iniciar_servidor(ip, puerto);
 
-	/*pthread_mutex_lock(&logs);
+	pthread_mutex_lock(&logs);
 	log_info(logger, "Servidor listo para recibir al store");
 	pthread_mutex_unlock(&logs);
-*/
+
 	int cliente = esperar_cliente(server);
 	char* bitacora;
-	char* tarea;
 	t_sabotaje* data = malloc(sizeof(t_sabotaje));
 	uint32_t lugar;
+	t_tarea* tarea = malloc(sizeof(tarea));
 
 	while(1){
 		int cod_op = recibir_operacion(cliente);
@@ -156,17 +156,16 @@ void* esperar_conexion() {
 			break;
 
 		case LUGAR_MEMORIA:
-			puts(" - LLEGADA");
 			lugar = recibir_hay_lugar(cliente);
 			printf("LUGAR: %d\n", lugar);
-			break;
-			/*if(lugar_en_memoria > 0){
-				sem_post(&recibido_hay_lugar);
-				sem_post(&recibido_hay_lugar); //HAY 2 POST XQ EL SEM = -1 ACA
+			sem_post(&recibido_hay_lugar);
+			sem_post(&recibido_hay_lugar); //HAY 2 POST XQ EL SEM = -1 ACA
+			if(lugar_en_memoria > 0){
+				lugar_en_memoria = 1;
 			}else{
-				return(void *)0;
+				lugar_en_memoria = 0;
 			}
-			return (void *)0;*/
+			break;
 
 		case ALERTA_SABOTAJE:
 			logear(SABOTAJE_DETECTADO,0);
@@ -175,9 +174,22 @@ void* esperar_conexion() {
 			break;
 
 		case TAREA:
-			tarea = recibir_tarea(cliente);
-			//ver forma de pasar tarea al hilo del trip
-			return tarea;
+			tarea = recibir_tarea(cliente); //ID, TAREAS_LEN, CHAR TAREA
+
+			t_tripulante* objetivo = malloc(sizeof(t_tripulante));
+			bool es_el_tripulante(void* tripulante_en_lista) {
+				return ((t_tripulante*)tripulante_en_lista)->TID == tarea->TID;
+			}
+
+			if(list_any_satisfy(llegada, es_el_tripulante)){
+				t_tripulante* objetivo = list_find(llegada,es_el_tripulante);
+			}else if(list_any_satisfy(listo, es_el_tripulante)){
+				t_tripulante* objetivo = list_find(listo,es_el_tripulante);
+			}
+			objetivo->tarea = malloc(tarea->len);
+			objetivo->tarea = tarea->tarea_txt;
+			sem_post(&objetivo->semaforo);
+			sem_post(&objetivo->semaforo);
 			break;
 
 		case -1:
@@ -187,7 +199,6 @@ void* esperar_conexion() {
 			return 0;
 
 		default:
-			puts(" OTRO CASO");
 			break;
 		}
 	}
@@ -304,7 +315,6 @@ void iniciar_patota(char** instruccion, char* leido) {
 	uint32_t cantidad = atoi(instruccion[1]);
 	puts("iniciar_patota");
 	char* tareas = instruccion[2];
-	//sem_wait(&recibido_hay_lugar);
 
 	if(cantidad == 0 || !string_ends_with(tareas,".txt")){
 		logear(INST_FALTA_PAR,0);
@@ -336,7 +346,9 @@ void iniciar_patota(char** instruccion, char* leido) {
 	free(buffer);
 	free(paquete_pcb);
 
-	//sem_wait(&recibido_hay_lugar);
+	sem_wait(&recibido_hay_lugar);
+	sem_wait(&recibido_hay_lugar);
+
 	if(lugar_en_memoria != 0){
 		pthread_t hilos[longitud];
 		for(int i = 0 ; i<cantidad ; i++) {
@@ -420,17 +432,28 @@ void circular(void* args) {
 	pthread_mutex_unlock(&hq);
 	free(buffer);
 	free(paquete_pedir_tarea);
-
-	/*//PEDIR Y RECIBIR PRIMER TAREA
-	char* tarea = NULL;
-	serializar_pedir_tarea(argumentos->tripulante->TID);*/
 	logear(SOLICITANDO_TAREA, argumentos->tripulante->TID);
+
+	sem_wait(&argumentos->tripulante->semaforo);
+	sem_wait(&argumentos->tripulante->semaforo);
+
 	char* tarea = "EVADIR_IMPUESTOS 12;2;3;3";
 	cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
 	int tarea_hecha = 0;
 	sem_init(&argumentos->tripulante->semaforo, 0, 1);
 
-	//	while(strcmp(tarea, "") != 1) {
+	while(strcmp(tarea, "") != 1) {
+		t_buffer* buffer = serializar_pedir_tarea(argumentos->tripulante->TID);
+		t_paquete* paquete_pedir_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
+		pthread_mutex_lock(&hq);
+		enviar_paquete(paquete_pedir_tarea, conexion_hq);
+		pthread_mutex_unlock(&hq);
+		free(buffer);
+		free(paquete_pedir_tarea);
+		logear(SOLICITANDO_TAREA, argumentos->tripulante->TID);
+
+		sem_wait(&argumentos->tripulante->semaforo);
+		sem_wait(&argumentos->tripulante->semaforo);
 			while(tarea_hecha != 1) {
 				puts("antes semaforo tripulante");
 				sem_wait(&argumentos->tripulante->semaforo);
@@ -439,7 +462,7 @@ void circular(void* args) {
 				cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
 				puts("sale de quantum");
 			}
-	//	}
+	}
 	cambiar_estado(argumentos->tripulante->estado, e_fin, argumentos->tripulante);
 	logear(FINALIZA_LISTA_TAREAS,argumentos->tripulante->TID);
 	puts("Fin tripulante");

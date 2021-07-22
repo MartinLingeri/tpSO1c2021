@@ -1414,3 +1414,7 @@
 [INFO] 18:45:31:801 discordiador/(8480:8480): Finalizando discordiador
 [INFO] 18:45:31:802 discordiador/(8480:8480): Discordiador finalizado correctamente
 [ERROR] 18:45:31:802 discordiador/(8480:8483): I-Mongo-Store se desconecto. Terminando servidor
+[INFO] 19:23:33:876 discordiador/(9546:9546): Iniciando Discordiador
+[INFO] 19:23:33:980 discordiador/(9546:9546): Discordiador iniciado correctamente
+[INFO] 19:23:33:980 discordiador/(9546:9546): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 19:23:33:980 discordiador/(9546:9554): Servidor listo para recibir al store

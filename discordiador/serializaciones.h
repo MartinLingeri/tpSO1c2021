@@ -17,7 +17,7 @@ t_buffer* invocar_fsck(uint32_t id);
 t_sabotaje* recibir_datos_sabotaje(int socket_cliente);
 uint32_t recibir_hay_lugar(int socket_cliente);
 char* recibir_bitacora(int socket_cliente);
-char* recibir_tarea(int socket_cliente);
+t_tarea* recibir_tarea(int socket_cliente);
 void recibir_cambio_estado(int socket_cliente);
 
 #endif /* SERIALIZACIONES_H_ */

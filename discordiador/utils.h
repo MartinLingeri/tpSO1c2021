@@ -87,6 +87,7 @@ typedef struct {
 	int pos_y;
 	estado estado;
 	sem_t semaforo;
+	char* tarea;
 }t_tripulante;
 
 typedef enum
@@ -114,6 +115,13 @@ typedef struct{
     uint32_t x;
     uint32_t y;
 }t_sabotaje;
+
+typedef struct{
+	int TID;
+	int len;
+	char* tarea_txt;
+}t_tarea;
+
 
 void* serializar_paquete(t_paquete* paquete, int bytes);
 void enviar_paquete(t_paquete* paquete, int socket_cliente);

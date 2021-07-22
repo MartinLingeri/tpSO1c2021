@@ -242,20 +242,23 @@ char* recibir_bitacora(int socket_cliente)
 	return NULL;
 }
 
-char* recibir_tarea(int socket_cliente) {
+t_tarea* recibir_tarea(int socket_cliente) {
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
+	t_tarea* t;
 
 	buffer = recibir_buffer(&size, socket_cliente);
 
-	uint32_t tarea_len;
-	memcpy(&tarea_len, buffer+desplazamiento, sizeof(uint32_t));
+	memcpy(&t->TID, buffer+desplazamiento, sizeof(int));
+	desplazamiento += sizeof(int);
+
+	memcpy(&t->len, (buffer+desplazamiento), sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	char* tarea = malloc(tarea_len);
-	memcpy(tarea, buffer+desplazamiento, tarea_len);
+	memcpy(&t->tarea_txt, buffer+desplazamiento, t->len);
+	desplazamiento += t->len;
 
-	return tarea;
+	return t;
 }
 
