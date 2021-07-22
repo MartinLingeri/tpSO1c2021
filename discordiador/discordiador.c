@@ -2,15 +2,9 @@
 
 int conexion_hq = -1;
 int conexion_store = -1;
-t_config* config;
 
 uint32_t id_ultima_patota = -1;
 uint32_t id_ultimo_tripulante = -1;
-
-sem_t recibido_hay_lugar;
-sem_t planif;
-sem_t multiprog;
-sem_t listo_para_trabajar;
 
 int quantum = 0;
 char* algoritmo;
@@ -164,13 +158,9 @@ void* esperar_conexion() {
 		case LUGAR_MEMORIA:
 			puts(" - LLEGADA");
 			lugar = recibir_hay_lugar(cliente);
-			puts("luego de rcv");
-			if(lugar == 10){
-				puts("LLEGÓ UN 10");
-			}
+			printf("LUGAR: %d\n", lugar);
 			break;
-			/*lugar_en_memoria = recibir_hay_lugar(cliente);
-			if(lugar_en_memoria > 0){
+			/*if(lugar_en_memoria > 0){
 				sem_post(&recibido_hay_lugar);
 				sem_post(&recibido_hay_lugar); //HAY 2 POST XQ EL SEM = -1 ACA
 			}else{

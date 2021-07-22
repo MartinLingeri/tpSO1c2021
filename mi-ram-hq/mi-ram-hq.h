@@ -25,7 +25,9 @@
 }*/
 int crear_conexion(char *ip, char* puerto);
 t_buffer* serializar_test(uint32_t id);
+t_buffer* serializar_cambio_estado(uint32_t id, uint32_t estado);
 void eliminar_paquete(t_paquete* paquete);
 void enviar_mensaje(char* mensaje, int socket_cliente);
 void* serializar_paquete(t_paquete* paquete, int bytes);
+uint32_t recibir_hay_lugar(int socket_cliente);
 #endif /* MI-RAM-HQ_H_ */

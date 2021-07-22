@@ -1,4 +1,4 @@
-#include "utils.h"
+#include "serializaciones.h"
 
 t_buffer* serializar_patota(uint32_t id, char* tareas, uint32_t trips)
 {
@@ -212,10 +212,17 @@ uint32_t recibir_hay_lugar(int socket_cliente)
 	{
 		void* buffer;
 
+		puts("1");
+
 		recv(socket_cliente, size, sizeof(int), MSG_WAITALL);
+
 		buffer = malloc(*size);
+
 		printf("BUFFER SIZE: %d\n", sizeof(buffer));
-		recv(socket_cliente, buffer, sizeof(buffer), MSG_WAITALL);
+
+		recv(socket_cliente, buffer, *size, MSG_WAITALL);
+
+		puts("2");
 
 		return buffer;
 	}
@@ -225,19 +232,18 @@ uint32_t recibir_hay_lugar(int socket_cliente)
 	void* buffer;
 
 	buffer = nrecibir_buffer(&size, socket_cliente);
-	puts("buffer rcv");
+	puts("Buffer recibido");
 
-	void* dato = malloc(sizeof(uint32_t));
+	uint32_t dato;
 	printf("ESPACIO PARA ALOJAR: %d\n", sizeof(dato));
 
 	memcpy(&(dato), (buffer+desplazamiento), sizeof(uint32_t));
-
-	printf("VALOR RECIBIDO: %d\n", (dato));
-
 	desplazamiento += sizeof(uint32_t);
-	puts("dps memcpy y desplazar");
+	printf("VALOR RECIBIDO: %d\n", (uint32_t)(dato));
+
+	puts("Despues memcpy y desplazamiento");
 	free(buffer);
-	return 1;
+	return dato;
 }
 
 char* recibir_bitacora(int socket_cliente)
@@ -277,3 +283,4 @@ char* recibir_tarea(int socket_cliente) {
 
 	return tarea;
 }
+

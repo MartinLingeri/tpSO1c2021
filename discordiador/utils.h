@@ -12,8 +12,15 @@
 #include<semaphore.h>
 #include<commons/collections/list.h>
 #include<math.h>
+#include<commons/config.h>
 
 t_log* logger;
+t_config* config;
+
+sem_t recibido_hay_lugar;
+sem_t planif;
+sem_t multiprog;
+sem_t listo_para_trabajar;
 
 pthread_mutex_t estados[6];
 pthread_mutex_t store;

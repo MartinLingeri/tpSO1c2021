@@ -14,6 +14,7 @@
 #include "utils.h"
 #include "serializaciones.h"
 #include "logs.h"
+#include "sabotajes.h"
 
 typedef struct {
 	t_tripulante* tripulante;

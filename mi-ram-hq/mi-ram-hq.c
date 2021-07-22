@@ -34,7 +34,6 @@ int main(void) {
 	nivel = nivel_crear("A-MongOs");
 */
 
-
 	//Conecta con el servidor
 
 	void iterator(char* value)
@@ -60,14 +59,13 @@ int main(void) {
 			patota = recibir_pcb(cliente_fd);
 			puts("Respondiendo a DS");
 			int conexion = crear_conexion("127.0.0.1", "5002");
-			uint32_t a = 10;
-			printf("TAMAÑO: %d\n", sizeof(a));
+			uint32_t a = 1; //1 si hay lugar 0 si no
 			t_buffer* buffer = serializar_test(a);
-			printf("VALOR ENVIADO: %d\n", a);
 			t_paquete* paquete = crear_mensaje(buffer, 1);
 			enviar_paquete(paquete, conexion);
-
+			close(conexion);
 			break;
+
 		case PEDIR_SIGUIENTE_TAREA:
 			recibir_pedir_tarea(cliente_fd);
 			break;
@@ -123,9 +121,27 @@ t_buffer* serializar_test(uint32_t dato)
 	t_buffer* buffer = malloc(sizeof(t_buffer));
 	void* stream = malloc(sizeof(uint32_t));
 	int desplazamiento = 0;
-
 	memcpy(stream + desplazamiento, &dato, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}
+
+t_buffer* serializar_cambio_estado(uint32_t id, uint32_t estado)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(sizeof(uint32_t) + sizeof(char));
+	int desplazamiento = 0;
+
+	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	/*char e = 'X';
+
+	memcpy(stream + desplazamiento, &e, sizeof(char));
+	desplazamiento += sizeof(char);*/
 
 	buffer->size = desplazamiento;
 	buffer->stream = stream;
@@ -150,17 +166,17 @@ void eliminar_paquete(t_paquete* paquete)
 
 void* serializar_paquete(t_paquete* paquete, int bytes)
 {
-	void * magic = malloc(bytes);
+	void * msg = malloc(bytes);
 	int desplazamiento = 0;
 
-	memcpy(magic + desplazamiento, &(paquete->codigo_operacion), sizeof(int));
+	memcpy(msg + desplazamiento, &(paquete->codigo_operacion), sizeof(uint8_t));
+	desplazamiento+= sizeof(uint8_t);
+	memcpy(msg + desplazamiento, &(paquete->buffer->size), sizeof(int));
 	desplazamiento+= sizeof(int);
-	memcpy(magic + desplazamiento, &(paquete->buffer->size), sizeof(int));
-	desplazamiento+= sizeof(int);
-	memcpy(magic + desplazamiento, paquete->buffer->stream, paquete->buffer->size);
+	memcpy(msg + desplazamiento, paquete->buffer->stream, paquete->buffer->size);
 	desplazamiento+= paquete->buffer->size;
 
-	return magic;
+	return msg;
 }
 
 /*
