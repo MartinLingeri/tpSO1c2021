@@ -178,8 +178,9 @@ void* esperar_conexion() {
 			puts("6");
 			t_tripulante* objetivo = buscar_tripulante(tarea->TID);
 			puts("7");
-			//objetivo->tarea = malloc(tarea->len);
-			//objetivo->tarea = tarea->tarea_txt;
+			objetivo->tarea = malloc(tarea->len);
+			puts("7.5");
+			objetivo->tarea = tarea->tarea_txt;
 			puts("8");
 			sem_post(&objetivo->semaforo);
 			sem_post(&objetivo->semaforo);
@@ -207,11 +208,9 @@ t_tripulante* buscar_tripulante(int id){
 	bool es_el_tripulante(void* tripulante_en_lista) {
 		return ((t_tripulante*)tripulante_en_lista)->TID == id;
 	}
-
-	if(list_any_satisfy(listo, es_el_tripulante)){
+	if(list_any_satisfy(llegada, es_el_tripulante)){
 		t_tripulante* tripulante = list_find(llegada,es_el_tripulante);
 	    return tripulante;
-
 	}else{
 		t_tripulante* tripulante = list_find(listo,es_el_tripulante);
 	    return tripulante;
@@ -250,7 +249,6 @@ void leer_consola(t_log* logger)
 		if(strcmp(instruccion[0], "INICIAR_PATOTA") == 0) {
 			if(instruccion[2] != NULL && instruccion[1] != NULL){
 				iniciar_patota(instruccion, leido);
-				puts("dps iniciar patota ... leer consola");
 			}else{
 				logear(INST_FALTA_PAR,0);
 			}
@@ -323,7 +321,6 @@ void iniciar_patota(char** instruccion, char* leido) {
 	//INICIAR_PATOTA 3 /home/utnso/tareas.txt
 	//INICIAR_PATOTA 1 home/utnso/tareas.txt
 	uint32_t cantidad = atoi(instruccion[1]);
-	puts("iniciar_patota");
 	char* tareas = instruccion[2];
 
 	if(cantidad == 0 || !string_ends_with(tareas,".txt")){
@@ -365,7 +362,6 @@ void iniciar_patota(char** instruccion, char* leido) {
 			inicializar_tripulante(instruccion, i, longitud, id_patota, hilos[i]);
 		}
 		logear(PATOTA_INICIADA,id_ultima_patota);
-		puts("dps patota iniciada");
 	}else{
 		logear(NO_MEMORIA,0);
 		id_ultima_patota--;
@@ -437,13 +433,18 @@ void pedir_tarea(t_tripulante* tripulante){
 	t_paquete* paquete_pedir_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
 	pthread_mutex_lock(&hq);
 	enviar_paquete(paquete_pedir_tarea, conexion_hq);
+	puts("pausaado-1");
 	pthread_mutex_unlock(&hq);
 	free(buffer);
 	free(paquete_pedir_tarea);
+	puts("pausaado0");
 	logear(SOLICITANDO_TAREA, tripulante->TID);
 
+	puts("pausaado1");
 	sem_wait(&tripulante->semaforo);
+	puts("pausaado2");
 	sem_wait(&tripulante->semaforo);
+	puts("pausaado3");
 }
 
 void circular(void* args) {
