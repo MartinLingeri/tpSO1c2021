@@ -30,4 +30,5 @@ void eliminar_paquete(t_paquete* paquete);
 void enviar_mensaje(char* mensaje, int socket_cliente);
 void* serializar_paquete(t_paquete* paquete, int bytes);
 uint32_t recibir_hay_lugar(int socket_cliente);
+t_buffer* serializar_tarea(uint32_t id, char* tarea);
 #endif /* MI-RAM-HQ_H_ */

@@ -46,6 +46,9 @@ int main(void) {
 	int cliente_fd = esperar_cliente(server_fd);
 	t_tcb* tripulante = malloc(sizeof(t_tcb));
 	t_pcb* patota = malloc(sizeof(t_pcb));
+	t_paquete* paquete;
+	t_buffer* buffer;
+	uint32_t id;
 	int conexion = crear_conexion("127.0.0.1", "5002");
 	while(1)
 	{
@@ -60,14 +63,22 @@ int main(void) {
 			patota = recibir_pcb(cliente_fd);
 			puts("Respondiendo a DS");
 			uint32_t a = 1; //1 si hay lugar 0 si no
-			t_buffer* buffer = serializar_test(a);
-			t_paquete* paquete = crear_mensaje(buffer, 1);
+			buffer = serializar_test(a);
+			paquete = crear_mensaje(buffer, 1);
 			enviar_paquete(paquete, conexion);
+			puts("antes del break");
 			break;
 
 		case PEDIR_SIGUIENTE_TAREA:
-			recibir_pedir_tarea(cliente_fd);
+			id = recibir_pedir_tarea(cliente_fd);
+			puts("Respondiendo a pedir tarea");
+			printf("ID A CONTESTAR: %d\n", id);
+			buffer = serializar_tarea(id,"GENERAR_OXIGENO 12;2;3;5");
+			paquete = crear_mensaje(buffer, 3);
+			enviar_paquete(paquete, conexion);
+			free(buffer);
 			break;
+
 		case CAMBIO_ESTADO_MENSAJE:
 			recibir_cambio_estado(cliente_fd);
 			break;
@@ -160,5 +171,26 @@ void* serializar_paquete(t_paquete* paquete, int bytes)
 	return msg;
 }
 
+t_buffer* serializar_tarea(uint32_t id, char* tarea)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(2*sizeof(uint32_t) + sizeof(tarea) + 1);
 
+	int desplazamiento = 0;
+	uint32_t tareas_len;
+	tareas_len = strlen(tarea) + 1;
+
+	memcpy(stream + desplazamiento, (void*)(&id), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(stream + desplazamiento, (void*)(&tareas_len), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(stream + desplazamiento, tarea, strlen(tarea) + 1);
+	desplazamiento += strlen(tarea) + 1;
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}
 

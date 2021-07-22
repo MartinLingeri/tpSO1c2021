@@ -43,7 +43,8 @@ int leer_tarea(t_tripulante* tripulante, char* tarea, int retardo_ciclo_cpu);
 void realizar_tarea(char* tarea, int duracion, t_tripulante* tripulante);
 void listar_tripulantes();
 void expulsar_tripulante(char* id);
-
+t_tripulante* buscar_tripulante(int id);
+void pedir_tarea(t_tripulante* tripulante);
 void atender_sabotaje(t_sabotaje* datos);
 void mover_trips(int nuevo_estado);
 void desbloquear_trips_inverso(t_list* lista);

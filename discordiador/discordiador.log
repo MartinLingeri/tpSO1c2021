@@ -1418,3 +1418,177 @@
 [INFO] 19:23:33:980 discordiador/(9546:9546): Discordiador iniciado correctamente
 [INFO] 19:23:33:980 discordiador/(9546:9546): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
 [INFO] 19:23:33:980 discordiador/(9546:9554): Servidor listo para recibir al store
+[INFO] 19:45:35:678 discordiador/(10472:10472): Iniciando Discordiador
+[INFO] 19:45:35:704 discordiador/(10472:10472): Discordiador iniciado correctamente
+[INFO] 19:45:35:704 discordiador/(10472:10472): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 19:45:35:705 discordiador/(10472:10475): Servidor listo para recibir al store
+[INFO] 19:45:35:705 discordiador/(10472:10475): Se conecto un cliente!
+[INFO] 19:45:39:856 discordiador/(10472:10472): 0 - Iniciando patota 
+[INFO] 19:45:41:857 discordiador/(10472:10472): 0 - Tripulante iniciado 
+[INFO] 19:45:41:857 discordiador/(10472:10472): 0 - Patota iniciada 
+[INFO] 19:49:43:214 discordiador/(10584:10584): Iniciando Discordiador
+[INFO] 19:49:43:301 discordiador/(10584:10584): Discordiador iniciado correctamente
+[INFO] 19:49:43:302 discordiador/(10584:10584): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 19:49:43:302 discordiador/(10584:10587): Servidor listo para recibir al store
+[INFO] 19:49:43:302 discordiador/(10584:10587): Se conecto un cliente!
+[INFO] 19:49:49:305 discordiador/(10584:10584): 0 - Iniciando patota 
+[INFO] 19:49:51:307 discordiador/(10584:10584): 0 - Tripulante iniciado 
+[INFO] 19:49:51:307 discordiador/(10584:10584): 0 - Patota iniciada 
+[INFO] 19:49:51:311 discordiador/(10584:10589): 0 - Solicita próxima tarea 
+[ERROR] 19:49:52:906 discordiador/(10584:10587): I-Mongo-Store se desconecto. Terminando servidor
+[INFO] 19:50:03:264 discordiador/(10584:10584): Finalizando discordiador
+[INFO] 19:50:03:264 discordiador/(10584:10584): Discordiador finalizado correctamente
+[INFO] 19:54:33:077 discordiador/(10806:10806): Iniciando Discordiador
+[INFO] 19:54:33:094 discordiador/(10806:10806): Discordiador iniciado correctamente
+[INFO] 19:54:33:094 discordiador/(10806:10806): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 19:54:33:095 discordiador/(10806:10809): Servidor listo para recibir al store
+[INFO] 19:54:33:097 discordiador/(10806:10809): Se conecto un cliente!
+[INFO] 19:54:37:317 discordiador/(10806:10806): 0 - Iniciando patota 
+[INFO] 19:54:39:318 discordiador/(10806:10806): 0 - Tripulante iniciado 
+[INFO] 19:54:39:318 discordiador/(10806:10806): 0 - Patota iniciada 
+[INFO] 19:54:39:326 discordiador/(10806:10811): 0 - Solicita próxima tarea 
+[ERROR] 19:54:39:820 discordiador/(10806:10809): I-Mongo-Store se desconecto. Terminando servidor
+[INFO] 19:56:12:734 discordiador/(10806:10806): Finalizando discordiador
+[INFO] 19:56:12:734 discordiador/(10806:10806): Discordiador finalizado correctamente
+[INFO] 19:56:23:319 discordiador/(10872:10872): Iniciando Discordiador
+[INFO] 19:56:23:320 discordiador/(10872:10872): Discordiador iniciado correctamente
+[INFO] 19:56:23:320 discordiador/(10872:10872): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 19:56:23:321 discordiador/(10872:10875): Servidor listo para recibir al store
+[INFO] 19:56:23:321 discordiador/(10872:10875): Se conecto un cliente!
+[INFO] 19:56:28:165 discordiador/(10872:10872): 0 - Iniciando patota 
+[INFO] 19:56:30:165 discordiador/(10872:10872): 0 - Tripulante iniciado 
+[INFO] 19:56:30:165 discordiador/(10872:10872): 0 - Patota iniciada 
+[INFO] 19:56:30:167 discordiador/(10872:10877): 0 - Solicita próxima tarea 
+[ERROR] 19:56:30:302 discordiador/(10872:10875): I-Mongo-Store se desconecto. Terminando servidor
+[INFO] 19:57:27:480 discordiador/(10872:10872): Finalizando discordiador
+[INFO] 19:57:27:480 discordiador/(10872:10872): Discordiador finalizado correctamente
+[INFO] 19:58:47:944 discordiador/(11161:11161): Iniciando Discordiador
+[INFO] 19:58:47:956 discordiador/(11161:11161): Discordiador iniciado correctamente
+[INFO] 19:58:47:958 discordiador/(11161:11161): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 19:58:47:960 discordiador/(11161:11164): Servidor listo para recibir al store
+[INFO] 19:58:47:962 discordiador/(11161:11164): Se conecto un cliente!
+[INFO] 19:58:55:553 discordiador/(11161:11161): 0 - Iniciando patota 
+[INFO] 19:58:57:554 discordiador/(11161:11161): 0 - Tripulante iniciado 
+[INFO] 19:58:57:554 discordiador/(11161:11161): 0 - Patota iniciada 
+[INFO] 19:58:57:555 discordiador/(11161:11166): 0 - Solicita próxima tarea 
+[INFO] 19:59:07:800 discordiador/(11161:11161): 1 - Iniciando patota 
+[INFO] 19:59:09:800 discordiador/(11161:11161): 1 - Tripulante iniciado 
+[INFO] 19:59:09:800 discordiador/(11161:11161): 1 - Patota iniciada 
+[INFO] 19:59:09:801 discordiador/(11161:11167): 1 - Solicita próxima tarea 
+[INFO] 19:59:25:990 discordiador/(11161:11161): ERROR - Instrucción no reconocida
+[INFO] 19:59:27:750 discordiador/(11161:11161): Finalizando discordiador
+[INFO] 19:59:27:750 discordiador/(11161:11161): Discordiador finalizado correctamente
+[ERROR] 19:59:27:752 discordiador/(11161:11164): I-Mongo-Store se desconecto. Terminando servidor
+[INFO] 20:04:33:568 discordiador/(11388:11388): Iniciando Discordiador
+[INFO] 20:04:33:569 discordiador/(11388:11388): Discordiador iniciado correctamente
+[INFO] 20:04:33:569 discordiador/(11388:11388): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 20:04:33:569 discordiador/(11388:11391): Servidor listo para recibir al store
+[INFO] 20:04:33:570 discordiador/(11388:11391): Se conecto un cliente!
+[INFO] 20:04:37:955 discordiador/(11388:11388): 0 - Iniciando patota 
+[INFO] 20:04:39:955 discordiador/(11388:11388): 0 - Tripulante iniciado 
+[INFO] 20:04:39:956 discordiador/(11388:11388): 0 - Patota iniciada 
+[INFO] 20:04:39:957 discordiador/(11388:11398): 0 - Solicita próxima tarea 
+[INFO] 20:04:57:170 discordiador/(11388:11388): Finalizando discordiador
+[INFO] 20:04:57:170 discordiador/(11388:11388): Discordiador finalizado correctamente
+[ERROR] 20:04:57:171 discordiador/(11388:11391): I-Mongo-Store se desconecto. Terminando servidor
+[INFO] 20:05:15:337 discordiador/(11434:11434): Iniciando Discordiador
+[INFO] 20:05:15:338 discordiador/(11434:11434): Discordiador iniciado correctamente
+[INFO] 20:05:15:338 discordiador/(11434:11434): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 20:05:15:338 discordiador/(11434:11437): Servidor listo para recibir al store
+[INFO] 20:05:15:342 discordiador/(11434:11437): Se conecto un cliente!
+[INFO] 20:05:22:407 discordiador/(11434:11434): 0 - Iniciando patota 
+[INFO] 20:05:24:408 discordiador/(11434:11434): 0 - Tripulante iniciado 
+[INFO] 20:05:24:408 discordiador/(11434:11434): 0 - Patota iniciada 
+[INFO] 20:07:12:099 discordiador/(11525:11525): Iniciando Discordiador
+[INFO] 20:07:12:100 discordiador/(11525:11525): Discordiador iniciado correctamente
+[INFO] 20:07:12:100 discordiador/(11525:11525): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 20:07:12:101 discordiador/(11525:11528): Servidor listo para recibir al store
+[INFO] 20:07:12:101 discordiador/(11525:11528): Se conecto un cliente!
+[INFO] 20:07:17:389 discordiador/(11525:11525): 0 - Iniciando patota 
+[INFO] 20:07:19:390 discordiador/(11525:11525): 0 - Tripulante iniciado 
+[INFO] 20:07:19:390 discordiador/(11525:11525): 0 - Patota iniciada 
+[INFO] 20:08:25:512 discordiador/(11586:11586): Iniciando Discordiador
+[INFO] 20:08:25:512 discordiador/(11586:11586): Discordiador iniciado correctamente
+[INFO] 20:08:25:512 discordiador/(11586:11586): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 20:08:25:512 discordiador/(11586:11589): Servidor listo para recibir al store
+[INFO] 20:08:25:513 discordiador/(11586:11589): Se conecto un cliente!
+[INFO] 20:08:31:415 discordiador/(11586:11586): 0 - Iniciando patota 
+[INFO] 20:08:33:415 discordiador/(11586:11586): 0 - Tripulante iniciado 
+[INFO] 20:08:33:415 discordiador/(11586:11586): 0 - Patota iniciada 
+[INFO] 20:09:50:623 discordiador/(11639:11639): Iniciando Discordiador
+[INFO] 20:09:50:631 discordiador/(11639:11639): Discordiador iniciado correctamente
+[INFO] 20:09:50:631 discordiador/(11639:11639): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 20:09:50:631 discordiador/(11639:11642): Servidor listo para recibir al store
+[INFO] 20:09:50:632 discordiador/(11639:11642): Se conecto un cliente!
+[INFO] 20:09:55:495 discordiador/(11639:11639): 0 - Iniciando patota 
+[INFO] 20:09:57:495 discordiador/(11639:11639): 0 - Tripulante iniciado 
+[INFO] 20:09:57:495 discordiador/(11639:11639): 0 - Patota iniciada 
+[INFO] 20:17:06:183 discordiador/(12115:12115): Iniciando Discordiador
+[INFO] 20:17:06:187 discordiador/(12115:12115): Discordiador iniciado correctamente
+[INFO] 20:17:06:188 discordiador/(12115:12115): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 20:17:06:188 discordiador/(12115:12118): Servidor listo para recibir al store
+[INFO] 20:17:06:189 discordiador/(12115:12118): Se conecto un cliente!
+[INFO] 20:17:10:700 discordiador/(12115:12115): 0 - Iniciando patota 
+[INFO] 20:17:12:701 discordiador/(12115:12115): 0 - Tripulante iniciado 
+[INFO] 20:17:12:701 discordiador/(12115:12115): 0 - Patota iniciada 
+[INFO] 20:17:12:702 discordiador/(12115:12120): 0 - Solicita próxima tarea 
+[INFO] 20:17:35:745 discordiador/(12115:12115): Finalizando discordiador
+[INFO] 20:17:35:745 discordiador/(12115:12115): Discordiador finalizado correctamente
+[INFO] 20:20:57:389 discordiador/(12181:12181): Iniciando Discordiador
+[INFO] 20:20:57:393 discordiador/(12181:12181): Discordiador iniciado correctamente
+[INFO] 20:20:57:393 discordiador/(12181:12181): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 20:20:57:396 discordiador/(12181:12184): Servidor listo para recibir al store
+[INFO] 20:20:57:396 discordiador/(12181:12184): Se conecto un cliente!
+[INFO] 20:21:02:755 discordiador/(12181:12181): 0 - Iniciando patota 
+[INFO] 20:21:04:756 discordiador/(12181:12181): 0 - Tripulante iniciado 
+[INFO] 20:21:04:756 discordiador/(12181:12181): 0 - Patota iniciada 
+[INFO] 20:22:37:122 discordiador/(12238:12238): Iniciando Discordiador
+[INFO] 20:22:37:198 discordiador/(12238:12238): Discordiador iniciado correctamente
+[INFO] 20:22:37:198 discordiador/(12238:12238): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 20:22:37:198 discordiador/(12238:12241): Servidor listo para recibir al store
+[INFO] 20:22:37:198 discordiador/(12238:12241): Se conecto un cliente!
+[INFO] 20:22:42:489 discordiador/(12238:12238): 0 - Iniciando patota 
+[INFO] 20:22:44:489 discordiador/(12238:12238): 0 - Tripulante iniciado 
+[INFO] 20:22:44:490 discordiador/(12238:12238): 0 - Patota iniciada 
+[INFO] 20:23:30:019 discordiador/(12266:12266): Iniciando Discordiador
+[INFO] 20:23:30:020 discordiador/(12266:12266): Discordiador iniciado correctamente
+[INFO] 20:23:30:020 discordiador/(12266:12266): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 20:23:30:021 discordiador/(12266:12269): Servidor listo para recibir al store
+[INFO] 20:23:30:022 discordiador/(12266:12269): Se conecto un cliente!
+[INFO] 20:23:39:979 discordiador/(12266:12266): 0 - Iniciando patota 
+[INFO] 20:23:41:979 discordiador/(12266:12266): 0 - Tripulante iniciado 
+[INFO] 20:23:41:979 discordiador/(12266:12266): 0 - Patota iniciada 
+[INFO] 20:24:51:244 discordiador/(12327:12327): Iniciando Discordiador
+[INFO] 20:24:51:244 discordiador/(12327:12327): Discordiador iniciado correctamente
+[INFO] 20:24:51:244 discordiador/(12327:12327): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 20:24:51:244 discordiador/(12327:12330): Servidor listo para recibir al store
+[INFO] 20:24:51:245 discordiador/(12327:12330): Se conecto un cliente!
+[INFO] 20:24:55:379 discordiador/(12327:12327): 0 - Iniciando patota 
+[INFO] 20:24:57:379 discordiador/(12327:12327): 0 - Tripulante iniciado 
+[INFO] 20:24:57:379 discordiador/(12327:12327): 0 - Patota iniciada 
+[INFO] 20:26:01:047 discordiador/(12376:12376): Iniciando Discordiador
+[INFO] 20:26:01:048 discordiador/(12376:12376): Discordiador iniciado correctamente
+[INFO] 20:26:01:048 discordiador/(12376:12376): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 20:26:01:049 discordiador/(12376:12379): Servidor listo para recibir al store
+[INFO] 20:26:01:050 discordiador/(12376:12379): Se conecto un cliente!
+[INFO] 20:26:05:972 discordiador/(12376:12376): 0 - Iniciando patota 
+[INFO] 20:26:07:972 discordiador/(12376:12376): 0 - Tripulante iniciado 
+[INFO] 20:26:07:972 discordiador/(12376:12376): 0 - Patota iniciada 
+[INFO] 20:27:56:526 discordiador/(12436:12436): Iniciando Discordiador
+[INFO] 20:27:56:526 discordiador/(12436:12436): Discordiador iniciado correctamente
+[INFO] 20:27:56:526 discordiador/(12436:12436): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 20:27:56:527 discordiador/(12436:12439): Servidor listo para recibir al store
+[INFO] 20:27:56:527 discordiador/(12436:12439): Se conecto un cliente!
+[INFO] 20:28:01:495 discordiador/(12436:12436): 0 - Iniciando patota 
+[INFO] 20:28:03:495 discordiador/(12436:12436): 0 - Tripulante iniciado 
+[INFO] 20:28:03:496 discordiador/(12436:12436): 0 - Patota iniciada 
+[INFO] 20:28:21:979 discordiador/(12474:12474): Iniciando Discordiador
+[INFO] 20:28:22:000 discordiador/(12474:12474): Discordiador iniciado correctamente
+[INFO] 20:28:22:000 discordiador/(12474:12474): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 20:28:22:000 discordiador/(12474:12477): Servidor listo para recibir al store
+[INFO] 20:28:22:006 discordiador/(12474:12477): Se conecto un cliente!
+[INFO] 20:28:23:966 discordiador/(12474:12474): ERROR - Instrucción no reconocida
+[INFO] 20:28:28:701 discordiador/(12474:12474): ERROR - Instrucción no reconocida
+[INFO] 20:28:35:580 discordiador/(12474:12474): 0 - Iniciando patota 
+[INFO] 20:28:37:580 discordiador/(12474:12474): 0 - Tripulante iniciado 
+[INFO] 20:28:37:582 discordiador/(12474:12474): 0 - Patota iniciada 

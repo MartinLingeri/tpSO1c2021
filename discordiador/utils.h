@@ -117,8 +117,8 @@ typedef struct{
 }t_sabotaje;
 
 typedef struct{
-	int TID;
-	int len;
+	uint32_t TID;
+	uint32_t len;
 	char* tarea_txt;
 }t_tarea;
 

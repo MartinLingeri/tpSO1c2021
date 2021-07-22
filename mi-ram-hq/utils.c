@@ -19,7 +19,6 @@ void enviar_paquete(t_paquete* paquete, int socket_cliente)
 	printf("CODIGO OP: %d\n", paquete->codigo_operacion);
 	printf("SIZE DEL BUFFER: %d\n", paquete->buffer->size);
 	send(socket_cliente, a_enviar, bytes, 0);
-	mem_hexdump(a_enviar,bytes);
 
 	free(a_enviar);
 }
@@ -161,7 +160,6 @@ t_pcb* recibir_pcb(int socket_cliente){
 	buffer = recibir_buffer(&size, socket_cliente);
 
 	memcpy(&(patota->pid), (buffer+desplazamiento), sizeof(uint32_t));
-
 	desplazamiento+=sizeof(uint32_t);
 
 	void* cantidad_tripulantes = malloc(sizeof(uint32_t));
@@ -182,18 +180,20 @@ t_pcb* recibir_pcb(int socket_cliente){
 	/*CHEQUEAR QUE SE VAN A PODER GUARDAR TODOS LOS TRIPULANTES Y MANDAR SI ESTA OK O SI NO SE VAN A PODER GUARDAR EN MEMORIA*/
 }
 
-void recibir_pedir_tarea(int socket_cliente) {
-	int size;
+uint32_t recibir_pedir_tarea(int socket_cliente) {
+	uint32_t size;
 	void* buffer;
-
+	int tid;
+	int desplazamiento = 0;
 	buffer = recibir_buffer(&size, socket_cliente);
 
-	void* cantidad_tripulantes = malloc(sizeof(uint32_t));
+	memcpy(&(tid), (buffer+desplazamiento), sizeof(uint32_t));
 
-	memcpy(&(cantidad_tripulantes), (buffer), sizeof(uint32_t));
+	printf("tip id: %d\n", (tid));
+	desplazamiento += sizeof(uint32_t);
 
 	free(buffer);
-	/*DEVOLVER PROXIMA TAREA, SI ERA LA ULTIMA Y NO HAY MAS, CHAR* VACIO*/
+	return tid;
 }
 
 void recibir_cambio_estado(int socket_cliente) {

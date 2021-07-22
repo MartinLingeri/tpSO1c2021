@@ -246,19 +246,28 @@ t_tarea* recibir_tarea(int socket_cliente) {
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
-	t_tarea* t;
+	t_tarea* t = malloc(sizeof(t_tarea));
+	puts("1");
 
 	buffer = recibir_buffer(&size, socket_cliente);
+	puts("2");
 
-	memcpy(&t->TID, buffer+desplazamiento, sizeof(int));
-	desplazamiento += sizeof(int);
-
-	memcpy(&t->len, (buffer+desplazamiento), sizeof(uint32_t));
+	memcpy(&(t->TID), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
+	puts("3");
 
-	memcpy(&t->tarea_txt, buffer+desplazamiento, t->len);
+	printf("TID: %d\n", t->TID);
+	memcpy(&(t->len), (buffer+desplazamiento), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+	puts("4");
+
+
+	printf("TAREAS LEN: %d\n", t->len);
+	t->tarea_txt = malloc(t->len);
+	memcpy((t->tarea_txt), buffer+desplazamiento, t->len);
 	desplazamiento += t->len;
-
+	puts("5");
+	printf("TAREAS: %s\n", t->tarea_txt);
 	return t;
 }
 
