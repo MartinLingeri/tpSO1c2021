@@ -1399,3 +1399,18 @@
 [INFO] 18:38:58:718 discordiador/(8308:8313): 0 - Solicita próxima tarea 
 [INFO] 18:39:33:346 discordiador/(8308:8308): Finalizando discordiador
 [INFO] 18:39:33:346 discordiador/(8308:8308): Discordiador finalizado correctamente
+[INFO] 18:44:50:964 discordiador/(8480:8480): Iniciando Discordiador
+[INFO] 18:44:50:993 discordiador/(8480:8480): Discordiador iniciado correctamente
+[INFO] 18:44:50:993 discordiador/(8480:8480): Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador
+[INFO] 18:44:50:993 discordiador/(8480:8483): Se conecto un cliente!
+[INFO] 18:44:56:309 discordiador/(8480:8480): 0 - Iniciando patota 
+[INFO] 18:44:58:310 discordiador/(8480:8480): 0 - Tripulante iniciado 
+[INFO] 18:44:58:311 discordiador/(8480:8480): 0 - Patota iniciada 
+[INFO] 18:44:58:312 discordiador/(8480:8485): 0 - Solicita próxima tarea 
+[INFO] 18:45:06:420 discordiador/(8480:8480): 1 - Iniciando patota 
+[INFO] 18:45:08:420 discordiador/(8480:8480): 1 - Tripulante iniciado 
+[INFO] 18:45:08:421 discordiador/(8480:8480): 1 - Patota iniciada 
+[INFO] 18:45:08:422 discordiador/(8480:8491): 1 - Solicita próxima tarea 
+[INFO] 18:45:31:801 discordiador/(8480:8480): Finalizando discordiador
+[INFO] 18:45:31:802 discordiador/(8480:8480): Discordiador finalizado correctamente
+[ERROR] 18:45:31:802 discordiador/(8480:8483): I-Mongo-Store se desconecto. Terminando servidor

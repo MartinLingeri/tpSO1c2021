@@ -208,40 +208,15 @@ t_sabotaje* recibir_datos_sabotaje(int socket_cliente)
 
 uint32_t recibir_hay_lugar(int socket_cliente)
 {
-	void* nrecibir_buffer(int* size, int socket_cliente)
-	{
-		void* buffer;
-
-		puts("1");
-
-		recv(socket_cliente, size, sizeof(int), MSG_WAITALL);
-
-		buffer = malloc(*size);
-
-		printf("BUFFER SIZE: %d\n", sizeof(buffer));
-
-		recv(socket_cliente, buffer, *size, MSG_WAITALL);
-
-		puts("2");
-
-		return buffer;
-	}
-
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
-
-	buffer = nrecibir_buffer(&size, socket_cliente);
-	puts("Buffer recibido");
-
 	uint32_t dato;
-	printf("ESPACIO PARA ALOJAR: %d\n", sizeof(dato));
 
+	buffer = recibir_buffer(&size, socket_cliente);
 	memcpy(&(dato), (buffer+desplazamiento), sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
-	printf("VALOR RECIBIDO: %d\n", (uint32_t)(dato));
 
-	puts("Despues memcpy y desplazamiento");
 	free(buffer);
 	return dato;
 }

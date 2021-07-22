@@ -46,6 +46,7 @@ int main(void) {
 	int cliente_fd = esperar_cliente(server_fd);
 	t_tcb* tripulante = malloc(sizeof(t_tcb));
 	t_pcb* patota = malloc(sizeof(t_pcb));
+	int conexion = crear_conexion("127.0.0.1", "5002");
 	while(1)
 	{
 		int cod_op = recibir_operacion(cliente_fd);
@@ -58,12 +59,10 @@ int main(void) {
 		case PCB_MENSAJE:
 			patota = recibir_pcb(cliente_fd);
 			puts("Respondiendo a DS");
-			int conexion = crear_conexion("127.0.0.1", "5002");
 			uint32_t a = 1; //1 si hay lugar 0 si no
 			t_buffer* buffer = serializar_test(a);
 			t_paquete* paquete = crear_mensaje(buffer, 1);
 			enviar_paquete(paquete, conexion);
-			close(conexion);
 			break;
 
 		case PEDIR_SIGUIENTE_TAREA:
@@ -87,7 +86,7 @@ int main(void) {
 	}
 	free(tripulante);
 	free(patota);
-
+	close(conexion);
 	free(inicio_memoria);
 	//terminar_programa(/*conexion_disc,*/ logger, config);
 
@@ -129,31 +128,13 @@ t_buffer* serializar_test(uint32_t dato)
 	return buffer;
 }
 
-t_buffer* serializar_cambio_estado(uint32_t id, uint32_t estado)
-{
-	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t) + sizeof(char));
-	int desplazamiento = 0;
-
-	memcpy(stream + desplazamiento, &id, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	/*char e = 'X';
-
-	memcpy(stream + desplazamiento, &e, sizeof(char));
-	desplazamiento += sizeof(char);*/
-
-	buffer->size = desplazamiento;
-	buffer->stream = stream;
-	return buffer;
-}
-
 /*
 void terminar_programa(int conexion_disc,t_log* logger, t_config* config)
 {
 	//liberar_conexion(conexion_disc);
 	log_destroy(logger);
 	config_destroy(config);
+
 }
 */
 
@@ -179,21 +160,5 @@ void* serializar_paquete(t_paquete* paquete, int bytes)
 	return msg;
 }
 
-/*
-void enviar_tarea(char *tarea){
-		t_buffer *buffer = serializar_enviar_tarea(tarea);
-		t_paquete* paquete_enviar_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
-		pthread_mutex_lock(&discordiador);
-		enviar_paquete(paquete_enviar_tarea, conexion_hq);
-		pthread_mutex_unlock(&discordiador);
-		free(buffer);
-		free(paquete_enviar_tarea);
-		//t_paquete* paquete_enviar_tarea = crear_mensaje(buffer, PEDIR_SIGUIENTE_TAREA);
-		pthread_mutex_lock(&discordiador);
-		//enviar_paquete(paquete_enviar_tarea, conexion_hq);
-		pthread_mutex_unlock(&discordiador);
-		free(buffer);
-		//free(paquete_enviar_tarea);
-}*/
 
 
