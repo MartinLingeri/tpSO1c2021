@@ -59,6 +59,7 @@ int main(void) {
 			tripulante = recibir_tcb(cliente_fd);
 			//mostrar_tcb(tripulante);
 			break;
+
 		case PCB_MENSAJE:
 			patota = recibir_pcb(cliente_fd);
 			puts("Respondiendo a DS");
@@ -66,7 +67,6 @@ int main(void) {
 			buffer = serializar_test(a);
 			paquete = crear_mensaje(buffer, 1);
 			enviar_paquete(paquete, conexion);
-			puts("antes del break");
 			break;
 
 		case PEDIR_SIGUIENTE_TAREA:
@@ -82,12 +82,15 @@ int main(void) {
 		case CAMBIO_ESTADO_MENSAJE:
 			recibir_cambio_estado(cliente_fd);
 			break;
+
 		case DESPLAZAMIENTO:
 			recibir_desplazamiento(cliente_fd);
 			break;
+
 		case ELIMINAR_TRIPULANTE:
 			recibir_eliminar_tripulante(cliente_fd);
 			break;
+
 		case -1:
 			log_error(logger, "El cliente se desconecto. Terminando servidor");
 			return EXIT_FAILURE;
@@ -97,9 +100,8 @@ int main(void) {
 	}
 	free(tripulante);
 	free(patota);
-	close(conexion);
 	free(inicio_memoria);
-	//terminar_programa(/*conexion_disc,*/ logger, config);
+	terminar_programa();
 
 	return EXIT_SUCCESS;
 }
@@ -139,15 +141,13 @@ t_buffer* serializar_test(uint32_t dato)
 	return buffer;
 }
 
-/*
-void terminar_programa(int conexion_disc,t_log* logger, t_config* config)
+
+void terminar_programa()
 {
-	//liberar_conexion(conexion_disc);
 	log_destroy(logger);
 	config_destroy(config);
-
 }
-*/
+
 
 void eliminar_paquete(t_paquete* paquete)
 {

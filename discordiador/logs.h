@@ -52,6 +52,7 @@ typedef enum
 }situacion;
 
 void logear(int situacion, int dato);
+void logear_error(int situacion);
 char* logs_bitacora(regs_bitacora asunto, char* dato1, char* dato2);
 void reportar_bitacora(char* log, int id, int conexion_store);
 void logear_despl(int pos_x, int pos_y, char* pos_x_nuevo, char* pos_y_nuevo, int id, int conexion_hq);

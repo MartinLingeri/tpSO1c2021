@@ -48,6 +48,11 @@ typedef struct{
 	uint32_t pcb;
 }t_tcb;
 
+typedef struct{
+	uint32_t tid;
+	uint32_t pos_x;
+	uint32_t pos_y;
+}t_despl;
 
 typedef struct{
 	uint32_t idPatota;
@@ -65,6 +70,7 @@ typedef struct{
 	char *tareas;
 	t_tcb *tcb;
 }frame;
+
 
 t_list listaDeTablasDePaginas;
 t_list listaDeFrames;

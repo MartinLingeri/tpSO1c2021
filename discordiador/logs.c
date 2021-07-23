@@ -11,207 +11,133 @@
 }*/
 
 void logear(int situacion, int dato){
-	int size;
-	char* x = string_itoa(dato);
-	char* reporte;
 	switch(situacion){
 		case INICIO_SISTEMA:
-			size = strlen("Iniciando Discordiador") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, "Iniciando Discordiador");
+			log_info(logger,"Iniciando Discordiador");
 			break;
 
 		case SISTEMA_INICIADO:
-			size = strlen("Discordiador iniciado correctamente") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, "Discordiador iniciado correctamente");
+			log_info(logger,"Discordiador iniciado correctamente");
 			break;
 
 		case INICIANDO_PLANIF:
-			size = strlen("Planificación iniciada") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, "Planificación iniciada");
+			log_info(logger,"Planificación iniciada");
 			break;
 
 		case PAUSA_PLANIF:
-			size = strlen("Planificación pausada") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, "Planificación pausada");
+			log_info(logger,"Planificación pausada");
 			break;
 
 		case INICIANDO_PATOTA:
-			size = strlen(x) + strlen(" - Iniciando patota ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Iniciando patota ");
+			log_info(logger,"%d - Iniciando Patota", dato);
 			break;
 
 		case INICIANDO_TRIPULANTE:
-			size = strlen(x) + strlen(" - Tripulante iniciado ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Tripulante iniciado ");
+			log_info(logger,"%d - Tripulante iniciado ", dato);
 			break;
 
 		case PATOTA_INICIADA:
-			size = strlen(x) + strlen(" - Patota iniciada ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Patota iniciada ");
-			strcpy(reporte, reporte);
+			log_info(logger,"%d - Patota iniciada ", dato);
 			break;
 
 		case SOLICITANDO_TAREA:
-			size = strlen(x) + strlen(" - Solicita próxima tarea ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Solicita próxima tarea ");
+			log_info(logger,"%d - Solicita próxima tarea ", dato);
 			break;
 
 	/*	case COMENZANDO_TAREA:
-			size = strlen(x) + strlen(" - Comienza ejecución de tarea ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Comienza ejecución de tarea ");
+			log_info(logger,"%d - Comienza ejecución de tarea ", dato);
 			break;*/
 
 		/*case DESPLAZA_TAREA:
-			size = strlen(x) + strlen(" - Se desplaza hacia el lugar de la tarea ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Se desplaza hacia el lugar de la tarea ");
+			log_info(logger,"%d - Se desplaza hacia el lugar de la tarea ", dato);
 			break;*/
 
 		case ESPERA_IO:
-			size = strlen(x) + strlen(" - Ejecutando I/O ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Ejecutando I/O ");
+			log_info(logger,"%d - Ejecutando I/O ", dato);
 			break;
 /*
 		case FINALIZA_TAREA:
-			size = strlen(x) + strlen(" - Tarea finalizada ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Tarea finalizada ");
+			log_info(logger,"%d - Tarea finalizada ", dato);
 			break;*/
 
 		case FINALIZA_LISTA_TAREAS:
-			size = strlen(x) + strlen(" - Lista de tareas completada, fin de tripulante ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Lista de tareas completada, fin de tripulante ");
+			log_info(logger,"%d - Lista de tareas completada, fin de tripulante ", dato);
 			break;
 
 		case FIN_QUANTUM:
-			size = strlen(x) + strlen(" - Fin de Quantum ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Fin de Quantum ");
+			log_info(logger,"%d - Fin de Quantum ", dato);
 			break;
 
 		case CONTINUA_TAREA:
-			size = strlen(x) + strlen(" - Continúa ejecución de tarea ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Continúa ejecución de tarea ");
+			log_info(logger,"%d - Continúa ejecución de tarea ", dato);
 			break;
 
 		case SABOTAJE_DETECTADO:
-			size = strlen("Sabotaje detectado en el sistema") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, "Sabotaje detectado en el sistema");
+			log_info(logger,"Sabotaje detectado en el sistema");
 			break;
 
 	/*	case COMIENZA_ATENDER_SABOTAJE:
-			size = strlen(x) + strlen(" - Comienza a atender sabotaje ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Comienza a atender sabotaje ");
+			log_info(logger,"%d - Comienza a atender sabotaje ", dato);
 			break;*/
 
 		case LLAMADO_FSCK:
-			size = strlen("Iniciando Discordiador") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, "FSCK invocado");
+			log_info(logger,"FSCK invocado");
 			break;
 
 		/*case SABOTAJE_ATENDIDO:
-			size = strlen(x) + strlen(" - Sabotaje atendido ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Sabotaje atendido ");
+			log_info(logger,"%d - Sabotaje atendido ", dato);
 			break;*/
 
 		case BITACORA_SOLICITADA:
-			size = strlen(x) + strlen(" - Bitácora solicitada ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Bitácora solicitada ");
+			log_info(logger,"%d - Bitácora solicitada ", dato);
 			break;
 
 		case ELIMINANDO_TRIPULANTE:
-			size = strlen(x) + strlen(" - Expulsando tripulante ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Tripulante expulsado ");
+			log_info(logger,"%d - Expulsando tripulante ", dato);
 			break;
 
 		case TRIPULANTE_ELIMINADO:
-			size = strlen(x) + strlen(" - Tripulante expulsado ") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, x);
-			strcat (reporte, " - Tripulante expulsado ");
+
+			log_info(logger,"%d - Tripulante expulsado ", dato);
 			break;
 
 		case LISTANDO_TRIPULANTES:
-			size = strlen("Listando tripulantes por consola") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, "Listando tripulantes por consola");
+			log_info(logger,"%d - Listando tripulantes por consola", dato);
 			break;
 
 		case FINALIZANDO_PROGRAMA:
-			size = strlen("Finalizando discordiador") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, "Finalizando discordiador");
+			log_info(logger,"%d - Finalizando discordiador", dato);
 			break;
 
 		case PROGRAMA_FINALIZADO:
-			size = strlen("Discordiador finalizado correctamente") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, "Discordiador finalizado correctamente");
-			break;
-
-		case INST_NO_RECON:
-			size = strlen("ERROR - Instrucción no reconocida") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, "ERROR - Instrucción no reconocida");
-			break;
-
-		case INST_FALTA_PAR:
-			size = strlen("ERROR - Algún dato de la instrucción falta o es incorrecto") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, "ERROR - Algún dato de la instrucción falta o es incorrecto");
-			break;
-
-		case TRIP_NO_INICIADO:
-			size = strlen("ERROR - El tripulante no existe o no ha sido iniciad") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, "ERROR - El tripulante no existe o no ha sido iniciado");
-			break;
-
-		case NO_MEMORIA:
-			size = strlen("ERROR - No hay lugar en memoria para guardar la patota") + 1;
-			reporte = malloc(size);
-			strcpy(reporte, "ERROR - No hay lugar en memoria para guardar la patota");
+			log_info(logger,"%d - Discordiador finalizado correctamente", dato);
 			break;
 
 		default:
 			return;
 	}
-	log_info(logger,reporte);
-	free(reporte);
 	return;
+}
+
+void logear_error(int situacion){
+	switch(situacion){
+
+	case INST_NO_RECON:
+		log_error(logger,"Instrucción no reconocida");
+		break;
+
+	case INST_FALTA_PAR:
+		log_error(logger,"Algún dato de la instrucción falta o es incorrecto");
+		break;
+
+	case TRIP_NO_INICIADO:
+		log_error(logger,"El tripulante no existe o no ha sido iniciado");
+		break;
+
+	case NO_MEMORIA:
+		log_error(logger, "No hay lugar en memoria para guardar la patota");
+		break;
+	}
 }
 
 char* logs_bitacora(regs_bitacora asunto, char* dato1, char* dato2){

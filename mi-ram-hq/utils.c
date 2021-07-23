@@ -133,19 +133,30 @@ t_tcb* recibir_tcb(int socket_cliente){
 	int desplazamiento = 0;
 	void* buffer;
 	t_tcb* tripulante = malloc(sizeof(t_tcb));
+	puts("Llega TCB tripulante");
 
 	buffer = recibir_buffer(&size, socket_cliente);
 	memcpy(&(tripulante->tid), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
+
 	memcpy(&(tripulante->estado), buffer+desplazamiento, sizeof(char));
 	desplazamiento+=sizeof(char);
+
 	memcpy(&(tripulante->pos_x), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
+
 	memcpy(&(tripulante->pos_y), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
-	/*memcpy(&(tripulante->proxima_instruccion), buffer+desplazamiento, sizeof(uint32_t));//DISCORDIADOR: creemos que esto no se lo mandamos nosotros
-	desplazamiento+=sizeof(uint32_t);*/
+
 	memcpy(&(tripulante->pcb), buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
+	printf("TID: %d\n", tripulante->tid);
+	printf("ESTADO: %c\n", tripulante->estado);
+	printf("POS X: %d\n", tripulante->pos_x);
+	printf("ṔOS Y: %d\n", tripulante->pos_y);
+	printf("PID: %d\n", tripulante->pcb);
+
 	free(buffer);
 	return tripulante;
 }
@@ -224,19 +235,22 @@ void recibir_desplazamiento(int socket_cliente) {
 	int desplazamiento = 0;
 	buffer = recibir_buffer(&size, socket_cliente);
 
-	void* tid = malloc(sizeof(uint32_t));
-	memcpy(&(tid), (buffer), sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-	printf("tid: %d\n", tid);
+	puts("Llega desplazamiento");
 
-	void* nuexo_x = malloc(sizeof(uint32_t));
-	memcpy(&(nuexo_x), (buffer), sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-	printf("nuevo x: %d\n", tid);
+	t_despl* des = malloc(sizeof(t_despl));
 
-	void* nuexo_y = malloc(sizeof(uint32_t));
-	memcpy(&(nuexo_y), (buffer), sizeof(uint32_t));
-	printf("nuevo y: %d\n", tid);
+	memcpy(&(des->tid), buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
+	memcpy(&(des->pos_x), buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
+	memcpy(&(des->pos_y), buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
+	printf("TID: %d\n", des->tid);
+	printf("POS X: %d\n", des->pos_x);
+	printf("ṔOS Y: %d\n", des->pos_y);
 
 	free(buffer);
 }
@@ -244,13 +258,17 @@ void recibir_desplazamiento(int socket_cliente) {
 void recibir_eliminar_tripulante(int socket_cliente) {
 	int size;
 	void* buffer;
-	printf("antes d expulsar");
+	uint32_t id;
+	int desplazamiento = 0;
+
+	puts("Llega eliminar tripulante");
+
 	buffer = recibir_buffer(&size, socket_cliente);
 
-	void* id = malloc(sizeof(uint32_t));
+	memcpy(&id, buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
 
-	memcpy(&(id), (buffer), sizeof(uint32_t));
-	printf("EL ID A EXP: %d\n", id);
+	printf("TRIP A EXPULSAR: %d\n", id);
 
 	free(buffer);
 }
