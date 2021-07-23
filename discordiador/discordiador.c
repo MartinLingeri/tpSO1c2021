@@ -136,9 +136,9 @@ void* esperar_conexion() {
 	char* puerto = config_get_string_value(config, "PUERTO");
 	int server = iniciar_servidor(ip, puerto);
 
-	pthread_mutex_lock(&logs);
+	/*pthread_mutex_lock(&logs);
 	log_info(logger, "Servidor listo para recibir al store");
-	pthread_mutex_unlock(&logs);
+	pthread_mutex_unlock(&logs);*/
 
 	int cliente = esperar_cliente(server);
 	char* bitacora;
@@ -151,8 +151,10 @@ void* esperar_conexion() {
 		switch(cod_op){
 		case BITACORA:
 			bitacora = recibir_bitacora(cliente);
+
 			log_info(logger, bitacora);
-			pthread_mutex_unlock(&logs);
+			puts("4");
+			//pthread_mutex_unlock(&logs);
 			break;
 
 		case LUGAR_MEMORIA:
@@ -170,7 +172,7 @@ void* esperar_conexion() {
 		case ALERTA_SABOTAJE:
 			logear(SABOTAJE_DETECTADO,0);
 			data = recibir_datos_sabotaje(cliente);
-			atender_sabotaje(data);
+			//atender_sabotaje(data);
 			break;
 
 		case TAREA:
@@ -236,7 +238,7 @@ void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_con
 
 void leer_consola(t_log* logger)
 {
-	log_info(logger, "Ingrese instrucción por consola. Ingrese *FIN* para finalizar Discordiador");
+	log_info(logger, "Ingrese instrucción por consola. *FIN* para terminar");
 	char* leido;
 	leido = readline(">");
 	while (strcmp(leido, "FIN") != 0) {
@@ -283,7 +285,7 @@ void leer_consola(t_log* logger)
 			free(data);
 
 		} else if (strcmp(instruccion[0], "SERIALIZAR") == 0) { //PARA TESTEAR
-			t_buffer* buffer = serializar_tripulante(5,4,3,2,1);
+			/*t_buffer* buffer = serializar_tripulante(5,4,3,2,1);
 			t_paquete* paquete_cambio_estado = crear_mensaje(buffer, TCB_MENSAJE);
 			pthread_mutex_lock(&hq);
 			enviar_paquete(paquete_cambio_estado, conexion_hq);
@@ -305,7 +307,42 @@ void leer_consola(t_log* logger)
 			enviar_paquete(paquete_cambio_estado3, conexion_hq);
 			pthread_mutex_unlock(&hq);
 			free(buffer3);
+			free(paquete_cambio_estado3);*/
+
+			uint32_t cantidad = 4;
+			int tarea = 3;
+			t_buffer* buffer = serializar_hacer_tarea(cantidad,tarea);
+			t_paquete* paquete_cambio_estado = crear_mensaje(buffer, HACER_TAREA);
+			pthread_mutex_lock(&hq);
+			enviar_paquete(paquete_cambio_estado, conexion_hq);
+			pthread_mutex_unlock(&hq);
+			free(buffer);
+			free(paquete_cambio_estado);
+
+			t_buffer* buffer2 = serializar_solicitar_bitacora(1);
+			t_paquete* paquete_cambio_estado2 = crear_mensaje(buffer2, PEDIR_BITACORA);
+			pthread_mutex_lock(&hq);
+			enviar_paquete(paquete_cambio_estado2, conexion_hq);
+			pthread_mutex_unlock(&hq);
+			free(buffer2);
+			free(paquete_cambio_estado2);
+
+			t_buffer* buffer3 = invocar_fsck(0);
+			t_paquete* paquete_cambio_estado3 = crear_mensaje(buffer3, INVOCAR_FSCK);
+			pthread_mutex_lock(&hq);
+			enviar_paquete(paquete_cambio_estado3, conexion_hq);
+			pthread_mutex_unlock(&hq);
+			free(buffer3);
 			free(paquete_cambio_estado3);
+
+			char* reporte = "Genera oxigeno";
+			t_buffer* buffer1 = serializar_reporte_bitacora(2,reporte);
+			t_paquete* paquete_cambio_estado1 = crear_mensaje(buffer1, REPORTE_BITACORA);
+			pthread_mutex_lock(&hq);
+			enviar_paquete(paquete_cambio_estado1, conexion_hq);
+			pthread_mutex_unlock(&hq);
+			free(buffer1);
+			free(paquete_cambio_estado1);
 
 		} else {
 			logear_error(INST_NO_RECON);

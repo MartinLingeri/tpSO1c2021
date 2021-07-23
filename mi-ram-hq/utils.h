@@ -32,6 +32,8 @@ typedef enum
     DESPLAZAMIENTO,
     HACER_TAREA,
 	ELIMINAR_TRIPULANTE,
+	PEDIR_BITACORA,
+	INVOCAR_FSCK,
 }op_code;
 
 typedef struct{
@@ -98,5 +100,9 @@ uint32_t recibir_pedir_tarea(int socket_cliente);
 void recibir_cambio_estado(int socket_cliente);
 void recibir_desplazamiento(int socket_cliente);
 void recibir_eliminar_tripulante(int socket_cliente);
-
+//DE ACA PARA ABAJO SON DESERIALIZACIONES DE I-MONGO-STORE
+void recibir_pedir_bitacora(int socket_cliente);
+void recibir_hacer_tarea(int socket_cliente);
+void recibir_invocar_fsck(int socket_cliente);
+void recibir_rbitacora(int socket_cliente);
 #endif /* CONEXIONES_H_ */

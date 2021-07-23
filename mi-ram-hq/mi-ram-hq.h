@@ -24,12 +24,14 @@
         return EXIT_FAILURE;                                                            \
 }*/
 int crear_conexion(char *ip, char* puerto);
-t_buffer* serializar_test(uint32_t id);
+t_buffer* serializar_hay_lugar_memoria(uint32_t id);
 t_buffer* serializar_cambio_estado(uint32_t id, uint32_t estado);
+void* serializar_paquete(t_paquete* paquete, int bytes);
 void eliminar_paquete(t_paquete* paquete);
 void enviar_mensaje(char* mensaje, int socket_cliente);
-void* serializar_paquete(t_paquete* paquete, int bytes);
 uint32_t recibir_hay_lugar(int socket_cliente);
 t_buffer* serializar_tarea(uint32_t id, char* tarea);
+t_buffer* serializar_bitacora(char* tarea);
+t_buffer* serializar_sabotaje(uint32_t x, uint32_t y);
 void terminar_programa();
 #endif /* MI-RAM-HQ_H_ */

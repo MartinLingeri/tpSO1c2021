@@ -41,6 +41,10 @@ int main(void) {
 		printf("%s\n", value);
 	}
 
+	char* bitacora_de_prueba =
+			"Inicia tripulante\n Genera oxigeno \n Resuelve sabotaje\n Fin de Quantum\n Consume comida\n Fin de lista de tareas\n Fin de tripulante";
+
+
 	int server_fd = iniciar_servidor();
 	log_info(logger, "Servidor listo para recibir al cliente");
 	int cliente_fd = esperar_cliente(server_fd);
@@ -58,13 +62,14 @@ int main(void) {
 		case TCB_MENSAJE:
 			tripulante = recibir_tcb(cliente_fd);
 			//mostrar_tcb(tripulante);
+
 			break;
 
 		case PCB_MENSAJE:
 			patota = recibir_pcb(cliente_fd);
 			puts("Respondiendo a DS");
 			uint32_t a = 1; //1 si hay lugar 0 si no
-			buffer = serializar_test(a);
+			buffer = serializar_hay_lugar_memoria(a);
 			paquete = crear_mensaje(buffer, 1);
 			enviar_paquete(paquete, conexion);
 			break;
@@ -73,9 +78,9 @@ int main(void) {
 			id = recibir_pedir_tarea(cliente_fd);
 			puts("Respondiendo a pedir tarea");
 			printf("ID A CONTESTAR: %d\n", id);
-			buffer = serializar_tarea(id,"GENERAR_OXIGENO 12;2;3;5");
+			/*buffer = serializar_tarea(id,"GENERAR_OXIGENO 12;2;3;5");
 			paquete = crear_mensaje(buffer, 3);
-			enviar_paquete(paquete, conexion);
+			enviar_paquete(paquete, conexion);*/
 			free(buffer);
 			break;
 
@@ -85,15 +90,41 @@ int main(void) {
 
 		case DESPLAZAMIENTO:
 			recibir_desplazamiento(cliente_fd);
+
 			break;
 
 		case ELIMINAR_TRIPULANTE:
 			recibir_eliminar_tripulante(cliente_fd);
+
+			/*buffer = serializar_bitacora(bitacora_de_prueba);
+			puts("a");
+			paquete = crear_mensaje(buffer, 1);
+			puts("b");
+			enviar_paquete(paquete, conexion);
+			puts("c");
+			free(buffer);*/
+			break;
+
+		case REPORTE_BITACORA:
+			recibir_rbitacora(cliente_fd);
+			break;
+
+		case HACER_TAREA:
+			recibir_hacer_tarea(cliente_fd);
+			break;
+
+		case PEDIR_BITACORA:
+			recibir_pedir_bitacora(cliente_fd);
+			break;
+
+		case INVOCAR_FSCK:
+			recibir_invocar_fsck(cliente_fd);
 			break;
 
 		case -1:
 			log_error(logger, "El cliente se desconecto. Terminando servidor");
 			return EXIT_FAILURE;
+
 		default:
 			break;
 		}
@@ -128,7 +159,7 @@ int crear_conexion(char *ip, char* puerto)
 	return socket_cliente;
 }
 
-t_buffer* serializar_test(uint32_t dato)
+t_buffer* serializar_hay_lugar_memoria(uint32_t dato)
 {
 	t_buffer* buffer = malloc(sizeof(t_buffer));
 	void* stream = malloc(sizeof(uint32_t));
@@ -139,21 +170,6 @@ t_buffer* serializar_test(uint32_t dato)
 	buffer->size = desplazamiento;
 	buffer->stream = stream;
 	return buffer;
-}
-
-
-void terminar_programa()
-{
-	log_destroy(logger);
-	config_destroy(config);
-}
-
-
-void eliminar_paquete(t_paquete* paquete)
-{
-	free(paquete->buffer->stream);
-	free(paquete->buffer);
-	free(paquete);
 }
 
 void* serializar_paquete(t_paquete* paquete, int bytes)
@@ -169,6 +185,19 @@ void* serializar_paquete(t_paquete* paquete, int bytes)
 	desplazamiento+= paquete->buffer->size;
 
 	return msg;
+}
+
+void terminar_programa()
+{
+	log_destroy(logger);
+	config_destroy(config);
+}
+
+void eliminar_paquete(t_paquete* paquete)
+{
+	free(paquete->buffer->stream);
+	free(paquete->buffer);
+	free(paquete);
 }
 
 t_buffer* serializar_tarea(uint32_t id, char* tarea)
@@ -194,3 +223,43 @@ t_buffer* serializar_tarea(uint32_t id, char* tarea)
 	return buffer;
 }
 
+t_buffer* serializar_sabotaje(uint32_t x, uint32_t y)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(2*sizeof(uint32_t));
+
+	int desplazamiento = 0;
+
+	memcpy(stream + desplazamiento, (void*)(&x), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(stream + desplazamiento, (void*)(&y), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}
+
+t_buffer* serializar_bitacora(char* bitacora)
+{
+	t_buffer* buffer = malloc(sizeof(t_buffer));
+	void* stream = malloc(sizeof(uint32_t) + sizeof(bitacora) + 1);
+
+	int desplazamiento = 0;
+	uint32_t bit_len;
+	bit_len = strlen(bitacora) + 1;
+	printf("BITACORA: %s\n", bitacora);
+
+	memcpy(stream + desplazamiento, (void*)(&bit_len), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+	puts("1");
+
+	memcpy(stream + desplazamiento, bitacora, strlen(bitacora) + 1);
+	desplazamiento += strlen(bitacora) + 1;
+	puts("2");
+
+	buffer->size = desplazamiento;
+	buffer->stream = stream;
+	return buffer;
+}

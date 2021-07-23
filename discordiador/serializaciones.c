@@ -132,14 +132,14 @@ t_buffer* serializar_desplazamiento(uint32_t tid, uint32_t x_nuevo, uint32_t y_n
 t_buffer* serializar_hacer_tarea(uint32_t cantidad, int tarea)
 {
 	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t));
+	void* stream = malloc(sizeof(uint32_t) + sizeof(int));
 	int desplazamiento = 0;
 
 	memcpy(stream + desplazamiento, &cantidad, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	memcpy(stream + desplazamiento, &tarea, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
+	memcpy(stream + desplazamiento, &tarea, sizeof(int));
+	desplazamiento += sizeof(int);
 
 	buffer->size = desplazamiento;
 	buffer->stream = stream;
@@ -198,8 +198,13 @@ t_sabotaje* recibir_datos_sabotaje(int socket_cliente)
 	buffer = recibir_buffer(&size, socket_cliente);
 	memcpy(&(data->x), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
+
 	memcpy(&(data->y), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
+
+
+	printf("POS X: %d\n", data->x);
+	printf("POS Y: %d\n", data->y);
 
 	free(buffer);
 	return data;
@@ -226,20 +231,25 @@ char* recibir_bitacora(int socket_cliente)
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
-
-	buffer = recibir_buffer(&size, socket_cliente);
-
 	uint32_t bit_len;
-	memcpy(&bit_len, (buffer+desplazamiento), sizeof(uint32_t));
+
+	puts("1");
+	buffer = recibir_buffer(&size, socket_cliente);
+	puts("2");
+
+	memcpy(&bit_len, buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
+	printf("LARGO: %d\n", bit_len);
 
 	char* bit = malloc(bit_len);
-	memcpy(bit, buffer+desplazamiento, bit_len);
+	puts("3");
+
+	memcpy((bit), buffer+desplazamiento, bit_len);
 	desplazamiento += bit_len;
+	printf("BITACORA: %s\n", bit);
 
 	free(buffer);
 	return bit;
-	return NULL;
 }
 
 t_tarea* recibir_tarea(int socket_cliente) {

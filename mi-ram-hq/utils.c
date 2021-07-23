@@ -178,7 +178,7 @@ t_pcb* recibir_pcb(int socket_cliente){
 	memcpy(&cantidad_tripulantes, buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
 
-	void* tareas_len = malloc(sizeof(uint32_t));
+	uint32_t tareas_len;
 	memcpy(&tareas_len, (buffer+desplazamiento), sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
@@ -213,14 +213,14 @@ void recibir_cambio_estado(int socket_cliente) {
 	int desplazamiento = 0;
 	buffer = recibir_buffer(&size, socket_cliente);
 
-	void* tid = malloc(sizeof(uint32_t));
+	uint32_t tid;
 	memcpy(&(tid), (buffer+desplazamiento), sizeof(uint32_t));
 
 	printf("tip id: %d\n", (tid));
 
 	desplazamiento += sizeof(uint32_t);
 
-	void* nuevo_estado = malloc(sizeof(char));
+	char nuevo_estado;
 	memcpy(&(nuevo_estado), (buffer+desplazamiento), sizeof(char));
 
 	printf("nuevo estado: %c\n", (char)(nuevo_estado));
@@ -272,3 +272,93 @@ void recibir_eliminar_tripulante(int socket_cliente) {
 
 	free(buffer);
 }
+
+
+//DE ACA PARA ABAJO SON DESERIALIZACIONES DE I-MONGO-STORE
+
+void recibir_pedir_bitacora(int socket_cliente) {
+	int size;
+	void* buffer;
+	uint32_t id;
+	int desplazamiento = 0;
+
+	puts("BITACORA SOLICITADA");
+
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	memcpy(&id, buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
+	printf("TRIP A BUSCAR BITACORA: %d\n", id);
+
+	free(buffer);
+}
+
+void recibir_invocar_fsck(int socket_cliente) {
+	int size;
+	void* buffer;
+	uint32_t id;
+	int desplazamiento = 0;
+
+	puts("Invoca FSCK");
+
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	memcpy(&id, buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
+	printf("TRIP QUE INVOCÓ: %d\n", id);
+
+	free(buffer);
+}
+
+
+void recibir_hacer_tarea(int socket_cliente) {
+	int size;
+	void* buffer;
+	int desplazamiento = 0;
+	buffer = recibir_buffer(&size, socket_cliente);
+	uint32_t cantidad;
+	int tarea;
+
+	puts("HACER TAREA");
+
+	memcpy(&(cantidad), buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento+=sizeof(uint32_t);
+
+	memcpy(&(tarea), buffer+desplazamiento, sizeof(int));
+	desplazamiento+=sizeof(int);
+
+	printf("CANTIDAD: %d\n", cantidad);
+	printf("NUMERO TAREA: %d\n", tarea);
+
+	free(buffer);
+}
+
+
+void recibir_rbitacora(int socket_cliente) {
+	int size;
+	int desplazamiento = 0;
+	void* buffer;
+	uint32_t len;
+	uint32_t id;
+	char* reporte;
+	printf("REPORTE DE BITACORA RECIBIDO\n");
+	buffer = recibir_buffer(&size, socket_cliente);
+
+	memcpy(&id, buffer+desplazamiento, sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	memcpy(&(len), (buffer+desplazamiento), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
+
+	reporte = malloc(len);
+	memcpy((reporte), buffer+desplazamiento, len);
+	desplazamiento += len;
+
+	printf("TRIPULANTE: %d\n", id);
+	printf("REPORTE: %s\n", reporte);
+
+	free(buffer);
+}
+
