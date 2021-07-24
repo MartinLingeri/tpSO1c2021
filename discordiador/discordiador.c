@@ -152,7 +152,7 @@ void* esperar_conexion() {
 		case BITACORA:
 			bitacora = recibir_bitacora(cliente);
 
-			log_info(logger, bitacora);
+			//log_info(logger, bitacora);
 			puts("4");
 			//pthread_mutex_unlock(&logs);
 			break;

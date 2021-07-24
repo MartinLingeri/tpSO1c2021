@@ -202,7 +202,6 @@ t_sabotaje* recibir_datos_sabotaje(int socket_cliente)
 	memcpy(&(data->y), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
 
-
 	printf("POS X: %d\n", data->x);
 	printf("POS Y: %d\n", data->y);
 
@@ -226,30 +225,25 @@ uint32_t recibir_hay_lugar(int socket_cliente)
 	return dato;
 }
 
-char* recibir_bitacora(int socket_cliente)
-{
+char* recibir_bitacora(int socket_cliente) {
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
-	uint32_t bit_len;
+	uint32_t len;
+	uint32_t id;
+	char* reporte;
 
-	puts("1");
 	buffer = recibir_buffer(&size, socket_cliente);
-	puts("2");
 
-	memcpy(&bit_len, buffer+desplazamiento, sizeof(uint32_t));
+	memcpy(&(len), (buffer+desplazamiento), sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
-	printf("LARGO: %d\n", bit_len);
 
-	char* bit = malloc(bit_len);
-	puts("3");
-
-	memcpy((bit), buffer+desplazamiento, bit_len);
-	desplazamiento += bit_len;
-	printf("BITACORA: %s\n", bit);
+	reporte = malloc(len);
+	memcpy((reporte), buffer+desplazamiento, len);
+	desplazamiento += len;
 
 	free(buffer);
-	return bit;
+	return reporte;
 }
 
 t_tarea* recibir_tarea(int socket_cliente) {

@@ -254,3 +254,31 @@
 [ERROR] 20:21:49:176 discordiador/(16171:16175): I-Mongo-Store se desconecto. Terminando servidor
 [INFO] 20:22:04:608 discordiador/(16171:16171): 0 - Finalizando discordiador
 [INFO] 20:22:04:608 discordiador/(16171:16171): 0 - Discordiador finalizado correctamente
+[INFO] 16:51:35:526 discordiador/(4722:4722): Iniciando Discordiador
+[INFO] 16:51:35:562 discordiador/(4722:4722): Discordiador iniciado correctamente
+[INFO] 16:51:35:562 discordiador/(4722:4722): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:51:35:563 discordiador/(4722:4725): Se conecto un cliente!
+[INFO] 16:52:40:799 discordiador/(4722:4722): 0 - Finalizando discordiador
+[INFO] 16:52:40:799 discordiador/(4722:4722): 0 - Discordiador finalizado correctamente
+[ERROR] 16:52:40:800 discordiador/(4722:4725): I-Mongo-Store se desconecto. Terminando servidor
+[INFO] 16:52:48:907 discordiador/(4788:4788): Iniciando Discordiador
+[INFO] 16:52:48:908 discordiador/(4788:4788): Discordiador iniciado correctamente
+[INFO] 16:52:48:908 discordiador/(4788:4788): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:52:48:908 discordiador/(4788:4791): Se conecto un cliente!
+[INFO] 16:53:34:388 discordiador/(4788:4788): Iniciando atención de sabotaje
+[INFO] 16:54:28:867 discordiador/(4823:4823): Iniciando Discordiador
+[INFO] 16:54:28:868 discordiador/(4823:4823): Discordiador iniciado correctamente
+[INFO] 16:54:28:868 discordiador/(4823:4823): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:54:28:868 discordiador/(4823:4826): Se conecto un cliente!
+[ERROR] 16:54:31:333 discordiador/(4823:4823): Instrucción no reconocida
+[INFO] 16:54:32:352 discordiador/(4823:4823): 0 - Finalizando discordiador
+[INFO] 16:54:32:352 discordiador/(4823:4823): 0 - Discordiador finalizado correctamente
+[INFO] 16:54:45:011 discordiador/(4849:4849): Iniciando Discordiador
+[INFO] 16:54:45:011 discordiador/(4849:4849): Discordiador iniciado correctamente
+[INFO] 16:54:45:011 discordiador/(4849:4849): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:54:50:295 discordiador/(4849:4849): 0 - Iniciando Patota
+[INFO] 16:54:52:296 discordiador/(4849:4849): 0 - Tripulante iniciado 
+[INFO] 16:54:52:296 discordiador/(4849:4849): 0 - Patota iniciada 
+[INFO] 16:54:55:322 discordiador/(4849:4849): Iniciando atención de sabotaje
+[INFO] 16:54:58:323 discordiador/(4849:4849): FSCK invocado
+[INFO] 16:55:18:324 discordiador/(4849:4849): Sabotaje atendido correctamente
