@@ -1,5 +1,6 @@
 #include "mi-ram-hq.h"
-
+#include "paginacion.c"
+#include "segmentacion.c"
 
 pthread_mutex_t discordiador;
 
@@ -7,7 +8,7 @@ int main(void) {
 
 	logger = iniciar_logger();
 	config = leer_config();
-/*
+
 	//Carga si es PAGINACION o SEGMENTACION del archivo de config
 	char* esquema_memoria = config_get_string_value(config, "ESQUEMA_MEMORIA");
 
@@ -20,7 +21,7 @@ int main(void) {
 
 	t_list* lista_de_segmentos = list_create();
 	mostrar_lista_de_segmentos(lista_de_segmentos);
-
+/*
 	//Dibuja el mapa inicial vacío
 	NIVEL* nivel;
 
@@ -49,88 +50,144 @@ int main(void) {
 	log_info(logger, "Servidor listo para recibir al cliente");
 	int cliente_fd = esperar_cliente(server_fd);
 	t_tcb* tripulante = malloc(sizeof(t_tcb));
-	t_pcb* patota = malloc(sizeof(t_pcb));
+	t_iniciar_patota *iniciarPatota = malloc(sizeof(t_iniciar_patota));
+	uint32_t tid;
 	t_paquete* paquete;
 	t_buffer* buffer;
 	uint32_t id;
 	int conexion = crear_conexion("127.0.0.1", "5002");
-	while(1)
-	{
-		int cod_op = recibir_operacion(cliente_fd);
-		switch(cod_op)
-		{
-		case TCB_MENSAJE:
-			tripulante = recibir_tcb(cliente_fd);
-			//mostrar_tcb(tripulante);
+	if(strcmp(esquema_memoria,"PAGINACION")==0){
+		uint32_t tamanio_pagina = config_get_int_value(config,"TAMANIO_PAGINA");
+		listaDeTablasDePaginas=list_create();
+		crear_lista_de_frames(inicio_memoria, listaDeFrames, tamanio_memoria, tamanio_pagina);
+		while(1){
+			int cod_op = recibir_operacion(cliente_fd);
+			switch(cod_op){
+				case TCB_MENSAJE:
+					tripulante = recibir_tcb(cliente_fd);
+					cargar_tripulante_paginacion(listaDeFrames, listaDeTablasDePaginas, tamanio_pagina, tripulante);
+					break;
+				case PCB_MENSAJE:
+					iniciarPatota = recibir_pcb(cliente_fd);
+					if(hay_espacio_disponible(listaDeFrames, tamanio_pagina, iniciarPatota->cantTripulantes,strlen(iniciarPatota->tareas))){
+						buffer=serializar_test(1);
+						paquete=crear_mensaje(buffer,1);
+						enviar_paquete(paquete,conexion);
+						cargar_pcb_paginacion(listaDeFrames, listaDeTablasDePaginas, tamanio_pagina, iniciarPatota->pid);
+						cargar_tareas_paginacion(listaDeFrames, listaDeTablasDePaginas, tamanio_pagina, iniciarPatota->pid, iniciarPatota->tareas);
+					}else{
+						buffer=serializar_test(0);
+						paquete=crear_mensaje(buffer,1);
+						enviar_paquete(paquete,conexion);
+					}
+					break;
+				case PEDIR_SIGUIENTE_TAREA:
+					tid = recibir_pedir_tarea(cliente_fd);
+					char *proximaTarea=proxima_instruccion_tripulante_paginacion(listaDeTablasDePaginas, tid);
+					buffer=serializar_tarea(id,proximaTarea);
+					paquete=crear_mensaje(buffer,3);
+					enviar_paquete(paquete,conexion);
+					break;
+				case CAMBIO_ESTADO_MENSAJE:
+					tripulante = recibir_cambio_estado(cliente_fd);
+					modificar_estado_tripulante(listaDeTablasDePaginas,tripulante->tid, tripulante->estado);
+					break;
+				case DESPLAZAMIENTO:
+					tripulante=recibir_desplazamiento(cliente_fd);
+					modificar_posicion_tripulante(listaDeTablasDePaginas, tripulante->tid, tripulante->pos_x, tripulante->pos_y);
+					break;
+				case ELIMINAR_TRIPULANTE:
+					tid=recibir_eliminar_tripulante(cliente_fd);
+					eliminar_tripulante_paginacion(listaDeTablasDePaginas, tid);
+					break;
+				case -1:
+					log_error(logger, "El cliente se desconecto. Terminando servidor");
+					return EXIT_FAILURE;
+				default:
+					break;
+				}
+			}
+	}else if(strcmp(esquema_memoria,"SEGMENTACION")==0){
+		while(1){
+			int cod_op = recibir_operacion(cliente_fd);
+			switch(cod_op){
+				case TCB_MENSAJE:
+					tripulante = recibir_tcb(cliente_fd);
+					//mostrar_tcb(tripulante);
 
-			break;
+					break;
 
-		case PCB_MENSAJE:
-			patota = recibir_pcb(cliente_fd);
-			puts("Respondiendo a DS");
-			uint32_t a = 1; //1 si hay lugar 0 si no
-			buffer = serializar_hay_lugar_memoria(a);
-			paquete = crear_mensaje(buffer, 1);
-			enviar_paquete(paquete, conexion);
-			break;
+				case PCB_MENSAJE:
+					patota = recibir_pcb(cliente_fd);
+					puts("Respondiendo a DS");
+					uint32_t a = 1; //1 si hay lugar 0 si no
+					buffer = serializar_hay_lugar_memoria(a);
+					paquete = crear_mensaje(buffer, 1);
+					enviar_paquete(paquete, conexion);
+					break;
 
-		case PEDIR_SIGUIENTE_TAREA:
-			id = recibir_pedir_tarea(cliente_fd);
-			puts("Respondiendo a pedir tarea");
-			printf("ID A CONTESTAR: %d\n", id);
-			/*buffer = serializar_tarea(id,"GENERAR_OXIGENO 12;2;3;5");
-			paquete = crear_mensaje(buffer, 3);
-			enviar_paquete(paquete, conexion);*/
-			free(buffer);
-			break;
+				case PEDIR_SIGUIENTE_TAREA:
+					id = recibir_pedir_tarea(cliente_fd);
+					puts("Respondiendo a pedir tarea");
+					printf("ID A CONTESTAR: %d\n", id);
+					/*buffer = serializar_tarea(id,"GENERAR_OXIGENO 12;2;3;5");
+					paquete = crear_mensaje(buffer, 3);
+					enviar_paquete(paquete, conexion);*/
+					free(buffer);
+					break;
 
-		case CAMBIO_ESTADO_MENSAJE:
-			recibir_cambio_estado(cliente_fd);
-			break;
+				case CAMBIO_ESTADO_MENSAJE:
+					recibir_cambio_estado(cliente_fd);
+					break;
 
-		case DESPLAZAMIENTO:
-			recibir_desplazamiento(cliente_fd);
+				case DESPLAZAMIENTO:
+					recibir_desplazamiento(cliente_fd);
 
-			break;
+					break;
 
-		case ELIMINAR_TRIPULANTE:
-			recibir_eliminar_tripulante(cliente_fd);
+				case ELIMINAR_TRIPULANTE:
+					recibir_eliminar_tripulante(cliente_fd);
 
-			/*buffer = serializar_bitacora(bitacora_de_prueba);
-			puts("a");
-			paquete = crear_mensaje(buffer, 1);
-			puts("b");
-			enviar_paquete(paquete, conexion);
-			puts("c");
-			free(buffer);*/
-			break;
+					/*buffer = serializar_bitacora(bitacora_de_prueba);
+					puts("a");
+					paquete = crear_mensaje(buffer, 1);
+					puts("b");
+					enviar_paquete(paquete, conexion);
+					puts("c");
+					free(buffer);*/
+					break;
 
-		case REPORTE_BITACORA:
-			recibir_rbitacora(cliente_fd);
-			break;
+				case REPORTE_BITACORA:
+					recibir_rbitacora(cliente_fd);
+					break;
 
-		case HACER_TAREA:
-			recibir_hacer_tarea(cliente_fd);
-			break;
+				case HACER_TAREA:
+					recibir_hacer_tarea(cliente_fd);
+					break;
 
-		case PEDIR_BITACORA:
-			recibir_pedir_bitacora(cliente_fd);
-			break;
+				case PEDIR_BITACORA:
+					recibir_pedir_bitacora(cliente_fd);
+					break;
 
-		case INVOCAR_FSCK:
-			recibir_invocar_fsck(cliente_fd);
-			break;
+				case INVOCAR_FSCK:
+					recibir_invocar_fsck(cliente_fd);
+					break;
 
-		case -1:
-			log_error(logger, "El cliente se desconecto. Terminando servidor");
+				case -1:
+					log_error(logger, "El cliente se desconecto. Terminando servidor");
+					return EXIT_FAILURE;
+
+				default:
+					break;
+				}
+			}
+		}else{
+			log_error(logger,"Esquema de memoria no valido");
 			return EXIT_FAILURE;
-
-		default:
-			break;
 		}
 	}
 	free(tripulante);
-	free(patota);
+	free(iniciarPatota);
 	free(inicio_memoria);
 	terminar_programa();
 

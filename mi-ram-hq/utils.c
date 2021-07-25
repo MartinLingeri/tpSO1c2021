@@ -161,34 +161,28 @@ t_tcb* recibir_tcb(int socket_cliente){
 	return tripulante;
 }
 
-t_pcb* recibir_pcb(int socket_cliente){
-	puts("RECIBE PCB");
+t_iniciar_patota* recibir_pcb(int socket_cliente){
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
-	t_pcb* patota = malloc(sizeof(t_pcb));
+	t_iniciar_patota* patota = malloc(sizeof(t_iniciar_patota));
 
 	buffer = recibir_buffer(&size, socket_cliente);
 
 	memcpy(&(patota->pid), (buffer+desplazamiento), sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
 
-	void* cantidad_tripulantes = malloc(sizeof(uint32_t));
-
-	memcpy(&cantidad_tripulantes, buffer+desplazamiento, sizeof(uint32_t));
+	memcpy(&(patota->cantTripulantes), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
 
-	uint32_t tareas_len;
+	void* tareas_len = malloc(sizeof(uint32_t));
 	memcpy(&tareas_len, (buffer+desplazamiento), sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	patota->tareas = malloc(tareas_len);
 	memcpy(patota->tareas, buffer+desplazamiento, tareas_len);
-	desplazamiento += tareas_len;
 
 	free(buffer);
 	return patota;
-	/*CHEQUEAR QUE SE VAN A PODER GUARDAR TODOS LOS TRIPULANTES Y MANDAR SI ESTA OK O SI NO SE VAN A PODER GUARDAR EN MEMORIA*/
 }
 
 uint32_t recibir_pedir_tarea(int socket_cliente) {
@@ -207,72 +201,53 @@ uint32_t recibir_pedir_tarea(int socket_cliente) {
 	return tid;
 }
 
-void recibir_cambio_estado(int socket_cliente) {
+t_tcb* recibir_cambio_estado(int socket_cliente) {
 	int size;
 	void* buffer;
 	int desplazamiento = 0;
 	buffer = recibir_buffer(&size, socket_cliente);
+	t_tcb *est=malloc(sizeof(t_tcb));
 
-	uint32_t tid;
-	memcpy(&(tid), (buffer+desplazamiento), sizeof(uint32_t));
-
-	printf("tip id: %d\n", (tid));
-
+	memcpy(&(est->tid), (buffer+desplazamiento), sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
-	char nuevo_estado;
-	memcpy(&(nuevo_estado), (buffer+desplazamiento), sizeof(char));
-
-	printf("nuevo estado: %c\n", (char)(nuevo_estado));
+	memcpy(&(est->estado), (buffer+desplazamiento), sizeof(char));
 
 	free(buffer);
-	/*DEVOLVER PROXIMA TAREA, SI ERA LA ULTIMA Y NO HAY MAS, CHAR* VACIO*/
+	return est;
 }
 
-void recibir_desplazamiento(int socket_cliente) {
+t_tcb* recibir_desplazamiento(int socket_cliente) {
 	int size;
 	void* buffer;
 	int desplazamiento = 0;
 	buffer = recibir_buffer(&size, socket_cliente);
+	t_tcb *des=malloc(sizeof(t_tcb));
 
-	puts("Llega desplazamiento");
+	memcpy(&(des->tid), (buffer), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-	t_despl* des = malloc(sizeof(t_despl));
+	memcpy(&(des->pos_x), (buffer), sizeof(uint32_t));
+	desplazamiento += sizeof(uint32_t);
 
-	memcpy(&(des->tid), buffer+desplazamiento, sizeof(uint32_t));
-	desplazamiento+=sizeof(uint32_t);
-
-	memcpy(&(des->pos_x), buffer+desplazamiento, sizeof(uint32_t));
-	desplazamiento+=sizeof(uint32_t);
-
-	memcpy(&(des->pos_y), buffer+desplazamiento, sizeof(uint32_t));
-	desplazamiento+=sizeof(uint32_t);
-
-	printf("TID: %d\n", des->tid);
-	printf("POS X: %d\n", des->pos_x);
-	printf("ṔOS Y: %d\n", des->pos_y);
+	memcpy(&(des->pos_y), (buffer), sizeof(uint32_t));
 
 	free(buffer);
+	return des;
 }
 
-void recibir_eliminar_tripulante(int socket_cliente) {
+uint32_t recibir_eliminar_tripulante(int socket_cliente) {
 	int size;
 	void* buffer;
-	uint32_t id;
-	int desplazamiento = 0;
-
-	puts("Llega eliminar tripulante");
-
 	buffer = recibir_buffer(&size, socket_cliente);
 
-	memcpy(&id, buffer+desplazamiento, sizeof(uint32_t));
-	desplazamiento+=sizeof(uint32_t);
+	uint32_t *tid = malloc(sizeof(uint32_t));
 
-	printf("TRIP A EXPULSAR: %d\n", id);
+	memcpy(&(tid), (buffer), sizeof(uint32_t));
 
 	free(buffer);
+	return (*tid);
 }
-
 
 //DE ACA PARA ABAJO SON DESERIALIZACIONES DE I-MONGO-STORE
 

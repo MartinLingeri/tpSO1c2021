@@ -10,6 +10,8 @@
 #include<commons/config.h>
 #include<commons/collections/list.h>
 #include<string.h>
+#include<semaphore.h>
+#include<stdbool.h>
 
 typedef struct{
 	uint32_t size;
@@ -57,26 +59,51 @@ typedef struct{
 }t_despl;
 
 typedef struct{
+	uint32_t pid;
+	uint32_t cantTripulantes;
+	char *tareas;
+}t_iniciar_patota;
+
+typedef struct{
 	uint32_t idPatota;
-	void *paginas;
-}tabla_de_paginas;
+	uint32_t cantPaginas;
+	t_list *paginas;
+}t_tabla_de_paginas;
+
+typedef struct{
+	uint32_t nroFrame;
+	uint32_t espacioLibre;
+	void *inicio;
+	t_list *datos;
+}t_frame;
 
 typedef struct{
 	uint32_t nroPagina;
-	void *frame;
-}pagina;
+	uint32_t bitPresencia;
+	uint32_t bitUso;
+	uint32_t bitModificado;
+	t_frame *frame;
+}t_pagina;
+
+typedef enum{
+	PCB,
+	TAREAS,
+	TCB
+}tipo_contenido;
 
 typedef struct{
-	bool libre;
+	tipo_contenido tipoContenido;
 	t_pcb *pcb;
 	char *tareas;
 	t_tcb *tcb;
-}frame;
+}t_dato_en_frame;
 
-
-t_list listaDeTablasDePaginas;
-t_list listaDeFrames;
+t_list *listaDeTablasDePaginas;
+t_list *listaDeFrames;
 void *puntero_memoria_principal;
+sem_t* sem_ocupar_frame;
+sem_t* sem_mutex_eliminar_pagina;
+sem_t* sem_mutex_liberar_frame;
 
 t_log* logger;
 t_config* config;
