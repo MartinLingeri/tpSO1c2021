@@ -100,6 +100,30 @@ int main(void) {
 					tid=recibir_eliminar_tripulante(cliente_fd);
 					eliminar_tripulante_paginacion(listaDeTablasDePaginas, tid);
 					break;
+				case REPORTE_BITACORA:
+					recibir_rbitacora(cliente_fd);
+
+					buffer = serializar_bitacora(bitacora_de_prueba);
+					puts("a");
+					paquete = crear_mensaje(buffer, 0);
+					puts("b");
+					enviar_paquete(paquete, conexion);
+					puts("c");
+					free(buffer);
+					break;
+
+				case HACER_TAREA:
+					recibir_hacer_tarea(cliente_fd);
+					break;
+
+				case PEDIR_BITACORA:
+					recibir_pedir_bitacora(cliente_fd);
+					break;
+
+				case INVOCAR_FSCK:
+					recibir_invocar_fsck(cliente_fd);
+					break;
+
 				case -1:
 					log_error(logger, "El cliente se desconecto. Terminando servidor");
 					return EXIT_FAILURE;
@@ -118,7 +142,7 @@ int main(void) {
 					break;
 
 				case PCB_MENSAJE:
-					patota = recibir_pcb(cliente_fd);
+					iniciarPatota = recibir_pcb(cliente_fd);
 					puts("Respondiendo a DS");
 					uint32_t a = 1; //1 si hay lugar 0 si no
 					buffer = serializar_hay_lugar_memoria(a);
@@ -147,18 +171,18 @@ int main(void) {
 
 				case ELIMINAR_TRIPULANTE:
 					recibir_eliminar_tripulante(cliente_fd);
-
-					/*buffer = serializar_bitacora(bitacora_de_prueba);
-					puts("a");
-					paquete = crear_mensaje(buffer, 1);
-					puts("b");
-					enviar_paquete(paquete, conexion);
-					puts("c");
-					free(buffer);*/
 					break;
 
 				case REPORTE_BITACORA:
 					recibir_rbitacora(cliente_fd);
+
+					buffer = serializar_bitacora(bitacora_de_prueba);
+					puts("a");
+					paquete = crear_mensaje(buffer, 0);
+					puts("b");
+					enviar_paquete(paquete, conexion);
+					puts("c");
+					free(buffer);
 					break;
 
 				case HACER_TAREA:
@@ -183,9 +207,7 @@ int main(void) {
 			}
 		}else{
 			log_error(logger,"Esquema de memoria no valido");
-			return EXIT_FAILURE;
 		}
-	}
 	free(tripulante);
 	free(iniciarPatota);
 	free(inicio_memoria);
@@ -298,23 +320,18 @@ t_buffer* serializar_sabotaje(uint32_t x, uint32_t y)
 	return buffer;
 }
 
-t_buffer* serializar_bitacora(char* bitacora)
+t_buffer* serializar_bitacora(char* reporte)
 {
 	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t) + sizeof(bitacora) + 1);
-
+	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + strlen(reporte) + 1);
 	int desplazamiento = 0;
-	uint32_t bit_len;
-	bit_len = strlen(bitacora) + 1;
-	printf("BITACORA: %s\n", bitacora);
 
-	memcpy(stream + desplazamiento, (void*)(&bit_len), sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-	puts("1");
-
-	memcpy(stream + desplazamiento, bitacora, strlen(bitacora) + 1);
-	desplazamiento += strlen(bitacora) + 1;
-	puts("2");
+	uint32_t  reporte_len;
+	reporte_len = strlen(reporte) + 1;
+	memcpy(stream + desplazamiento, (void*)(&reporte_len), sizeof(uint32_t));
+	desplazamiento += sizeof(strlen(reporte) + 1);
+	memcpy(stream + desplazamiento, reporte, strlen(reporte) + 1);
+	desplazamiento += strlen(reporte) + 1;
 
 	buffer->size = desplazamiento;
 	buffer->stream = stream;
