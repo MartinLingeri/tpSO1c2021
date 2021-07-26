@@ -282,3 +282,16 @@
 [INFO] 16:54:55:322 discordiador/(4849:4849): Iniciando atención de sabotaje
 [INFO] 16:54:58:323 discordiador/(4849:4849): FSCK invocado
 [INFO] 16:55:18:324 discordiador/(4849:4849): Sabotaje atendido correctamente
+[INFO] 17:55:34:072 discordiador/(4180:4180): Iniciando Discordiador
+[INFO] 17:55:34:109 discordiador/(4180:4180): Discordiador iniciado correctamente
+[INFO] 17:55:34:109 discordiador/(4180:4180): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 17:57:23:135 discordiador/(4286:4286): Iniciando Discordiador
+[INFO] 17:57:23:166 discordiador/(4286:4286): Discordiador iniciado correctamente
+[INFO] 17:57:23:166 discordiador/(4286:4286): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 17:57:23:170 discordiador/(4286:4293): Se conecto un cliente!
+[INFO] 17:58:14:281 discordiador/(4286:4286): 0 - Finalizando discordiador
+[INFO] 17:58:14:281 discordiador/(4286:4286): 0 - Discordiador finalizado correctamente
+[ERROR] 17:58:14:282 discordiador/(4286:4293): I-Mongo-Store se desconecto. Terminando servidor
+[INFO] 18:22:19:946 discordiador/(5704:5704): Iniciando Discordiador
+[INFO] 18:22:20:024 discordiador/(5704:5704): Discordiador iniciado correctamente
+[INFO] 18:22:20:024 discordiador/(5704:5704): Ingrese instrucción por consola. *FIN* para terminar

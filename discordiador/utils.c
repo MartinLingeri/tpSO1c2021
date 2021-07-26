@@ -1,5 +1,10 @@
 #include "utils.h"
 
+
+int quantum = 0;
+int conexion_hq = -1;
+int conexion_store = -1;
+
 void* serializar_paquete(t_paquete* paquete, int bytes)
 {
 	void * buffer_serializado = malloc(bytes);
@@ -79,6 +84,51 @@ void* recibir_buffer(int* size, int socket_cliente)
 	return buffer;
 }
 
+int esperar_cliente(int socket_servidor)
+{
+	struct sockaddr_in dir_cliente;
+	uint32_t tam_direccion = sizeof(struct sockaddr_in);
+
+	int socket_cliente = accept(socket_servidor, (void*) &dir_cliente, &tam_direccion);
+
+	log_info(logger, "Se conecto un cliente!");
+
+	return socket_cliente;
+}
+
+int iniciar_servidor(char* ip, char* puerto)
+{
+	int socket_servidor;
+
+    struct addrinfo hints, *servinfo, *p;
+
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+
+    getaddrinfo(ip, puerto, &hints, &servinfo);
+
+    for (p=servinfo; p != NULL; p = p->ai_next)
+    {
+        if ((socket_servidor = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
+            continue;
+
+        if (bind(socket_servidor, p->ai_addr, p->ai_addrlen) == -1) {
+            close(socket_servidor);
+            continue;
+        }
+        break;
+    }
+
+	listen(socket_servidor, SOMAXCONN);
+    freeaddrinfo(servinfo);
+
+    log_trace(logger, "Listo para escuchar a mi cliente");
+    return socket_servidor;
+}
+
+
 void mover_a(t_tripulante* tripulante, bool es_x, int valor_nuevo, int retardo_ciclo_cpu) {
       if(es_x) {
 			if(tripulante->pos_x < valor_nuevo) {
@@ -155,4 +205,39 @@ int longitud_instr(char** instruccion) {
 double distancia(t_tripulante* trip, int x, int y){
     double valor = ((x - trip->pos_x)*(x - trip->pos_x) + (y - trip->pos_y)*(y - trip->pos_y));
     return sqrt(valor);
+}
+
+
+t_tripulante* buscar_tripulante(int id){
+	bool es_el_tripulante(void* tripulante_en_lista) {
+		return ((t_tripulante*)tripulante_en_lista)->TID == id;
+	}
+	if(list_any_satisfy(llegada, es_el_tripulante)){
+		t_tripulante* tripulante = list_find(llegada,es_el_tripulante);
+	    return tripulante;
+	}else{
+		t_tripulante* tripulante = list_find(listo,es_el_tripulante);
+	    return tripulante;
+	}
+}
+
+
+void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_config* config){
+	void destruir_tripulante(t_tripulante* t){
+		sem_destroy(&(t->semaforo));
+	}
+
+	liberar_conexion(conexion_hq);
+	liberar_conexion(conexion_store);
+	config_destroy(config);
+	sem_destroy(&planif);
+	sem_destroy(&multiprog);
+	sem_destroy(&recibido_hay_lugar);
+	sem_destroy(&listo_para_trabajar);
+	list_destroy_and_destroy_elements(llegada,(void*)destruir_tripulante);
+	list_destroy_and_destroy_elements(listo,(void*)destruir_tripulante);
+	list_destroy_and_destroy_elements(fin,(void*)destruir_tripulante);
+	list_destroy_and_destroy_elements(trabajando,(void*)destruir_tripulante);
+	list_destroy_and_destroy_elements(bloqueado_IO,(void*)destruir_tripulante);
+	list_destroy_and_destroy_elements(bloqueado_emergencia,(void*)destruir_tripulante);
 }

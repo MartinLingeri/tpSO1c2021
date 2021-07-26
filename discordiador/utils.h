@@ -13,6 +13,11 @@
 #include<commons/collections/list.h>
 #include<math.h>
 #include<commons/config.h>
+#include<pthread.h>
+
+extern int quantum;
+extern int conexion_hq;
+extern int conexion_store;
 
 t_log* logger;
 t_config* config;
@@ -121,7 +126,6 @@ typedef struct{
 	char* tarea_txt;
 }t_tarea;
 
-
 void* serializar_paquete(t_paquete* paquete, int bytes);
 void enviar_paquete(t_paquete* paquete, int socket_cliente);
 int crear_conexion(char* ip, char* puerto);
@@ -129,11 +133,15 @@ t_paquete* crear_mensaje(t_buffer* buffer, op_code codigo);
 void eliminar_paquete(t_paquete* paquete);
 void liberar_conexion(int socket_cliente);
 void* recibir_buffer(int* size, int socket_cliente);
+int iniciar_servidor(char* ip, char* puerto);
+int esperar_cliente(int socket_servidor);
 
 void mover_a(t_tripulante* tripulante, bool xOy, int valor_nuevo, int retardo_ciclo_cpu);
 char estado_a_char(int estado);
 int atoi_tarea(char* tarea);
 int longitud_instr(char** instruccion);
 double distancia(t_tripulante* trip, int x, int y);
+t_tripulante* buscar_tripulante(int id);
+void terminar_programa(int conexion_hq, int conexion_store, t_log* logger, t_config* config);
 
 #endif /* UTILS_H_ */

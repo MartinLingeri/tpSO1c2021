@@ -230,7 +230,6 @@ char* recibir_bitacora(int socket_cliente) {
 	int desplazamiento = 0;
 	void* buffer;
 	uint32_t len;
-	uint32_t id;
 	char* reporte;
 
 	buffer = recibir_buffer(&size, socket_cliente);
