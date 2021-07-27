@@ -43,7 +43,7 @@ void cambiar_estado(int estado_anterior, int estado_nuevo, t_tripulante* tripula
     case e_listo:
         list_add(listo, tripulante);
         sem_post(&listo_para_trabajar);
-        printf("+1 Listo para trabajar");
+        printf("Pasa a listo el tripulante: %d\n", tripulante->TID);
         break;
     case e_fin:
         list_add(fin, tripulante);

@@ -23,8 +23,6 @@ typedef struct {
 
 void conexion_con_hq();
 void conexion_con_store();
-t_log* iniciar_logger(void);
-t_config* leer_config(void);
 int recibir_operacion(int socket_cliente);
 void* esperar_conexion();
 void leer_consola(t_log* logger);

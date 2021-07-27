@@ -104,8 +104,8 @@ t_buffer* serializar_reporte_bitacora(uint32_t id, char* reporte)
 
 	buffer->size = desplazamiento;
 	buffer->stream = stream;
-	printf("desplazamiento: %d\n", desplazamiento);
-	printf("stream: %d\n", sizeof(uint32_t) + sizeof(uint32_t) + strlen(reporte) + 1);
+	//printf("desplazamiento: %d\n", desplazamiento);
+	//printf("stream: %d\n", sizeof(uint32_t) + sizeof(uint32_t) + strlen(reporte) + 1);
 	return buffer;
 }
 

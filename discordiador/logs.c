@@ -44,9 +44,9 @@ void logear(int situacion, int dato){
 			log_info(logger,"%d - Solicita próxima tarea ", dato);
 			break;
 
-	/*	case COMENZANDO_TAREA:
+		case COMENZANDO_TAREA:
 			log_info(logger,"%d - Comienza ejecución de tarea ", dato);
-			break;*/
+			break;
 
 		/*case DESPLAZA_TAREA:
 			log_info(logger,"%d - Se desplaza hacia el lugar de la tarea ", dato);
@@ -55,10 +55,10 @@ void logear(int situacion, int dato){
 		case ESPERA_IO:
 			log_info(logger,"%d - Ejecutando I/O ", dato);
 			break;
-/*
+
 		case FINALIZA_TAREA:
 			log_info(logger,"%d - Tarea finalizada ", dato);
-			break;*/
+			break;
 
 		case FINALIZA_LISTA_TAREAS:
 			log_info(logger,"%d - Lista de tareas completada, fin de tripulante ", dato);
@@ -76,17 +76,17 @@ void logear(int situacion, int dato){
 			log_info(logger,"Sabotaje detectado en el sistema");
 			break;
 
-	/*	case COMIENZA_ATENDER_SABOTAJE:
+		case COMIENZA_ATENDER_SABOTAJE:
 			log_info(logger,"%d - Comienza a atender sabotaje ", dato);
-			break;*/
+			break;
 
 		case LLAMADO_FSCK:
 			log_info(logger,"FSCK invocado");
 			break;
 
-		/*case SABOTAJE_ATENDIDO:
+		case SABOTAJE_ATENDIDO:
 			log_info(logger,"%d - Sabotaje atendido ", dato);
-			break;*/
+			break;
 
 		case BITACORA_SOLICITADA:
 			log_info(logger,"%d - Bitácora solicitada ", dato);

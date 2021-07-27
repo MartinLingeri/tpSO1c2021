@@ -295,3 +295,318 @@
 [INFO] 18:22:19:946 discordiador/(5704:5704): Iniciando Discordiador
 [INFO] 18:22:20:024 discordiador/(5704:5704): Discordiador iniciado correctamente
 [INFO] 18:22:20:024 discordiador/(5704:5704): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:05:37:549 discordiador/(3989:3989): Iniciando Discordiador
+[INFO] 16:05:37:572 discordiador/(3989:3989): Discordiador iniciado correctamente
+[INFO] 16:05:37:572 discordiador/(3989:3989): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:05:37:572 discordiador/(3989:3992): Servidor listo para recibir al store
+[INFO] 16:05:59:398 discordiador/(3989:3989): 0 - Finalizando discordiador
+[INFO] 16:05:59:398 discordiador/(3989:3989): 0 - Discordiador finalizado correctamente
+[INFO] 16:16:42:495 discordiador/(4281:4281): Iniciando Discordiador
+[INFO] 16:16:42:608 discordiador/(4281:4281): Discordiador iniciado correctamente
+[INFO] 16:16:42:609 discordiador/(4281:4281): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:16:42:611 discordiador/(4281:4296): Servidor listo para recibir al store
+[INFO] 16:16:55:928 discordiador/(4281:4281): 0 - Iniciando Patota
+[INFO] 16:16:57:929 discordiador/(4281:4281): 0 - Tripulante iniciado 
+[INFO] 16:16:57:929 discordiador/(4281:4281): 1 - Tripulante iniciado 
+[INFO] 16:16:57:929 discordiador/(4281:4281): 0 - Patota iniciada 
+[INFO] 16:17:07:452 discordiador/(4281:4281): Planificación iniciada
+[INFO] 16:22:17:140 discordiador/(4523:4523): Iniciando Discordiador
+[INFO] 16:22:17:201 discordiador/(4523:4523): Discordiador iniciado correctamente
+[INFO] 16:22:17:201 discordiador/(4523:4523): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:22:17:221 discordiador/(4523:4530): Servidor listo para recibir al store
+[INFO] 16:22:24:215 discordiador/(4523:4523): 0 - Iniciando Patota
+[INFO] 16:22:26:216 discordiador/(4523:4523): 0 - Tripulante iniciado 
+[INFO] 16:22:26:216 discordiador/(4523:4523): 0 - Patota iniciada 
+[INFO] 16:22:30:762 discordiador/(4523:4523): 1 - Iniciando Patota
+[INFO] 16:22:32:763 discordiador/(4523:4523): 1 - Tripulante iniciado 
+[INFO] 16:22:32:763 discordiador/(4523:4523): 1 - Patota iniciada 
+[INFO] 16:22:39:612 discordiador/(4523:4523): Planificación iniciada
+[INFO] 16:22:47:616 discordiador/(4523:4535): 1 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:22:47:616 discordiador/(4523:4534): 0 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:24:01:979 discordiador/(4584:4584): Iniciando Discordiador
+[INFO] 16:24:01:986 discordiador/(4584:4584): Discordiador iniciado correctamente
+[INFO] 16:24:01:986 discordiador/(4584:4584): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:24:01:989 discordiador/(4584:4591): Servidor listo para recibir al store
+[INFO] 16:24:08:349 discordiador/(4584:4584): 0 - Iniciando Patota
+[INFO] 16:24:10:349 discordiador/(4584:4584): 0 - Tripulante iniciado 
+[INFO] 16:24:10:350 discordiador/(4584:4584): 1 - Tripulante iniciado 
+[INFO] 16:24:10:350 discordiador/(4584:4584): 0 - Patota iniciada 
+[INFO] 16:24:14:950 discordiador/(4584:4584): Planificación iniciada
+[INFO] 16:24:14:951 discordiador/(4584:4596): 1 - Comienza ejecución de tarea 
+[INFO] 16:24:14:951 discordiador/(4584:4595): 0 - Comienza ejecución de tarea 
+[INFO] 16:24:22:952 discordiador/(4584:4595): 0 - Tarea finalizada 
+[INFO] 16:24:22:953 discordiador/(4584:4595): 0 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:24:22:953 discordiador/(4584:4596): 1 - Tarea finalizada 
+[INFO] 16:24:22:953 discordiador/(4584:4596): 1 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:24:36:693 discordiador/(4584:4584): 0 - Listando tripulantes por consola
+[INFO] 16:25:08:636 discordiador/(4615:4615): Iniciando Discordiador
+[INFO] 16:25:08:638 discordiador/(4615:4615): Discordiador iniciado correctamente
+[INFO] 16:25:08:639 discordiador/(4615:4615): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:25:08:642 discordiador/(4615:4623): Servidor listo para recibir al store
+[INFO] 16:25:17:963 discordiador/(4615:4615): 0 - Iniciando Patota
+[INFO] 16:25:19:963 discordiador/(4615:4615): 0 - Tripulante iniciado 
+[INFO] 16:25:19:963 discordiador/(4615:4615): 1 - Tripulante iniciado 
+[INFO] 16:25:19:963 discordiador/(4615:4615): 2 - Tripulante iniciado 
+[INFO] 16:25:19:963 discordiador/(4615:4615): 0 - Patota iniciada 
+[INFO] 16:25:33:177 discordiador/(4615:4615): Iniciando atención de sabotaje
+[INFO] 16:25:36:178 discordiador/(4615:4615): FSCK invocado
+[INFO] 16:25:56:178 discordiador/(4615:4615): Sabotaje atendido correctamente
+[INFO] 16:25:56:178 discordiador/(4615:4615): 0 - Listando tripulantes por consola
+[INFO] 16:26:51:691 discordiador/(4658:4658): Iniciando Discordiador
+[INFO] 16:26:51:691 discordiador/(4658:4658): Discordiador iniciado correctamente
+[INFO] 16:26:51:691 discordiador/(4658:4658): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:26:51:692 discordiador/(4658:4666): Servidor listo para recibir al store
+[INFO] 16:27:03:110 discordiador/(4658:4658): 0 - Iniciando Patota
+[INFO] 16:27:05:111 discordiador/(4658:4658): 0 - Tripulante iniciado 
+[INFO] 16:27:05:111 discordiador/(4658:4658): 1 - Tripulante iniciado 
+[INFO] 16:27:05:111 discordiador/(4658:4658): 2 - Tripulante iniciado 
+[INFO] 16:27:05:111 discordiador/(4658:4658): 0 - Patota iniciada 
+[INFO] 16:27:08:358 discordiador/(4658:4658): 0 - Listando tripulantes por consola
+[INFO] 16:28:03:343 discordiador/(4658:4658): Planificación iniciada
+[INFO] 16:28:03:343 discordiador/(4658:4674): 2 - Comienza ejecución de tarea 
+[INFO] 16:28:03:343 discordiador/(4658:4673): 1 - Comienza ejecución de tarea 
+[INFO] 16:28:11:346 discordiador/(4658:4673): 1 - Tarea finalizada 
+[INFO] 16:28:11:346 discordiador/(4658:4673): 1 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:28:11:346 discordiador/(4658:4674): 2 - Tarea finalizada 
+[INFO] 16:28:11:346 discordiador/(4658:4674): 2 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:28:11:347 discordiador/(4658:4672): 0 - Comienza ejecución de tarea 
+[INFO] 16:28:19:350 discordiador/(4658:4672): 0 - Tarea finalizada 
+[INFO] 16:28:19:350 discordiador/(4658:4672): 0 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:28:37:466 discordiador/(4658:4658): 0 - Listando tripulantes por consola
+[INFO] 16:30:56:073 discordiador/(4753:4753): Iniciando Discordiador
+[INFO] 16:30:56:074 discordiador/(4753:4753): Discordiador iniciado correctamente
+[INFO] 16:30:56:074 discordiador/(4753:4753): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:30:56:077 discordiador/(4753:4760): Servidor listo para recibir al store
+[INFO] 16:31:02:861 discordiador/(4753:4753): 0 - Iniciando Patota
+[INFO] 16:31:04:862 discordiador/(4753:4753): 0 - Tripulante iniciado 
+[INFO] 16:31:04:862 discordiador/(4753:4753): 1 - Tripulante iniciado 
+[INFO] 16:31:04:862 discordiador/(4753:4753): 2 - Tripulante iniciado 
+[INFO] 16:31:04:863 discordiador/(4753:4753): 3 - Tripulante iniciado 
+[INFO] 16:31:04:863 discordiador/(4753:4753): 0 - Patota iniciada 
+[INFO] 16:31:09:982 discordiador/(4753:4753): Planificación iniciada
+[INFO] 16:31:09:983 discordiador/(4753:4783): 3 - Comienza ejecución de tarea 
+[INFO] 16:31:09:983 discordiador/(4753:4782): 2 - Comienza ejecución de tarea 
+[INFO] 16:31:17:985 discordiador/(4753:4782): 2 - Tarea finalizada 
+[INFO] 16:31:17:985 discordiador/(4753:4782): 2 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:31:17:985 discordiador/(4753:4783): 3 - Tarea finalizada 
+[INFO] 16:31:17:985 discordiador/(4753:4783): 3 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:31:17:985 discordiador/(4753:4781): 1 - Comienza ejecución de tarea 
+[INFO] 16:31:17:985 discordiador/(4753:4780): 0 - Comienza ejecución de tarea 
+[INFO] 16:31:25:989 discordiador/(4753:4780): 0 - Tarea finalizada 
+[INFO] 16:31:25:990 discordiador/(4753:4780): 0 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:31:25:990 discordiador/(4753:4781): 1 - Tarea finalizada 
+[INFO] 16:31:25:990 discordiador/(4753:4781): 1 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:35:19:515 discordiador/(4753:4753): 0 - Listando tripulantes por consola
+[INFO] 16:35:31:213 discordiador/(5039:5039): Iniciando Discordiador
+[INFO] 16:35:31:215 discordiador/(5039:5039): Discordiador iniciado correctamente
+[INFO] 16:35:31:215 discordiador/(5039:5039): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:35:31:216 discordiador/(5039:5046): Servidor listo para recibir al store
+[INFO] 16:35:38:400 discordiador/(5039:5039): 0 - Iniciando Patota
+[INFO] 16:35:40:400 discordiador/(5039:5039): 0 - Tripulante iniciado 
+[INFO] 16:35:40:401 discordiador/(5039:5039): 1 - Tripulante iniciado 
+[INFO] 16:35:40:401 discordiador/(5039:5039): 2 - Tripulante iniciado 
+[INFO] 16:35:40:401 discordiador/(5039:5039): 3 - Tripulante iniciado 
+[INFO] 16:35:40:401 discordiador/(5039:5039): 0 - Patota iniciada 
+[INFO] 16:35:47:290 discordiador/(5039:5039): 0 - Listando tripulantes por consola
+[INFO] 16:43:51:759 discordiador/(5213:5213): Iniciando Discordiador
+[INFO] 16:43:52:366 discordiador/(5213:5213): Discordiador iniciado correctamente
+[INFO] 16:43:52:366 discordiador/(5213:5213): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:43:52:369 discordiador/(5213:5220): Servidor listo para recibir al store
+[INFO] 16:43:58:612 discordiador/(5213:5213): 0 - Iniciando Patota
+[INFO] 16:44:00:613 discordiador/(5213:5213): 0 - Tripulante iniciado 
+[INFO] 16:44:00:613 discordiador/(5213:5213): 1 - Tripulante iniciado 
+[INFO] 16:44:00:613 discordiador/(5213:5213): 2 - Tripulante iniciado 
+[INFO] 16:44:00:613 discordiador/(5213:5213): 3 - Tripulante iniciado 
+[INFO] 16:44:00:613 discordiador/(5213:5213): 0 - Patota iniciada 
+[INFO] 16:44:25:162 discordiador/(5238:5238): Iniciando Discordiador
+[INFO] 16:44:25:162 discordiador/(5238:5238): Discordiador iniciado correctamente
+[INFO] 16:44:25:162 discordiador/(5238:5238): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:44:25:163 discordiador/(5238:5245): Servidor listo para recibir al store
+[INFO] 16:44:29:881 discordiador/(5238:5238): 0 - Iniciando Patota
+[INFO] 16:44:31:882 discordiador/(5238:5238): 0 - Tripulante iniciado 
+[INFO] 16:44:31:882 discordiador/(5238:5238): 1 - Tripulante iniciado 
+[INFO] 16:44:31:882 discordiador/(5238:5238): 2 - Tripulante iniciado 
+[INFO] 16:44:31:882 discordiador/(5238:5238): 3 - Tripulante iniciado 
+[INFO] 16:44:31:882 discordiador/(5238:5238): 0 - Patota iniciada 
+[INFO] 16:44:37:178 discordiador/(5238:5238): 0 - Listando tripulantes por consola
+[INFO] 16:44:40:964 discordiador/(5238:5238): Planificación iniciada
+[INFO] 16:44:40:964 discordiador/(5238:5250): 2 - Comienza ejecución de tarea 
+[INFO] 16:44:40:964 discordiador/(5238:5249): 1 - Comienza ejecución de tarea 
+[INFO] 16:44:48:968 discordiador/(5238:5249): 1 - Tarea finalizada 
+[INFO] 16:44:48:968 discordiador/(5238:5249): 1 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:44:48:968 discordiador/(5238:5250): 2 - Tarea finalizada 
+[INFO] 16:44:48:968 discordiador/(5238:5250): 2 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:44:48:968 discordiador/(5238:5248): 0 - Comienza ejecución de tarea 
+[INFO] 16:45:13:798 discordiador/(5270:5270): Iniciando Discordiador
+[INFO] 16:45:13:897 discordiador/(5270:5270): Discordiador iniciado correctamente
+[INFO] 16:45:13:897 discordiador/(5270:5270): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:45:13:897 discordiador/(5270:5279): Servidor listo para recibir al store
+[INFO] 16:45:21:115 discordiador/(5270:5270): 0 - Listando tripulantes por consola
+[ERROR] 16:45:27:956 discordiador/(5270:5270): Instrucción no reconocida
+[INFO] 16:45:36:141 discordiador/(5270:5270): 0 - Iniciando Patota
+[INFO] 16:45:38:142 discordiador/(5270:5270): 0 - Tripulante iniciado 
+[INFO] 16:45:38:142 discordiador/(5270:5270): 1 - Tripulante iniciado 
+[INFO] 16:45:38:142 discordiador/(5270:5270): 2 - Tripulante iniciado 
+[INFO] 16:45:38:142 discordiador/(5270:5270): 3 - Tripulante iniciado 
+[INFO] 16:45:38:142 discordiador/(5270:5270): 0 - Patota iniciada 
+[INFO] 16:45:42:047 discordiador/(5270:5270): 0 - Listando tripulantes por consola
+[INFO] 16:45:51:577 discordiador/(5270:5270): Planificación iniciada
+[INFO] 16:45:51:577 discordiador/(5270:5300): 3 - Comienza ejecución de tarea 
+[INFO] 16:45:51:577 discordiador/(5270:5299): 2 - Comienza ejecución de tarea 
+[INFO] 16:45:52:345 discordiador/(5270:5270): 0 - Listando tripulantes por consola
+[INFO] 16:45:57:818 discordiador/(5270:5270): 0 - Listando tripulantes por consola
+[INFO] 16:45:59:581 discordiador/(5270:5299): 2 - Tarea finalizada 
+[INFO] 16:45:59:581 discordiador/(5270:5299): 2 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:45:59:581 discordiador/(5270:5300): 3 - Tarea finalizada 
+[INFO] 16:45:59:581 discordiador/(5270:5300): 3 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:45:59:581 discordiador/(5270:5298): 1 - Comienza ejecución de tarea 
+[INFO] 16:45:59:581 discordiador/(5270:5297): 0 - Comienza ejecución de tarea 
+[INFO] 16:46:07:585 discordiador/(5270:5297): 0 - Tarea finalizada 
+[INFO] 16:46:07:585 discordiador/(5270:5297): 0 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:46:07:585 discordiador/(5270:5298): 1 - Tarea finalizada 
+[INFO] 16:46:07:585 discordiador/(5270:5298): 1 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:50:51:176 discordiador/(5457:5457): Iniciando Discordiador
+[INFO] 16:50:51:273 discordiador/(5457:5457): Discordiador iniciado correctamente
+[INFO] 16:50:51:273 discordiador/(5457:5457): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:50:51:273 discordiador/(5457:5465): Servidor listo para recibir al store
+[INFO] 16:50:57:163 discordiador/(5457:5457): 0 - Iniciando Patota
+[INFO] 16:50:59:163 discordiador/(5457:5457): 0 - Tripulante iniciado 
+[INFO] 16:50:59:163 discordiador/(5457:5457): 1 - Tripulante iniciado 
+[INFO] 16:50:59:163 discordiador/(5457:5457): 2 - Tripulante iniciado 
+[INFO] 16:50:59:163 discordiador/(5457:5457): 3 - Tripulante iniciado 
+[INFO] 16:50:59:163 discordiador/(5457:5457): 0 - Patota iniciada 
+[INFO] 16:51:05:181 discordiador/(5457:5457): Planificación iniciada
+[INFO] 16:51:05:181 discordiador/(5457:5478): 3 - Comienza ejecución de tarea 
+[INFO] 16:51:05:181 discordiador/(5457:5477): 2 - Comienza ejecución de tarea 
+[INFO] 16:51:13:186 discordiador/(5457:5477): 2 - Tarea finalizada 
+[INFO] 16:51:13:186 discordiador/(5457:5477): 2 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:51:13:186 discordiador/(5457:5476): 1 - Comienza ejecución de tarea 
+[INFO] 16:51:13:186 discordiador/(5457:5478): 3 - Tarea finalizada 
+[INFO] 16:51:13:186 discordiador/(5457:5478): 3 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:51:13:186 discordiador/(5457:5475): 0 - Comienza ejecución de tarea 
+[INFO] 16:51:21:189 discordiador/(5457:5476): 1 - Tarea finalizada 
+[INFO] 16:51:21:189 discordiador/(5457:5476): 1 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:51:21:190 discordiador/(5457:5475): 0 - Tarea finalizada 
+[INFO] 16:51:21:190 discordiador/(5457:5475): 0 - Lista de tareas completada, fin de tripulante 
+[INFO] 16:51:39:449 discordiador/(5457:5457): 0 - Listando tripulantes por consola
+[INFO] 16:57:21:271 discordiador/(5830:5830): Iniciando Discordiador
+[INFO] 16:57:21:271 discordiador/(5830:5830): Discordiador iniciado correctamente
+[INFO] 16:57:21:271 discordiador/(5830:5830): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 16:57:21:272 discordiador/(5830:5837): Servidor listo para recibir al store
+[INFO] 16:57:31:204 discordiador/(5830:5830): 0 - Iniciando Patota
+[INFO] 16:57:33:205 discordiador/(5830:5830): 0 - Tripulante iniciado 
+[INFO] 16:57:33:205 discordiador/(5830:5830): 1 - Tripulante iniciado 
+[INFO] 16:57:33:205 discordiador/(5830:5830): 2 - Tripulante iniciado 
+[INFO] 16:57:33:205 discordiador/(5830:5830): 3 - Tripulante iniciado 
+[INFO] 16:57:33:205 discordiador/(5830:5830): 0 - Patota iniciada 
+[INFO] 16:57:40:085 discordiador/(5830:5830): 0 - Listando tripulantes por consola
+[INFO] 16:58:13:064 discordiador/(5830:5830): 1 - Iniciando Patota
+[INFO] 16:58:15:065 discordiador/(5830:5830): 4 - Tripulante iniciado 
+[INFO] 16:58:15:065 discordiador/(5830:5830): 5 - Tripulante iniciado 
+[INFO] 16:58:15:065 discordiador/(5830:5830): 1 - Patota iniciada 
+[INFO] 16:58:20:667 discordiador/(5830:5830): 0 - Listando tripulantes por consola
+[INFO] 16:58:50:077 discordiador/(5830:5830): 2 - Iniciando Patota
+[INFO] 16:58:52:077 discordiador/(5830:5830): 6 - Tripulante iniciado 
+[INFO] 16:58:52:078 discordiador/(5830:5830): 2 - Patota iniciada 
+[ERROR] 16:58:57:937 discordiador/(5830:5830): Instrucción no reconocida
+[ERROR] 16:59:01:393 discordiador/(5830:5830): Instrucción no reconocida
+[INFO] 16:59:05:458 discordiador/(5830:5830): 0 - Listando tripulantes por consola
+[INFO] 17:03:14:632 discordiador/(6165:6165): Iniciando Discordiador
+[INFO] 17:03:14:911 discordiador/(6165:6165): Discordiador iniciado correctamente
+[INFO] 17:03:14:911 discordiador/(6165:6165): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 17:03:14:913 discordiador/(6165:6172): Servidor listo para recibir al store
+[INFO] 17:03:23:320 discordiador/(6165:6165): 0 - Iniciando Patota
+[INFO] 17:03:25:320 discordiador/(6165:6165): 0 - Tripulante iniciado 
+[INFO] 17:03:25:320 discordiador/(6165:6165): 1 - Tripulante iniciado 
+[INFO] 17:03:25:320 discordiador/(6165:6165): 2 - Tripulante iniciado 
+[INFO] 17:03:25:321 discordiador/(6165:6165): 3 - Tripulante iniciado 
+[INFO] 17:03:25:321 discordiador/(6165:6165): 0 - Patota iniciada 
+[INFO] 17:04:05:542 discordiador/(6215:6215): Iniciando Discordiador
+[INFO] 17:04:05:543 discordiador/(6215:6215): Discordiador iniciado correctamente
+[INFO] 17:04:05:543 discordiador/(6215:6215): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 17:04:05:543 discordiador/(6215:6223): Servidor listo para recibir al store
+[INFO] 17:04:18:597 discordiador/(6215:6215): 0 - Iniciando Patota
+[INFO] 17:04:20:598 discordiador/(6215:6215): 0 - Tripulante iniciado 
+[INFO] 17:04:20:598 discordiador/(6215:6215): 1 - Tripulante iniciado 
+[INFO] 17:04:20:598 discordiador/(6215:6215): 2 - Tripulante iniciado 
+[INFO] 17:04:20:598 discordiador/(6215:6215): 3 - Tripulante iniciado 
+[INFO] 17:04:20:598 discordiador/(6215:6215): 0 - Patota iniciada 
+[INFO] 17:07:28:087 discordiador/(6309:6309): Iniciando Discordiador
+[INFO] 17:07:28:584 discordiador/(6309:6309): Discordiador iniciado correctamente
+[INFO] 17:07:28:584 discordiador/(6309:6309): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 17:07:28:585 discordiador/(6309:6316): Servidor listo para recibir al store
+[ERROR] 17:07:35:558 discordiador/(6309:6309): Instrucción no reconocida
+[ERROR] 17:07:42:036 discordiador/(6309:6309): Instrucción no reconocida
+[INFO] 17:07:50:052 discordiador/(6309:6309): 0 - Iniciando Patota
+[INFO] 17:07:52:053 discordiador/(6309:6309): 0 - Tripulante iniciado 
+[INFO] 17:07:52:053 discordiador/(6309:6309): 1 - Tripulante iniciado 
+[INFO] 17:07:52:053 discordiador/(6309:6309): 2 - Tripulante iniciado 
+[INFO] 17:07:52:053 discordiador/(6309:6309): 3 - Tripulante iniciado 
+[INFO] 17:07:52:054 discordiador/(6309:6309): 0 - Patota iniciada 
+[INFO] 17:07:58:948 discordiador/(6309:6309): 0 - Listando tripulantes por consola
+[INFO] 17:08:04:772 discordiador/(6309:6309): Planificación iniciada
+[INFO] 17:08:04:772 discordiador/(6309:6331): 0 - Comienza ejecución de tarea 
+[INFO] 17:08:04:772 discordiador/(6309:6332): 1 - Comienza ejecución de tarea 
+[INFO] 17:08:12:776 discordiador/(6309:6332): 1 - Tarea finalizada 
+[INFO] 17:08:12:776 discordiador/(6309:6332): 1 - Lista de tareas completada, fin de tripulante 
+[INFO] 17:08:12:776 discordiador/(6309:6333): 2 - Comienza ejecución de tarea 
+[INFO] 17:08:12:776 discordiador/(6309:6331): 0 - Tarea finalizada 
+[INFO] 17:08:12:776 discordiador/(6309:6331): 0 - Lista de tareas completada, fin de tripulante 
+[INFO] 17:08:12:776 discordiador/(6309:6334): 3 - Comienza ejecución de tarea 
+[INFO] 17:08:20:779 discordiador/(6309:6333): 2 - Tarea finalizada 
+[INFO] 17:08:20:779 discordiador/(6309:6333): 2 - Lista de tareas completada, fin de tripulante 
+[INFO] 17:08:20:779 discordiador/(6309:6334): 3 - Tarea finalizada 
+[INFO] 17:08:20:779 discordiador/(6309:6334): 3 - Lista de tareas completada, fin de tripulante 
+[INFO] 17:09:05:345 discordiador/(6355:6355): Iniciando Discordiador
+[INFO] 17:09:05:345 discordiador/(6355:6355): Discordiador iniciado correctamente
+[INFO] 17:09:05:345 discordiador/(6355:6355): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 17:09:05:348 discordiador/(6355:6362): Servidor listo para recibir al store
+[INFO] 17:09:15:552 discordiador/(6355:6355): 0 - Iniciando Patota
+[INFO] 17:09:17:552 discordiador/(6355:6355): 0 - Tripulante iniciado 
+[INFO] 17:09:17:553 discordiador/(6355:6355): 1 - Tripulante iniciado 
+[INFO] 17:09:17:553 discordiador/(6355:6355): 2 - Tripulante iniciado 
+[INFO] 17:09:17:553 discordiador/(6355:6355): 0 - Patota iniciada 
+[INFO] 17:09:25:528 discordiador/(6355:6355): 1 - Iniciando Patota
+[INFO] 17:09:27:528 discordiador/(6355:6355): 3 - Tripulante iniciado 
+[INFO] 17:09:27:528 discordiador/(6355:6355): 4 - Tripulante iniciado 
+[INFO] 17:09:27:528 discordiador/(6355:6355): 1 - Patota iniciada 
+[INFO] 17:09:33:073 discordiador/(6355:6355): 0 - Listando tripulantes por consola
+[INFO] 17:09:39:569 discordiador/(6355:6355): Iniciando atención de sabotaje
+[INFO] 17:09:42:571 discordiador/(6355:6355): FSCK invocado
+[INFO] 17:10:02:572 discordiador/(6355:6355): Sabotaje atendido correctamente
+[INFO] 17:10:08:069 discordiador/(6355:6355): 0 - Listando tripulantes por consola
+[INFO] 17:11:39:792 discordiador/(6355:6355): Planificación iniciada
+[INFO] 17:11:39:793 discordiador/(6355:6369): 4 - Comienza ejecución de tarea 
+[INFO] 17:11:39:793 discordiador/(6355:6368): 3 - Comienza ejecución de tarea 
+[INFO] 17:11:44:795 discordiador/(6355:6369): 4 - Tarea finalizada 
+[INFO] 17:11:44:795 discordiador/(6355:6369): 4 - Lista de tareas completada, fin de tripulante 
+[INFO] 17:11:44:795 discordiador/(6355:6367): 2 - Comienza ejecución de tarea 
+[INFO] 17:11:47:796 discordiador/(6355:6368): 3 - Tarea finalizada 
+[INFO] 17:11:47:796 discordiador/(6355:6368): 3 - Lista de tareas completada, fin de tripulante 
+[INFO] 17:11:47:796 discordiador/(6355:6366): 1 - Comienza ejecución de tarea 
+[INFO] 17:11:52:798 discordiador/(6355:6367): 2 - Tarea finalizada 
+[INFO] 17:11:52:798 discordiador/(6355:6367): 2 - Lista de tareas completada, fin de tripulante 
+[INFO] 17:11:52:798 discordiador/(6355:6365): 0 - Comienza ejecución de tarea 
+[INFO] 17:11:55:799 discordiador/(6355:6366): 1 - Tarea finalizada 
+[INFO] 17:11:55:799 discordiador/(6355:6366): 1 - Lista de tareas completada, fin de tripulante 
+[INFO] 17:12:00:801 discordiador/(6355:6365): 0 - Tarea finalizada 
+[INFO] 17:12:00:801 discordiador/(6355:6365): 0 - Lista de tareas completada, fin de tripulante 
+[INFO] 17:29:00:841 discordiador/(6746:6746): Iniciando Discordiador
+[INFO] 17:29:00:906 discordiador/(6746:6746): Discordiador iniciado correctamente
+[INFO] 17:29:00:906 discordiador/(6746:6746): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 17:29:00:906 discordiador/(6746:6754): Servidor listo para recibir al store
+[INFO] 17:29:10:381 discordiador/(6746:6746): 0 - Iniciando Patota
+[INFO] 17:29:12:382 discordiador/(6746:6746): 0 - Tripulante iniciado 
+[INFO] 17:29:12:382 discordiador/(6746:6746): 1 - Tripulante iniciado 
+[INFO] 17:29:12:382 discordiador/(6746:6746): 2 - Tripulante iniciado 
+[INFO] 17:29:12:382 discordiador/(6746:6746): 0 - Patota iniciada 
+[INFO] 17:29:18:780 discordiador/(6746:6746): Planificación iniciada
+[INFO] 17:29:18:781 discordiador/(6746:6760): 0 - Comienza ejecución de tarea 
+[INFO] 17:29:18:781 discordiador/(6746:6761): 1 - Comienza ejecución de tarea 
+[INFO] 17:29:26:784 discordiador/(6746:6761): 1 - Tarea finalizada 
+[INFO] 17:29:26:784 discordiador/(6746:6761): 1 - Lista de tareas completada, fin de tripulante 
+[INFO] 17:29:26:784 discordiador/(6746:6762): 2 - Comienza ejecución de tarea 
+[INFO] 17:29:26:784 discordiador/(6746:6760): 0 - Tarea finalizada 
+[INFO] 17:29:26:784 discordiador/(6746:6760): 0 - Lista de tareas completada, fin de tripulante 
+[INFO] 17:29:34:787 discordiador/(6746:6762): 2 - Tarea finalizada 
+[INFO] 17:29:34:787 discordiador/(6746:6762): 2 - Lista de tareas completada, fin de tripulante 

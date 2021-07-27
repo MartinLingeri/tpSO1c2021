@@ -9,7 +9,7 @@ int lugar_en_memoria = 1; //INICIAR EN 0 DESPUES
 
 int main(void)
 {
-	logger = iniciar_logger();
+	logger = log_create("discordiador.log", "discordiador", true, LOG_LEVEL_INFO);
 	logear(INICIO_SISTEMA,0);
 
 	llegada = list_create();
@@ -21,7 +21,7 @@ int main(void)
 
 	setlocale(LC_ALL,"spanish");
 
-	config = leer_config();
+	config = config_create("discordiador.config");
 	algoritmo = config_get_string_value(config, "ALGORITMO");
 	grado_multitarea = config_get_int_value(config, "GRADO_MULTITAREA");
 
@@ -60,14 +60,6 @@ void conexion_con_hq() {
 
 void conexion_con_store() {
 	//conexion_store = crear_conexion(config_get_string_value(config, "IP_I_MONGO_STORE"), config_get_string_value(config, "PUERTO_I_MONGO_STORE"));
-}
-
-t_log* iniciar_logger(void){
-	return log_create("discordiador.log", "discordiador", true, LOG_LEVEL_INFO);
-}
-
-t_config* leer_config(void){
-	return config_create("discordiador.config");
 }
 
 int recibir_operacion(int socket_cliente)
@@ -317,6 +309,11 @@ void inicializar_tripulante(char** instruccion, int cantidad_ya_iniciada, int lo
 	t_circular_args* args = malloc(sizeof(t_circular_args));
 	args->tripulante = tripulante;
 	logear(INICIANDO_TRIPULANTE, tripulante->TID);
+
+	//pedir_tarea(tripulante);
+	tripulante->tarea = "EVADIR_IMPUESTOS 12;2;3;3";
+	cambiar_estado(tripulante->estado, e_listo, tripulante);
+
 	pthread_create(&hilo, NULL, (void*) circular, args);
 	pthread_detach((pthread_t) hilo);
 }
@@ -341,21 +338,19 @@ void circular(void* args) {
 
 	sem_init(&argumentos->tripulante->semaforo, 0, 1);
 	int tarea_hecha = 0;
-	argumentos->tripulante->tarea = "EVADIR_IMPUESTOS 12;2;3;3";
-	cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
 
-	do{
-		puts("antes pedir");
+//	do{
+		//puts("antes pedir");
 		//pedir_tarea(argumentos->tripulante);
-		puts("dps pedir");
+		//int tarea_hecha = 0;
+		//puts("dps pedir");
 		while(tarea_hecha != 1 && strcmp(argumentos->tripulante->tarea, "") != 1) {
-			puts("antes semaforo tripulante");
 			sem_wait(&argumentos->tripulante->semaforo);
 			sem_wait(&argumentos->tripulante->semaforo);
 			tarea_hecha = leer_tarea(argumentos->tripulante, argumentos->tripulante->tarea, config_get_int_value(config, "RETARDO_CICLO_CPU"));
 			cambiar_estado(argumentos->tripulante->estado, e_listo, argumentos->tripulante);
 		}
-	}while(strcmp(argumentos->tripulante->tarea, "") != 1);
+//	}while(strcmp(argumentos->tripulante->tarea, "") != 1);
 
 	cambiar_estado(argumentos->tripulante->estado, e_fin, argumentos->tripulante);
 	logear(FINALIZA_LISTA_TAREAS,argumentos->tripulante->TID);
@@ -489,7 +484,6 @@ void listar_tripulantes(){
     int hours, minutes, seconds, day, month, year;
     time_t now;
     time(&now);
-
     struct tm *local = localtime(&now);
 
     hours = local->tm_hour;
@@ -559,7 +553,6 @@ void expulsar_tripulante(char* i) {
 }
 
 void atender_sabotaje(t_sabotaje* datos){
-	log_info(logger,"Iniciando atención de sabotaje");
 	mover_trips(e_bloqueado_emergencia);
 	pthread_mutex_lock(&sabotaje);
 	t_tripulante* asignado = tripulante_mas_cercano(datos->x, datos->y);
@@ -568,7 +561,6 @@ void atender_sabotaje(t_sabotaje* datos){
 	cambiar_estado(asignado->estado, e_listo, asignado);
 	desbloquear_trips_inverso(bloqueado_emergencia);
 	pthread_mutex_unlock(&sabotaje);
-	log_info(logger,"Sabotaje atendido correctamente");
 	return;
 }
 
