@@ -68,7 +68,12 @@ t_frame *encontrar_frame_vacio(t_list *listaDeFrames, uint32_t tamanioPagina){
 	bool _frame_vacio(void *frame){
 		return ((t_frame *)frame)->espacioLibre==tamanioPagina;
 	}
-	t_list *framesVacios=list_filter(listaDeFrames,_frame_vacio);
+	if(alguno vacio){
+		t_list *framesVacios=list_filter(listaDeFrames,_frame_vacio);
+	}else{
+		remover_una_pagina();
+	}
+
 	return list_get(framesVacios,0);
 }
 
@@ -182,7 +187,18 @@ char* proxima_instruccion_tripulante_paginacion(t_list *listaDeTablasDePaginas, 
 			t_dato_en_frame *datoEncontrado = list_find(datosTCB, _igual_tid_en_dato);
 			if(datoEncontrado!=NULL){
 				for(int k=0; k<tabla->cantPaginas;k++){
-					t_pagina *pagina=list_get(tabla->paginas, i);
+					if(esta_en_memoria(i)){
+						t_pagina *pagina=list_get(tabla->paginas, i);
+					}else{
+						buscar_en_swap();
+						//buscar
+						//copiarla
+						//buscar la q se reemplaza
+						//copiar reemplazada
+						//reemplazar
+						//cargar en el swap la reemplazada
+						//devuelve
+					}
 					t_dato_en_frame *datoTareas=list_find(pagina->frame->datos,_dato_TAREAS);
 					if(datoTareas!=NULL){
 						datoEncontrado->tcb->proxima_instruccion+=1;
@@ -256,6 +272,19 @@ void modificar_estado_tripulante(t_list *listaDeTablasDePaginas, uint32_t tid, c
 				datoEncontrado->tcb->estado=estado;
 				break;
 			}
+		    int hours, minutes, seconds;
+		    time_t now;
+		    time(&now);
+		    struct tm *local = localtime(&now);
+
+		    hours = local->tm_hour;
+		    minutes = local->tm_min;
+		    seconds = local->tm_sec;
+
+			uint32_t tiempo =  seconds + minutes * 60 + hours * 3600;
+			pagina->ultimoUso = tiempo;
+
+			pagina->bitUso = 0;
 		}
 	}
 }
@@ -277,7 +306,7 @@ void listar_tripulantes(t_list *listaDeTablasDePaginas, uint32_t tamanioPagina){
 
 bool hay_espacio_disponible(t_list *listaDeFrames, uint32_t tamanioPagina, uint32_t cantTripulantes, uint32_t tareasLen){
 	uint32_t tamanioDatos = sizeof(t_pcb)+cantTripulantes*sizeof(t_tcb)+tareasLen;
-	int cantPagsNecesarias=1;
+	int cantPagsNecesarias=1; //CONSIDERAR TAMAÑO DEL SWAP
 	while(tamanioPagina*cantPagsNecesarias<tamanioDatos){
 		cantPagsNecesarias++;
 	}

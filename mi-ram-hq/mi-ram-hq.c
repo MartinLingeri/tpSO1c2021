@@ -97,7 +97,7 @@ int main(void) {
 					modificar_posicion_tripulante(listaDeTablasDePaginas, tripulante->tid, tripulante->pos_x, tripulante->pos_y);
 					break;
 				case ELIMINAR_TRIPULANTE:
-					tid=recibir_eliminar_tripulante(cliente_fd);
+					tid = recibir_eliminar_tripulante(cliente_fd);
 					eliminar_tripulante_paginacion(listaDeTablasDePaginas, tid);
 					break;
 				case REPORTE_BITACORA:

@@ -161,7 +161,7 @@ t_tcb* recibir_tcb(int socket_cliente){
 	return tripulante;
 }
 
-t_iniciar_patota* recibir_pcb(int socket_cliente){
+t_pcb* recibir_pcb(int socket_cliente){
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
