@@ -206,6 +206,21 @@ char* proxima_instruccion_tripulante_paginacion(t_list *listaDeTablasDePaginas, 
 						//cargar en el swap la reemplazada
 						//devuelve
 					}*/
+
+				    int hours, minutes, seconds;
+				    time_t now;
+				    time(&now);
+				    struct tm *local = localtime(&now);
+
+				    hours = local->tm_hour;
+				    minutes = local->tm_min;
+				    seconds = local->tm_sec;
+
+					uint32_t tiempo =  seconds + minutes * 60 + hours * 3600;
+					pagina->ultimoUso = tiempo;
+
+					pagina->bitUso = 0;
+
 					t_dato_en_frame *datoTareas=list_find(pagina->frame->datos,_dato_TAREAS);
 					if(datoTareas!=NULL){
 						datoEncontrado->tcb->proxima_instruccion+=1;
@@ -228,7 +243,31 @@ void eliminar_tripulante_paginacion(t_list *listaDeTablasDePaginas, uint32_t tam
 	for(int i=0; i<listaDeTablasDePaginas->elements_count; i++){
 		t_tabla_de_paginas *tabla=list_get(listaDeTablasDePaginas, i);
 		for(int j=0; j<tabla->cantPaginas;i++){
-			t_pagina *pagina=list_get(tabla->paginas, i);
+			/*if(esta_en_memoria(i)){
+				t_pagina *pagina=list_get(tabla->paginas, i);
+			}else{
+				buscar_en_swap();
+				//buscar
+				//copiarla
+				//buscar la q se reemplaza
+				//copiar reemplazada
+				//reemplazar
+				//cargar en el swap la reemplazada
+				//devuelve
+			}*/
+		    int hours, minutes, seconds;
+		    time_t now;
+		    time(&now);
+		    struct tm *local = localtime(&now);
+
+		    hours = local->tm_hour;
+		    minutes = local->tm_min;
+		    seconds = local->tm_sec;
+
+			uint32_t tiempo =  seconds + minutes * 60 + hours * 3600;
+			pagina->ultimoUso = tiempo;
+
+			pagina->bitUso = 0;
 			t_list *datosTCB=list_filter(pagina->frame->datos,_dato_TCB);
 			t_dato_en_frame *datoEncontrado = list_find(datosTCB, _igual_tid_en_dato);
 			if(datoEncontrado!=NULL){
@@ -237,6 +276,7 @@ void eliminar_tripulante_paginacion(t_list *listaDeTablasDePaginas, uint32_t tam
 				if(pagina->frame->espacioLibre==tamanioPagina){
 					list_remove(tabla->paginas,i);
 				}
+
 				break;
 			}
 		}
@@ -253,7 +293,31 @@ void modificar_posicion_tripulante(t_list *listaDeTablasDePaginas, uint32_t tid,
 	for(int i=0; i<listaDeTablasDePaginas->elements_count; i++){
 		t_tabla_de_paginas *tabla=list_get(listaDeTablasDePaginas, i);
 		for(int j=0; j<tabla->cantPaginas;i++){
-			t_pagina *pagina=list_get(tabla->paginas, i);
+			/*if(esta_en_memoria(i)){
+				t_pagina *pagina=list_get(tabla->paginas, i);
+			}else{
+				buscar_en_swap();
+				//buscar
+				//copiarla
+				//buscar la q se reemplaza
+				//copiar reemplazada
+				//reemplazar
+				//cargar en el swap la reemplazada
+				//devuelve
+			}*/
+		    int hours, minutes, seconds;
+		    time_t now;
+		    time(&now);
+		    struct tm *local = localtime(&now);
+
+		    hours = local->tm_hour;
+		    minutes = local->tm_min;
+		    seconds = local->tm_sec;
+
+			uint32_t tiempo =  seconds + minutes * 60 + hours * 3600;
+			pagina->ultimoUso = tiempo;
+
+			pagina->bitUso = 0;
 			t_list *datosTCB=list_filter(pagina->frame->datos,_dato_TCB);
 			t_dato_en_frame *datoEncontrado = list_find(datosTCB, _igual_tid_en_dato);
 			if(datoEncontrado!=NULL){
@@ -275,13 +339,19 @@ void modificar_estado_tripulante(t_list *listaDeTablasDePaginas, uint32_t tid, c
 	for(int i=0; i<listaDeTablasDePaginas->elements_count; i++){
 		t_tabla_de_paginas *tabla=list_get(listaDeTablasDePaginas, i);
 		for(int j=0; j<tabla->cantPaginas;i++){
-			t_pagina *pagina=list_get(tabla->paginas, i);
-			t_list *datosTCB=list_filter(pagina->frame->datos,_dato_TCB);
-			t_dato_en_frame *datoEncontrado = list_find(datosTCB, _igual_tid_en_dato);
-			if(datoEncontrado!=NULL){
-				datoEncontrado->tcb->estado=estado;
-				break;
-			}
+			/*if(esta_en_memoria(i)){
+				t_pagina *pagina=list_get(tabla->paginas, i);
+			}else{
+				buscar_en_swap();
+				//buscar pagina objetivo
+				//copiarla
+				//buscar la q se reemplaza
+				//copiar reemplazada
+				//reemplazar
+				//cargar en el swap la reemplazada
+				//devuelve
+			}*/
+
 		    int hours, minutes, seconds;
 		    time_t now;
 		    time(&now);
@@ -295,6 +365,13 @@ void modificar_estado_tripulante(t_list *listaDeTablasDePaginas, uint32_t tid, c
 			pagina->ultimoUso = tiempo;
 
 			pagina->bitUso = 0;
+
+			t_list *datosTCB=list_filter(pagina->frame->datos,_dato_TCB);
+			t_dato_en_frame *datoEncontrado = list_find(datosTCB, _igual_tid_en_dato);
+			if(datoEncontrado!=NULL){
+				datoEncontrado->tcb->estado=estado;
+				break;
+			}
 		}
 	}
 }
