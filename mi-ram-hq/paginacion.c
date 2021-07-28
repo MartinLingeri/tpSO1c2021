@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "paginacion.h"
 
 void crear_lista_de_frames(void *memoria, t_list *listaDeFrames, uint32_t tamanioMemoria, uint32_t tamanioPagina){
 	listaDeFrames=list_create();
@@ -195,7 +196,7 @@ char* proxima_instruccion_tripulante_paginacion(t_list *listaDeTablasDePaginas, 
 	return 0;
 }
 
-void eliminar_tripulante_paginacion(t_list *listaDeTablasDePaginas, uint32_t tid){
+void eliminar_tripulante_paginacion(t_list *listaDeTablasDePaginas, uint32_t tamanioPagina, uint32_t tid){
 	bool _dato_TCB(void *datoTCB){
 		return ((t_dato_en_frame *)datoTCB)->tipoContenido==TCB;
 	}
@@ -211,6 +212,9 @@ void eliminar_tripulante_paginacion(t_list *listaDeTablasDePaginas, uint32_t tid
 			if(datoEncontrado!=NULL){
 				list_remove_by_condition(pagina->frame->datos, _igual_tid_en_dato);
 				pagina->frame->espacioLibre-=sizeof(t_tcb);
+				if(pagina->frame->espacioLibre==tamanioPagina){
+					list_remove_element(tabla->paginas,i);
+				}
 				break;
 			}
 		}
@@ -276,6 +280,7 @@ void listar_tripulantes(t_list *listaDeTablasDePaginas, uint32_t tamanioPagina){
 }
 
 bool hay_espacio_disponible(t_list *listaDeFrames, uint32_t tamanioPagina, uint32_t cantTripulantes, uint32_t tareasLen){
+	pthread_mutex_lock(&cargar);
 	uint32_t tamanioDatos = sizeof(t_pcb)+cantTripulantes*sizeof(t_tcb)+tareasLen;
 	int cantPagsNecesarias=1;
 	while(tamanioPagina*cantPagsNecesarias<tamanioDatos){
@@ -285,8 +290,46 @@ bool hay_espacio_disponible(t_list *listaDeFrames, uint32_t tamanioPagina, uint3
 		return ((t_frame *)frame)->espacioLibre==tamanioPagina;
 	}
 	t_list *framesVacios=list_filter(listaDeFrames,_frame_vacio);
+	pthread_mutex_unlock(&cargar);
 	if(cantPagsNecesarias<=list_size(framesVacios)){
 		return true;
 	}
 	return false;
+}
+
+t_pagina* pagina_a_remover(t_list* paginas_en_memoria){
+    void* lru(t_pagina* t1, t_pagina* t2){
+        return t1->ultimo_uso < t2->ultimo_uso ? t1 : t2;
+    }
+
+    void* clock(t_pagina* t1, t_pagina* t2){
+        return clock_algoritmo(t1) >= clock_algoritmo(t2) ? t1 : t2;
+    }
+
+	bool bit_uso_en_uno(void* t1) {
+		return ((t_pagina*)t1)->bitUso == 1;
+	}
+
+	char* algoritmo = config_get_string_value(config, "ALGORITMO_REEMPLAZO");
+
+    if((strcmp(algoritmo,"LRU") == 0)){
+    	t_pagina* objetivo = list_get_minimum(paginas_en_memoria, (void*)lru);
+        return objetivo;
+
+    }else{
+    	if(list_any_satisfy(paginas_en_memoria,bit_uso_en_uno)){
+        	t_pagina* objetivo = list_find(paginas_en_memoria, bit_uso_en_uno);
+        	return objetivo;
+    	}else{
+			t_pagina* objetivo = list_get_maximum(paginas_en_memoria, (void*)clock);
+			return objetivo;
+    	}
+    }
+}
+
+uint32_t clock_algoritmo(t_pagina* t){
+	if(t->bitUso == 0){
+		t->bitUso = 1;
+	}
+    return t->bitUso;
 }

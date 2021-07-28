@@ -50,7 +50,7 @@ int main(void) {
 	log_info(logger, "Servidor listo para recibir al cliente");
 	int cliente_fd = esperar_cliente(server_fd);
 	t_tcb* tripulante = malloc(sizeof(t_tcb));
-	t_iniciar_patota *iniciarPatota = malloc(sizeof(t_iniciar_patota));
+	t_iniciar_patota* iniciarPatota = malloc(sizeof(t_iniciar_patota));
 	uint32_t tid;
 	t_paquete* paquete;
 	t_buffer* buffer;
@@ -65,7 +65,9 @@ int main(void) {
 			switch(cod_op){
 				case TCB_MENSAJE:
 					tripulante = recibir_tcb(cliente_fd);
+					pthread_mutex_lock(&cargar);
 					cargar_tripulante_paginacion(listaDeFrames, listaDeTablasDePaginas, tamanio_pagina, tripulante);
+					pthread_mutex_unlock(&cargar);
 					break;
 				case PCB_MENSAJE:
 					iniciarPatota = recibir_pcb(cliente_fd);
@@ -73,8 +75,10 @@ int main(void) {
 						buffer=serializar_test(1);
 						paquete=crear_mensaje(buffer,1);
 						enviar_paquete(paquete,conexion);
+						pthread_mutex_lock(&cargar);
 						cargar_pcb_paginacion(listaDeFrames, listaDeTablasDePaginas, tamanio_pagina, iniciarPatota->pid);
 						cargar_tareas_paginacion(listaDeFrames, listaDeTablasDePaginas, tamanio_pagina, iniciarPatota->pid, iniciarPatota->tareas);
+						phread_mutex_unlock(&cargar);
 					}else{
 						buffer=serializar_test(0);
 						paquete=crear_mensaje(buffer,1);
@@ -98,7 +102,9 @@ int main(void) {
 					break;
 				case ELIMINAR_TRIPULANTE:
 					tid=recibir_eliminar_tripulante(cliente_fd);
-					eliminar_tripulante_paginacion(listaDeTablasDePaginas, tid);
+					pthread_mutex_lock(&cargar);
+					eliminar_tripulante_paginacion(listaDeTablasDePaginas, tamanio_pagina, tid);
+					pthread_mutex_unlock(&cargar);
 					break;
 				case REPORTE_BITACORA:
 					recibir_rbitacora(cliente_fd);
@@ -131,6 +137,7 @@ int main(void) {
 					break;
 				}
 			}
+		vaciar_lista_de_frames(listaDeFrames);
 	}else if(strcmp(esquema_memoria,"SEGMENTACION")==0){
 		while(1){
 			int cod_op = recibir_operacion(cliente_fd);
