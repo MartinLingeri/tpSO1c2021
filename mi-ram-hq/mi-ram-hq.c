@@ -1,6 +1,4 @@
 #include "mi-ram-hq.h"
-#include "paginacion.c"
-#include "segmentacion.c"
 
 pthread_mutex_t discordiador;
 
@@ -19,8 +17,8 @@ int main(void) {
 	inicio_memoria = malloc(tamanio_memoria); //Puntero la primer ubicacion de memoria
 													//del segmento reservado para memoria
 
-	t_list* lista_de_segmentos = list_create();
-	mostrar_lista_de_segmentos(lista_de_segmentos);
+	//t_list* lista_de_segmentos = list_create();
+	//mostrar_lista_de_segmentos(lista_de_segmentos);
 /*
 	//Dibuja el mapa inicial vacío
 	NIVEL* nivel;
@@ -50,7 +48,7 @@ int main(void) {
 	log_info(logger, "Servidor listo para recibir al cliente");
 	int cliente_fd = esperar_cliente(server_fd);
 	t_tcb* tripulante = malloc(sizeof(t_tcb));
-	t_iniciar_patota *iniciarPatota = malloc(sizeof(t_iniciar_patota));
+	t_iniciar_patota* iniciarPatota = malloc(sizeof(t_iniciar_patota));
 	uint32_t tid;
 	t_paquete* paquete;
 	t_buffer* buffer;
@@ -65,18 +63,22 @@ int main(void) {
 			switch(cod_op){
 				case TCB_MENSAJE:
 					tripulante = recibir_tcb(cliente_fd);
+					pthread_mutex_lock(&cargar);
 					cargar_tripulante_paginacion(listaDeFrames, listaDeTablasDePaginas, tamanio_pagina, tripulante);
+					pthread_mutex_unlock(&cargar);
 					break;
 				case PCB_MENSAJE:
 					iniciarPatota = recibir_pcb(cliente_fd);
 					if(hay_espacio_disponible(listaDeFrames, tamanio_pagina, iniciarPatota->cantTripulantes,strlen(iniciarPatota->tareas))){
-						buffer=serializar_test(1);
+						buffer=serializar_hay_lugar_memoria(1);
 						paquete=crear_mensaje(buffer,1);
 						enviar_paquete(paquete,conexion);
+						pthread_mutex_lock(&cargar);
 						cargar_pcb_paginacion(listaDeFrames, listaDeTablasDePaginas, tamanio_pagina, iniciarPatota->pid);
 						cargar_tareas_paginacion(listaDeFrames, listaDeTablasDePaginas, tamanio_pagina, iniciarPatota->pid, iniciarPatota->tareas);
+						pthread_mutex_unlock(&cargar);
 					}else{
-						buffer=serializar_test(0);
+						buffer=serializar_hay_lugar_memoria(0);
 						paquete=crear_mensaje(buffer,1);
 						enviar_paquete(paquete,conexion);
 					}
@@ -84,7 +86,7 @@ int main(void) {
 				case PEDIR_SIGUIENTE_TAREA:
 					tid = recibir_pedir_tarea(cliente_fd);
 					char *proximaTarea=proxima_instruccion_tripulante_paginacion(listaDeTablasDePaginas, tid);
-					buffer=serializar_tarea(id,proximaTarea);
+					buffer=serializar_tarea(tid,proximaTarea);
 					paquete=crear_mensaje(buffer,3);
 					enviar_paquete(paquete,conexion);
 					break;
@@ -97,8 +99,11 @@ int main(void) {
 					modificar_posicion_tripulante(listaDeTablasDePaginas, tripulante->tid, tripulante->pos_x, tripulante->pos_y);
 					break;
 				case ELIMINAR_TRIPULANTE:
-					tid = recibir_eliminar_tripulante(cliente_fd);
-					eliminar_tripulante_paginacion(listaDeTablasDePaginas, tid);
+					tid=recibir_eliminar_tripulante(cliente_fd);
+					pthread_mutex_lock(&cargar);
+					eliminar_tripulante_paginacion(listaDeTablasDePaginas, tamanio_pagina, tid);
+					pthread_mutex_unlock(&cargar);
+
 					break;
 				case REPORTE_BITACORA:
 					recibir_rbitacora(cliente_fd);
@@ -131,6 +136,7 @@ int main(void) {
 					break;
 				}
 			}
+		vaciar_lista_de_frames(listaDeFrames);
 	}else if(strcmp(esquema_memoria,"SEGMENTACION")==0){
 		while(1){
 			int cod_op = recibir_operacion(cliente_fd);

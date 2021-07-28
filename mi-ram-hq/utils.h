@@ -12,6 +12,7 @@
 #include<string.h>
 #include<semaphore.h>
 #include<stdbool.h>
+#include<pthread.h>
 
 typedef struct{
 	uint32_t size;
@@ -101,10 +102,12 @@ typedef struct{
 
 t_list *listaDeTablasDePaginas;
 t_list *listaDeFrames;
+
 void *puntero_memoria_principal;
 sem_t* sem_ocupar_frame;
 sem_t* sem_mutex_eliminar_pagina;
 sem_t* sem_mutex_liberar_frame;
+pthread_mutex_t cargar;
 
 t_log* logger;
 t_config* config;
@@ -122,8 +125,7 @@ int esperar_cliente(int);
 t_list* recibir_paquete(int);
 void recibir_mensaje(int);
 int recibir_operacion(int);
-t_pcb* recibir_pcb(int socket_cliente);
-t_tcb* recibir_tcb(int socket_cliente);
+t_iniciar_patota* recibir_pcb(int socket_cliente);
 uint32_t recibir_pedir_tarea(int socket_cliente);
 t_tcb* recibir_cambio_estado(int socket_cliente);
 t_tcb* recibir_desplazamiento(int socket_cliente);

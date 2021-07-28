@@ -14,7 +14,9 @@
 #include <nivel-gui/tad_nivel.h>*/
 
 #include "utils.h"
-#include "segmentacion.c"
+#include "segmentacion.h"
+#include "pags.h"
+
 /*
 #define ASSERT_CREATE(nivel, id, err)                                                   \
     if(err) {                                                                           \

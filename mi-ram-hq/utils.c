@@ -161,7 +161,7 @@ t_tcb* recibir_tcb(int socket_cliente){
 	return tripulante;
 }
 
-t_pcb* recibir_pcb(int socket_cliente){
+t_iniciar_patota* recibir_pcb(int socket_cliente){
 	int size;
 	int desplazamiento = 0;
 	void* buffer;
@@ -188,7 +188,7 @@ t_pcb* recibir_pcb(int socket_cliente){
 uint32_t recibir_pedir_tarea(int socket_cliente) {
 	uint32_t size;
 	void* buffer;
-	int tid;
+	uint32_t tid;
 	int desplazamiento = 0;
 	buffer = recibir_buffer(&size, socket_cliente);
 
@@ -241,12 +241,12 @@ uint32_t recibir_eliminar_tripulante(int socket_cliente) {
 	void* buffer;
 	buffer = recibir_buffer(&size, socket_cliente);
 
-	uint32_t *tid = malloc(sizeof(uint32_t));
+	uint32_t tid;
 
 	memcpy(&(tid), (buffer), sizeof(uint32_t));
 
 	free(buffer);
-	return (*tid);
+	return (tid);
 }
 
 //DE ACA PARA ABAJO SON DESERIALIZACIONES DE I-MONGO-STORE

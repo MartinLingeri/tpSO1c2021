@@ -1,5 +1,12 @@
-#include "paginacion.h"
 /*
+ * pags.c
+ *
+ *  Created on: 28 jul. 2021
+ *      Author: utnso
+ */
+
+#include "pags.h"
+
 void crear_lista_de_frames(void *memoria, t_list *listaDeFrames, uint32_t tamanioMemoria, uint32_t tamanioPagina){
 	listaDeFrames=list_create();
 	void *p=memoria;
@@ -69,11 +76,11 @@ t_frame *encontrar_frame_vacio(t_list *listaDeFrames, uint32_t tamanioPagina){
 		return ((t_frame *)frame)->espacioLibre==tamanioPagina;
 	}
 	/*if(alguno vacio){*/
-		//t_list *framesVacios=list_filter(listaDeFrames,_frame_vacio);
+		t_list *framesVacios=list_filter(listaDeFrames,_frame_vacio);
 	/*}else{
 		remover_una_pagina();
 	}*/
-/*
+
 	return list_get(framesVacios,0);
 }
 
@@ -86,7 +93,7 @@ t_frame *encontrar_frame_disponible(t_tabla_de_paginas *tablaDePaginas, t_list *
 		}
 	}
 	return NULL;
-}/*
+}
 
 void cargar_pcb_paginacion(t_list *listaDeFrames, t_list *listaDeTablaDePaginas, uint32_t tamanioPagina, uint32_t pid){
 	int indiceTabla = crear_tabla_de_paginas(listaDeTablaDePaginas, pid);
@@ -171,7 +178,7 @@ char* tarea_indice(char *tareas, uint32_t indice){
 
 char* proxima_instruccion_tripulante_paginacion(t_list *listaDeTablasDePaginas, uint32_t tid){
 	bool _dato_TCB(void *datoTCB){
-		return ((t_dato_en_frame *)datoTCB)->tipoContenido==TCB;
+		return ((t_dato_en_frame *)datoTCB)->tipoContenido == TCB;
 	}
 	bool _dato_TAREAS(void *datoTareas){
 		return ((t_dato_en_frame *)datoTareas)->tipoContenido==TAREAS;
@@ -199,7 +206,7 @@ char* proxima_instruccion_tripulante_paginacion(t_list *listaDeTablasDePaginas, 
 						//cargar en el swap la reemplazada
 						//devuelve
 					}*/
-					/*t_dato_en_frame *datoTareas=list_find(pagina->frame->datos,_dato_TAREAS);
+					t_dato_en_frame *datoTareas=list_find(pagina->frame->datos,_dato_TAREAS);
 					if(datoTareas!=NULL){
 						datoEncontrado->tcb->proxima_instruccion+=1;
 						return tarea_indice(datoTareas->tareas, datoEncontrado->tcb->proxima_instruccion);
@@ -354,10 +361,10 @@ t_pagina* pagina_a_remover(t_list* paginas_en_memoria){
     	}
     }
 }
-*//*
+
 uint32_t clock_algoritmo(t_pagina* t){
 	if(t->bitUso == 0){
 		t->bitUso = 1;
 	}
     return t->bitUso;
-}*/
+}
