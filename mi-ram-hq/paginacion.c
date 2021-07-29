@@ -68,12 +68,12 @@ t_frame *encontrar_frame_vacio(t_list *listaDeFrames, uint32_t tamanioPagina){
 	bool _frame_vacio(void *frame){
 		return ((t_frame *)frame)->espacioLibre==tamanioPagina;
 	}
-	/*if(alguno vacio){*/
+	if(alguno vacio){
 		//t_list *framesVacios=list_filter(listaDeFrames,_frame_vacio);
-	/*}else{
+	}else{
 		remover_una_pagina();
-	}*/
-/*
+	}
+
 	return list_get(framesVacios,0);
 }
 
@@ -86,7 +86,7 @@ t_frame *encontrar_frame_disponible(t_tabla_de_paginas *tablaDePaginas, t_list *
 		}
 	}
 	return NULL;
-}/*
+}
 
 void cargar_pcb_paginacion(t_list *listaDeFrames, t_list *listaDeTablaDePaginas, uint32_t tamanioPagina, uint32_t pid){
 	int indiceTabla = crear_tabla_de_paginas(listaDeTablaDePaginas, pid);
@@ -187,7 +187,7 @@ char* proxima_instruccion_tripulante_paginacion(t_list *listaDeTablasDePaginas, 
 			t_dato_en_frame *datoEncontrado = list_find(datosTCB, _igual_tid_en_dato);
 			if(datoEncontrado!=NULL){
 				for(int k=0; k<tabla->cantPaginas;k++){
-					/*if(esta_en_memoria(i)){
+					if(esta_en_memoria(i)){
 						t_pagina *pagina=list_get(tabla->paginas, i);
 					}else{
 						buscar_en_swap();
@@ -198,8 +198,8 @@ char* proxima_instruccion_tripulante_paginacion(t_list *listaDeTablasDePaginas, 
 						//reemplazar
 						//cargar en el swap la reemplazada
 						//devuelve
-					}*/
-					/*t_dato_en_frame *datoTareas=list_find(pagina->frame->datos,_dato_TAREAS);
+					}
+					t_dato_en_frame *datoTareas=list_find(pagina->frame->datos,_dato_TAREAS);
 					if(datoTareas!=NULL){
 						datoEncontrado->tcb->proxima_instruccion+=1;
 						return tarea_indice(datoTareas->tareas, datoEncontrado->tcb->proxima_instruccion);

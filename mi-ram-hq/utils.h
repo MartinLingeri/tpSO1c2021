@@ -87,10 +87,11 @@ typedef struct{
 	t_frame *frame;
 }t_pagina;
 
-typedef enum{
+typedef enum
+{
 	PCB,
 	TAREAS,
-	TCB
+	TCB,
 }tipo_contenido;
 
 typedef struct{
@@ -102,6 +103,7 @@ typedef struct{
 
 t_list *listaDeTablasDePaginas;
 t_list *listaDeFrames;
+t_list *lista_en_memoria;
 
 void *puntero_memoria_principal;
 sem_t* sem_ocupar_frame;

@@ -175,7 +175,7 @@ t_iniciar_patota* recibir_pcb(int socket_cliente){
 	memcpy(&(patota->cantTripulantes), buffer+desplazamiento, sizeof(uint32_t));
 	desplazamiento+=sizeof(uint32_t);
 
-	void* tareas_len = malloc(sizeof(uint32_t));
+	uint32_t tareas_len;
 	memcpy(&tareas_len, (buffer+desplazamiento), sizeof(uint32_t));
 	desplazamiento += sizeof(uint32_t);
 
@@ -186,7 +186,7 @@ t_iniciar_patota* recibir_pcb(int socket_cliente){
 }
 
 uint32_t recibir_pedir_tarea(int socket_cliente) {
-	uint32_t size;
+	int size;
 	void* buffer;
 	uint32_t tid;
 	int desplazamiento = 0;

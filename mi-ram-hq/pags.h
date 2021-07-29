@@ -33,6 +33,12 @@ void modificar_posicion_tripulante(t_list*, uint32_t, uint32_t, uint32_t);
 void modificar_estado_tripulante(t_list*, uint32_t, char);
 void listar_tripulantes(t_list*, uint32_t);
 bool hay_espacio_disponible(t_list*, uint32_t, uint32_t, uint32_t);
+t_pagina* pagina_a_remover(t_list* paginas_en_memoria);
 uint32_t clock_algoritmo(t_pagina* t);
+t_pagina* buscar_swap(int numero);
+t_pagina* buscar_en_swap();
+void remover_de_swap();
+void cargar_a_memoria();
+void cargar_a_swap();
 
 #endif /* PAGS_H_ */

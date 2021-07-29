@@ -610,3 +610,28 @@
 [INFO] 17:29:26:784 discordiador/(6746:6760): 0 - Lista de tareas completada, fin de tripulante 
 [INFO] 17:29:34:787 discordiador/(6746:6762): 2 - Tarea finalizada 
 [INFO] 17:29:34:787 discordiador/(6746:6762): 2 - Lista de tareas completada, fin de tripulante 
+[INFO] 20:36:50:424 discordiador/(3292:3292): Iniciando Discordiador
+[INFO] 20:36:50:454 discordiador/(3292:3292): Discordiador iniciado correctamente
+[INFO] 20:36:50:455 discordiador/(3292:3292): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 20:36:50:463 discordiador/(3292:3299): Servidor listo para recibir al store
+[INFO] 20:37:08:213 discordiador/(3292:3292): 0 - Iniciando Patota
+[INFO] 20:37:10:214 discordiador/(3292:3292): 0 - Tripulante iniciado 
+[INFO] 20:37:10:214 discordiador/(3292:3292): 1 - Tripulante iniciado 
+[INFO] 20:37:10:214 discordiador/(3292:3292): 2 - Tripulante iniciado 
+[INFO] 20:37:10:214 discordiador/(3292:3292): 3 - Tripulante iniciado 
+[INFO] 20:37:10:214 discordiador/(3292:3292): 0 - Patota iniciada 
+[INFO] 20:37:30:141 discordiador/(3292:3292): Planificación iniciada
+[INFO] 20:37:30:142 discordiador/(3292:3302): 0 - Comienza ejecución de tarea 
+[INFO] 20:37:30:142 discordiador/(3292:3303): 1 - Comienza ejecución de tarea 
+[INFO] 20:37:38:146 discordiador/(3292:3303): 1 - Tarea finalizada 
+[INFO] 20:37:38:146 discordiador/(3292:3303): 1 - Lista de tareas completada, fin de tripulante 
+[INFO] 20:37:38:146 discordiador/(3292:3304): 2 - Comienza ejecución de tarea 
+[INFO] 20:37:38:146 discordiador/(3292:3302): 0 - Tarea finalizada 
+[INFO] 20:37:38:147 discordiador/(3292:3302): 0 - Lista de tareas completada, fin de tripulante 
+[INFO] 20:37:38:147 discordiador/(3292:3305): 3 - Comienza ejecución de tarea 
+[INFO] 20:37:46:150 discordiador/(3292:3304): 2 - Tarea finalizada 
+[INFO] 20:37:46:150 discordiador/(3292:3304): 2 - Lista de tareas completada, fin de tripulante 
+[INFO] 20:37:46:151 discordiador/(3292:3305): 3 - Tarea finalizada 
+[INFO] 20:37:46:151 discordiador/(3292:3305): 3 - Lista de tareas completada, fin de tripulante 
+[INFO] 20:37:59:064 discordiador/(3292:3292): 0 - Finalizando discordiador
+[INFO] 20:37:59:064 discordiador/(3292:3292): 0 - Discordiador finalizado correctamente

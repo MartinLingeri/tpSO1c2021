@@ -254,7 +254,10 @@ void iniciar_patota(char** instruccion, char* leido) {
 			string_append(&contenido_tareas, buffer);
 		}
 		fclose(archivo_tareas);
-	}
+	}/*else{
+		log_error(logger, "Archivo de tareas no encontrado");
+		break;
+	}*/
 
 	int longitud = longitud_instr(instruccion);
 	uint32_t id_patota = id_ultima_patota;
