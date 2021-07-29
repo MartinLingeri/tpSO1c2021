@@ -9,6 +9,7 @@
 #define PAGS_H_
 
 #include "utils.h"
+#include "mlogs.h"
 
 #include<time.h>
 #include<locale.h>
@@ -31,14 +32,15 @@ char* proxima_instruccion_tripulante_paginacion(t_list*, uint32_t);
 void eliminar_tripulante_paginacion(t_list *listaDeTablasDePaginas, uint32_t tamanioPagina, uint32_t tid);
 void modificar_posicion_tripulante(t_list*, uint32_t, uint32_t, uint32_t);
 void modificar_estado_tripulante(t_list*, uint32_t, char);
-void listar_tripulantes(t_list*, uint32_t);
+void dump_memoria();
 bool hay_espacio_disponible(t_list*, uint32_t, uint32_t, uint32_t);
 t_pagina* pagina_a_remover(t_list* paginas_en_memoria);
 uint32_t clock_algoritmo(t_pagina* t);
-t_pagina* buscar_swap(int numero);
+t_pagina* buscar_pagina(int numero);
 t_pagina* buscar_en_swap();
-void remover_de_swap();
-void cargar_a_memoria();
-void cargar_a_swap();
+t_list* remover_de_swap();
+void cargar_pcb_a_swap(t_frame *frame, t_pcb *pcb);
+void cargar_tareas_a_swap(t_frame *frame, char *d);
+void cargar_tcb_a_swap(t_frame *frame, t_tcb *d);
 
 #endif /* PAGS_H_ */

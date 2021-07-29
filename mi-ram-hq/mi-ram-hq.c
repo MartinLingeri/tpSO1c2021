@@ -6,18 +6,20 @@ int main(void) {
 
 	logger = iniciar_logger();
 	config = leer_config();
+	logear(INICIO_SISTEMA,0);
 
-	//Carga si es PAGINACION o SEGMENTACION del archivo de config
+	struct sigaction sig = {0};
+	sig.sa_flags = SA_RESTART;
+	sig.sa_handler = &dump_memoria;
+	sigaction(SIGUSR1, &sig, NULL);
+
 	char* esquema_memoria = config_get_string_value(config, "ESQUEMA_MEMORIA");
-
-	//Carga el tamaño de memoria a instanciar
 	int tamanio_memoria = config_get_int_value(config, "TAMANIO_MEMORIA");
 
-	//Hace la locacion de la memoria que se va a utilizar
 	inicio_memoria = malloc(tamanio_memoria); //Puntero la primer ubicacion de memoria
 													//del segmento reservado para memoria
 
-	//t_list* lista_de_segmentos = list_create();
+	t_list* lista_de_segmentos = list_create();
 	//mostrar_lista_de_segmentos(lista_de_segmentos);
 /*
 	//Dibuja el mapa inicial vacío
@@ -49,7 +51,6 @@ int main(void) {
 	uint32_t tid;
 	t_paquete* paquete;
 	t_buffer* buffer;
-	uint32_t id;
 
 	int conexion = crear_conexion("127.0.0.1", "5002");
 	if(strcmp(esquema_memoria,"PAGINACION")==0){
@@ -80,6 +81,7 @@ int main(void) {
 						buffer=serializar_hay_lugar_memoria(0);
 						paquete=crear_mensaje(buffer,1);
 						enviar_paquete(paquete,conexion);
+						logear(NO_MEMORIA,0);
 					}
 					break;
 
@@ -89,6 +91,7 @@ int main(void) {
 					buffer=serializar_tarea(tid,proximaTarea);
 					paquete=crear_mensaje(buffer,3);
 					enviar_paquete(paquete,conexion);
+					logear(SOLICITA_TAREA,tid);
 					break;
 
 				case CAMBIO_ESTADO_MENSAJE:
@@ -106,6 +109,7 @@ int main(void) {
 					pthread_mutex_lock(&cargar);
 					eliminar_tripulante_paginacion(listaDeTablasDePaginas, tamanio_pagina, tid);
 					pthread_mutex_unlock(&cargar);
+					logear(ELIMINAR_TRIP,tid);
 					break;
 
 				case -1:
@@ -137,26 +141,28 @@ int main(void) {
 					break;
 
 				case PEDIR_SIGUIENTE_TAREA:
-					id = recibir_pedir_tarea(cliente_fd);
+					tid = recibir_pedir_tarea(cliente_fd);
 					puts("Respondiendo a pedir tarea");
-					printf("ID A CONTESTAR: %d\n", id);
+					printf("ID A CONTESTAR: %d\n", tid);
 					/*buffer = serializar_tarea(id,"GENERAR_OXIGENO 12;2;3;5");
 					paquete = crear_mensaje(buffer, 3);
 					enviar_paquete(paquete, conexion);*/
 					free(buffer);
+					logear(SOLICITA_TAREA,tid);
 					break;
 
 				case CAMBIO_ESTADO_MENSAJE:
-					recibir_cambio_estado(cliente_fd);
+					tripulante=recibir_cambio_estado(cliente_fd);
 					break;
 
 				case DESPLAZAMIENTO:
-					recibir_desplazamiento(cliente_fd);
+					tripulante=recibir_desplazamiento(cliente_fd);
 
 					break;
 
 				case ELIMINAR_TRIPULANTE:
-					recibir_eliminar_tripulante(cliente_fd);
+					tid = recibir_eliminar_tripulante(cliente_fd);
+					logear(ELIMINAR_TRIP,tid);
 					break;
 
 				case -1:
@@ -173,6 +179,7 @@ int main(void) {
 	free(tripulante);
 	free(iniciarPatota);
 	free(inicio_memoria);
+	logear(FIN_HQ,0);
 	terminar_programa();
 
 	return EXIT_SUCCESS;

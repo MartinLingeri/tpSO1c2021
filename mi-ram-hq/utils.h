@@ -13,6 +13,7 @@
 #include<semaphore.h>
 #include<stdbool.h>
 #include<pthread.h>
+#include<signal.h>
 
 typedef struct{
 	uint32_t size;
@@ -38,6 +39,13 @@ typedef enum
 	PEDIR_BITACORA,
 	INVOCAR_FSCK,
 }op_code;
+
+typedef enum
+{
+	PCB,
+	TAREAS,
+	TCB,
+}tipo_contenido;
 
 typedef struct{
 	uint32_t pid;
@@ -87,13 +95,6 @@ typedef struct{
 	t_frame *frame;
 }t_pagina;
 
-typedef enum
-{
-	PCB,
-	TAREAS,
-	TCB,
-}tipo_contenido;
-
 typedef struct{
 	tipo_contenido tipoContenido;
 	t_pcb *pcb;
@@ -128,6 +129,7 @@ t_list* recibir_paquete(int);
 void recibir_mensaje(int);
 int recibir_operacion(int);
 t_iniciar_patota* recibir_pcb(int socket_cliente);
+t_tcb* recibir_tcb(int socket_cliente);
 uint32_t recibir_pedir_tarea(int socket_cliente);
 t_tcb* recibir_cambio_estado(int socket_cliente);
 t_tcb* recibir_desplazamiento(int socket_cliente);

@@ -482,23 +482,11 @@ void listar_tripulantes(){
         printf("Tripulante: %3d    Patota: %3d    Estado: %3s    Posición: (%d,%d) \n",
         		((t_tripulante*)t)->TID, ((t_tripulante*)t)->PID, estados_texto[((t_tripulante*)t)->estado],
 				((t_tripulante*)t)->pos_x, ((t_tripulante*)t)->pos_y);
-
 	}
-    int hours, minutes, seconds, day, month, year;
-    time_t now;
-    time(&now);
-    struct tm *local = localtime(&now);
-
-    hours = local->tm_hour;
-    minutes = local->tm_min;
-    seconds = local->tm_sec;
-    day = local->tm_mday;
-    month = local->tm_mon + 1;
-    year = local->tm_year + 1900;
-    char* mes[] = {" ","Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
+	char* tiempo = temporal_get_string_time("%d del mes %m del año 20%y a las %H:%M:%S");
 
 	printf("---------------------------------------------------------------------------- \n");
-    printf("Estado de la nave al día %2d de %2s del año %d a la hora %02d:%02d:%02d \n", day, mes[month], year, hours, minutes, seconds);
+    printf("Estado de la nave al día %s \n", tiempo);
     list_iterate(llegada,listar);
     list_iterate(listo,listar);
     list_iterate(trabajando,listar);

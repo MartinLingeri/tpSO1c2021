@@ -27,7 +27,7 @@ void vaciar_lista_de_frames(t_list *listaDeFrames){
 
 void cargar_pcb_a_frame(t_frame *frame, t_pcb *pcb){
 	t_dato_en_frame *datopcb=malloc(sizeof(t_dato_en_frame));
-	datopcb->tipoContenido= PCB;
+	datopcb->tipoContenido = PCB;
 	datopcb->pcb=pcb;
 	datopcb->tareas=NULL;
 	datopcb->tcb=NULL;
@@ -36,7 +36,7 @@ void cargar_pcb_a_frame(t_frame *frame, t_pcb *pcb){
 
 void cargar_tareas_a_frame(t_frame *frame, char *tareas){
 	t_dato_en_frame *datotareas=malloc(sizeof(t_dato_en_frame));
-	datotareas->tipoContenido= TAREAS;
+	datotareas->tipoContenido = TAREAS;
 	datotareas->pcb=NULL;
 	datotareas->tareas=tareas;
 	datotareas->tcb=NULL;
@@ -45,7 +45,7 @@ void cargar_tareas_a_frame(t_frame *frame, char *tareas){
 
 void cargar_tcb_a_frame(t_frame *frame, t_tcb *tcb){
 	t_dato_en_frame *datotcb=malloc(sizeof(t_dato_en_frame));
-	datotcb->tipoContenido=TCB;
+	datotcb->tipoContenido = TCB;
 	datotcb->pcb=NULL;
 	datotcb->tareas=NULL;
 	datotcb->tcb=tcb;
@@ -110,6 +110,7 @@ void cargar_pcb_paginacion(t_list *listaDeFrames, t_list *listaDeTablaDePaginas,
 	pcb->tareas=dirTareas;
 	crear_pagina(tabla, frame);
 	cargar_pcb_a_frame(frame, pcb);
+	logear(LLEGA_PCB,pid);
 }
 
 t_tabla_de_paginas *encontrar_pid_lista_tablas(t_list *listaDetablasDePaginas, uint32_t pid){
@@ -139,11 +140,11 @@ void cargar_tripulante_paginacion(t_list *listaDeFrames, t_list *listaDeTablasDe
 		frame=encontrar_frame_vacio(listaDeFrames, tamanioPagina);
 		crear_pagina(tabla, frame);
 	}
-	void*p=frame->inicio+(tamanioPagina-frame->espacioLibre);
-	t_tcb *tcb=malloc(sizeof(t_tcb));
-	uint32_t *tid=p;
-	(*tid)=tripulante->tid;
-	tcb->tid=tid;
+	void *p = frame->inicio+(tamanioPagina-frame->espacioLibre);
+	t_tcb *tcb = malloc(sizeof(t_tcb));
+	uint32_t *tid = p;
+	(*tid) = tripulante->tid;
+	tcb->tid = tid;
 	p+=sizeof(uint32_t);
 	char *estado=p;
 	(*estado)=tripulante->estado;
@@ -163,6 +164,7 @@ void cargar_tripulante_paginacion(t_list *listaDeFrames, t_list *listaDeTablasDe
 	uint32_t *pcb=p;
 	(*pcb)=0;
 	cargar_tcb_a_frame(frame, tcb);
+	logear(LLEGA_TCB,tripulante->tid);
 }
 
 char* tarea_indice(char *tareas, uint32_t indice){
@@ -192,34 +194,32 @@ char* proxima_instruccion_tripulante_paginacion(t_list *listaDeTablasDePaginas, 
 	t_pagina* pagina = malloc(sizeof(t_pagina));
 	for(int i=0; i<listaDeTablasDePaginas->elements_count; i++){
 		t_tabla_de_paginas *tabla=list_get(listaDeTablasDePaginas, i);
-		for(int j=0; j<tabla->cantPaginas;i++){
-			pagina=list_get(tabla->paginas, i);
-			if(pagina->bitPresencia == 0){ //NO ESTÁ CARGADA
-				pagina = buscar_pagina(i);
-			}
 
+		for(int j=0; j<tabla->cantPaginas;j++){
+			pagina=list_get(tabla->paginas, j);
 			t_list *datosTCB=list_filter(pagina->frame->datos,_dato_TCB);
 			t_dato_en_frame *datoEncontrado = list_find(datosTCB, _igual_tid_en_dato);
 
 			if(datoEncontrado!=NULL){
+				if(pagina->bitPresencia == 0){ //NO ESTÁ CARGADA
+					pagina = buscar_pagina(j);
+				}
+
 				for(int k=0; k<tabla->cantPaginas;k++){
-					pagina=list_get(tabla->paginas, i);
-					if(pagina->bitPresencia == 0){ //NO ESTÁ CARGADA
-						pagina = buscar_pagina(i);
-					}
-				    int hours, minutes, seconds;
+					pagina=list_get(tabla->paginas, k);
 				    time_t now;
 				    time(&now);
 				    struct tm *local = localtime(&now);
-				    hours = local->tm_hour;
-				    minutes = local->tm_min;
-				    seconds = local->tm_sec;
-					uint32_t tiempo =  seconds + minutes * 60 + hours * 3600;
+					uint32_t tiempo =  local->tm_sec + local->tm_min * 60 + local->tm_hour * 3600;
 					pagina->ultimoUso = tiempo;
 
 					t_dato_en_frame *datoTareas=list_find(pagina->frame->datos,_dato_TAREAS);
 					if(datoTareas!=NULL){
+						if(pagina->bitPresencia == 0){ //NO ESTÁ CARGADA
+							pagina = buscar_pagina(k);
+						}
 						datoEncontrado->tcb->proxima_instruccion+=1;
+						pagina->ultimoUso = tiempo;
 						free(pagina);
 						return tarea_indice(datoTareas->tareas, datoEncontrado->tcb->proxima_instruccion);
 					}
@@ -243,25 +243,19 @@ void eliminar_tripulante_paginacion(t_list *listaDeTablasDePaginas, uint32_t tam
 		t_tabla_de_paginas *tabla=list_get(listaDeTablasDePaginas, i);
 		for(int j=0; j<tabla->cantPaginas;i++){
 			pagina=list_get(tabla->paginas, i);
-			if(pagina->bitPresencia == 0){ //NO ESTÁ CARGADA
-				pagina = buscar_pagina(i);
-			}
-
-		    int hours, minutes, seconds;
 		    time_t now;
 		    time(&now);
 		    struct tm *local = localtime(&now);
 
-		    hours = local->tm_hour;
-		    minutes = local->tm_min;
-		    seconds = local->tm_sec;
-
-			uint32_t tiempo =  seconds + minutes * 60 + hours * 3600;
+			uint32_t tiempo =  local->tm_sec + local->tm_min * 60 + local->tm_hour * 3600;
 			pagina->ultimoUso = tiempo;
 
 			t_list *datosTCB=list_filter(pagina->frame->datos,_dato_TCB);
 			t_dato_en_frame *datoEncontrado = list_find(datosTCB, _igual_tid_en_dato);
 			if(datoEncontrado!=NULL){
+				if(pagina->bitPresencia == 0){ //NO ESTÁ CARGADA
+					pagina = buscar_pagina(i);
+				}
 				list_remove_by_condition(pagina->frame->datos, _igual_tid_en_dato);
 				pagina->frame->espacioLibre-=sizeof(t_tcb);
 				if(pagina->frame->espacioLibre==tamanioPagina){
@@ -288,25 +282,18 @@ void modificar_posicion_tripulante(t_list *listaDeTablasDePaginas, uint32_t tid,
 		t_tabla_de_paginas *tabla=list_get(listaDeTablasDePaginas, i);
 		for(int j=0; j<tabla->cantPaginas;i++){
 			pagina=list_get(tabla->paginas, i);
-			if(pagina->bitPresencia == 0){ //NO ESTÁ CARGADA
-				pagina = buscar_pagina(i);
-			}
-
-		    int hours, minutes, seconds;
 		    time_t now;
 		    time(&now);
 		    struct tm *local = localtime(&now);
-
-		    hours = local->tm_hour;
-		    minutes = local->tm_min;
-		    seconds = local->tm_sec;
-
-			uint32_t tiempo =  seconds + minutes * 60 + hours * 3600;
+			uint32_t tiempo =  local->tm_sec + local->tm_min * 60 + local->tm_hour * 3600;
 			pagina->ultimoUso = tiempo;
 
 			t_list *datosTCB=list_filter(pagina->frame->datos,_dato_TCB);
 			t_dato_en_frame *datoEncontrado = list_find(datosTCB, _igual_tid_en_dato);
 			if(datoEncontrado!=NULL){
+				if(pagina->bitPresencia == 0){ //NO ESTÁ CARGADA
+					pagina = buscar_pagina(i);
+				}
 				datoEncontrado->tcb->pos_x=pos_x;
 				datoEncontrado->tcb->pos_y=pos_y;
 				free(pagina);
@@ -326,28 +313,22 @@ void modificar_estado_tripulante(t_list *listaDeTablasDePaginas, uint32_t tid, c
 	}
 	t_pagina* pagina = malloc(sizeof(t_pagina));
 	for(int i=0; i<listaDeTablasDePaginas->elements_count; i++){
-		t_tabla_de_paginas *tabla=list_get(listaDeTablasDePaginas, i);
-		for(int j=0; j<tabla->cantPaginas;i++){
-			pagina=list_get(tabla->paginas, i);
-			if(pagina->bitPresencia == 0){ //NO ESTÁ CARGADA
-				pagina = buscar_pagina(i);
-			}
-
-		    int hours, minutes, seconds;
-		    time_t now;
-		    time(&now);
-		    struct tm *local = localtime(&now);
-
-		    hours = local->tm_hour;
-		    minutes = local->tm_min;
-		    seconds = local->tm_sec;
-
-			uint32_t tiempo =  seconds + minutes * 60 + hours * 3600;
-			pagina->ultimoUso = tiempo;
-
+		t_tabla_de_paginas *tabla = list_get(listaDeTablasDePaginas, i);
+		for(int j=0; j<tabla->cantPaginas;j++){
+			pagina=list_get(tabla->paginas, j);
 			t_list *datosTCB=list_filter(pagina->frame->datos,_dato_TCB);
 			t_dato_en_frame *datoEncontrado = list_find(datosTCB, _igual_tid_en_dato);
+
+		    time_t now;
+			time(&now);
+			struct tm *local = localtime(&now);
+			uint32_t tiempo =  local->tm_sec + local->tm_min * 60 + local->tm_hour * 3600;
+			pagina->ultimoUso = tiempo;
+
 			if(datoEncontrado!=NULL){
+				if(pagina->bitPresencia == 0){ //NO ESTÁ CARGADA
+					pagina = buscar_pagina(j);
+				}
 				datoEncontrado->tcb->estado=estado;
 				free(pagina);
 				break;
@@ -357,19 +338,43 @@ void modificar_estado_tripulante(t_list *listaDeTablasDePaginas, uint32_t tid, c
 	free(pagina);
 }
 
-void listar_tripulantes(t_list *listaDeTablasDePaginas, uint32_t tamanioPagina){
-	printf("\n-----------------------------\n");
-	for(int i=0; i<listaDeTablasDePaginas->elements_count; i++){
-		t_tabla_de_paginas *tabla=list_get(listaDeTablasDePaginas, i);
-		for(int j=0; j<tabla->cantPaginas;i++){
-			t_pagina *pagina=list_get(tabla->paginas, i);
-			if(pagina->frame->espacioLibre==tamanioPagina){
-				printf("Marco:%d	Estado:Libre		Proceso:%d		Pagina:%d\n", pagina->frame->nroFrame,tabla->idPatota,pagina->nroPagina);
-			}else{
-				printf("Marco:%d	Estado:Ocupado		Proceso:%d		Pagina:%d\n", pagina->frame->nroFrame,tabla->idPatota,pagina->nroPagina);
+void dump_memoria(){ //NO TESTEADO
+	int tamanioPagina = config_get_int_value(config, "TAMANIO_MEMORIA");
+	char* esquema_memoria = config_get_string_value(config, "ESQUEMA_MEMORIA");
+	char* path = string_new();
+	char* tiempo = temporal_get_string_time("%H:%M:%S");
+
+	string_append(&path,"home/"); //ESTO NO ANDA EN LA VM, VER COMO HACER
+	string_append(&path,"Dump_");
+	string_append(&path,tiempo);
+	string_append(&path,".dmp");
+
+    FILE* dump = fopen(path,"w");
+
+	pthread_mutex_lock(&cargar);
+	if(strcmp(esquema_memoria, "PAGINACION") == 0){
+
+		for(int i=0; i<listaDeTablasDePaginas->elements_count; i++){
+			t_tabla_de_paginas *tabla=list_get(listaDeTablasDePaginas, i);
+			fprintf(dump,"\n-----------------------------\n");
+			for(int j=0; j<tabla->cantPaginas;i++){
+				t_pagina *pagina=list_get(tabla->paginas, i);
+				if(pagina->frame->espacioLibre==tamanioPagina){
+					fprintf(dump,"Marco:%2d Estado:%2d Proceso:-		Pagina:-\n", pagina->frame->nroFrame, "Libre");
+				}else{
+					fprintf(dump,"Marco:%2d	Estado:%2d Proceso:%2d Pagina:%2d \n", pagina->frame->nroFrame,"Ocupado", tabla->idPatota,pagina->nroPagina);
+				}
 			}
 		}
+
+	}else{
+		//DUMP SEGMENTACION
 	}
+	pthread_mutex_unlock(&cargar);
+
+	fclose(dump);
+	free(path);
+	free(time);
 }
 
 bool hay_espacio_disponible(t_list *listaDeFrames, uint32_t tamanioPagina, uint32_t cantTripulantes, uint32_t tareasLen){
@@ -427,12 +432,7 @@ uint32_t clock_algoritmo(t_pagina* t){
     return t->bitUso;
 }
 
-t_pagina* buscar_en_swap(t_pagina* t){
-	return t;
-}
-
-
-t_pagina* buscar_swap(int numero){
+t_pagina* buscar_pagina(int numero){
 	t_pagina* pagina = buscar_en_swap(numero);
 	t_list* contenido = remover_de_swap(pagina);
 	t_pagina* objetivo = pagina_a_remover(lista_en_memoria);
@@ -442,19 +442,28 @@ t_pagina* buscar_swap(int numero){
 	pagina->bitPresencia = 1;
 	pagina->bitUso = 0;
 
+	logear(A_SWAP,objetivo->nroPagina);
 	cargar_a_swap(objetivo, frame);
+	//list_remove(lista_en_memoria,objetivo);
+	logear(A_MEMORIA,pagina->nroPagina);
 	cargar_a_memoria(contenido, frame);
+	list_add(lista_en_memoria,pagina);
 
 	return pagina;
 }
 
+
+t_pagina* buscar_en_swap(t_pagina* t){
+	return t;
+}
+
 t_list* remover_de_swap(t_pagina* t){
 	t_list* lista=list_create();
-	while(contenido_pagina_en_swap){
+	/*while(contenido_pagina_en_swap){
 		void* d = list_get(lista_swap,0);
 		list_remove(t->lista,0);
 		list_add(lista,d);
-	}
+	}*/
 	return lista;
 }
 
@@ -462,11 +471,11 @@ void cargar_a_memoria(t_list* c, t_frame* f){
 	while(list_size(c) != 0){
 		t_dato_en_frame* d = list_get(c,0);
 		if(d->tipoContenido == 0){
-			cargar_pcb_a_frame(f,d);
+			cargar_pcb_a_frame(f,d->pcb);
 		}else if(d->tipoContenido == 1){
-			cargar_tareas_a_frame(f,d);
+			cargar_tareas_a_frame(f,d->tareas);
 		}else{
-			cargar_tcb_a_frame(f,d);
+			cargar_tcb_a_frame(f,d->tcb);
 		}
 	}
 	return;
@@ -476,25 +485,25 @@ void cargar_a_swap(t_pagina* p, t_frame* f){
 	while(list_size(f->datos) != 0){
 		t_dato_en_frame* d = list_get(f->datos,0);
 		if(d->tipoContenido == 0){
-			cargar_pcb_a_swap(d);
+			cargar_pcb_a_swap(f,d->pcb);
 		}else if(d->tipoContenido == 1){
-			cargar_tareas_a_swap(d);
+			cargar_tareas_a_swap(f,d->pcb);
 		}else{
-			cargar_tcb_a_swap(d);
+			cargar_tcb_a_swap(f,d->pcb);
 		}
 		list_remove(f->datos,0);
 	}
 	return;
 }
 
-void cargar_pcb_a_swap(t_dato_en_frame* d){
+void cargar_pcb_a_swap(t_frame *frame, t_pcb *pcb){
 	return;
 }
 
-void cargar_tareas_a_swap(t_dato_en_frame* d){
+void cargar_tareas_a_swap(t_frame *frame, char *d){
 	return;
 }
 
-void cargar_tcb_a_swap(t_dato_en_frame* d){
+void cargar_tcb_a_swap(t_frame *frame, t_tcb *d){
 	return;
 }
