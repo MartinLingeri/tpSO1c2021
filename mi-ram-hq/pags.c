@@ -378,9 +378,9 @@ void dump_memoria(){ //NO TESTEADO
 			for(int j=0; j<tabla->cantPaginas;i++){
 				t_pagina *pagina=list_get(tabla->paginas, i);
 				if(pagina->frame->espacioLibre==tamanioPagina){
-					fprintf(dump,"Marco:%2d Estado:%s Proceso:-	Pagina:-\n", pagina->frame->nroFrame, "Libre");
+					fprintf(dump,"Marco:%2d Estado:%2s Proceso:-		Pagina:-\n", pagina->frame->nroFrame, "Libre");
 				}else{
-					fprintf(dump,"Marco:%2d	Estado:%s Proceso:%2d	Pagina:%2d \n", pagina->frame->nroFrame,"Ocupado", tabla->idPatota,pagina->nroPagina);
+					fprintf(dump,"Marco:%2d	Estado:%2s Proceso:%2d Pagina:%2d \n", pagina->frame->nroFrame,"Ocupado", tabla->idPatota,pagina->nroPagina);
 				}
 			}
 		}
