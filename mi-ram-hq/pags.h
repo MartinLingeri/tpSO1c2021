@@ -78,8 +78,11 @@ uint32_t clock_algoritmo(t_pagina* t);
 t_pagina* buscar_pagina(int numero);
 t_pagina* buscar_en_swap();
 t_list* remover_de_swap();
+void cargar_a_swap(t_pagina*, t_frame*);
+void cargar_a_memoria(t_list*, t_frame*);
 void cargar_pcb_a_swap(t_frame *frame, t_pcb *pcb);
 void cargar_tareas_a_swap(t_frame *frame, char *d);
 void cargar_tcb_a_swap(t_frame *frame, t_tcb *d);
+t_list* paginas_en_memoria();
 
 #endif /* PAGS_H_ */

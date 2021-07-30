@@ -56,13 +56,14 @@ int main(void) {
 
 	if(strcmp(esquema_memoria,"PAGINACION")==0){
 		int tamanio_swap=config_get_int_value(config, "TAMANIO_SWAP");
-		char* path_swap=open(config_get_string_value(config, "PATH_SWAP"),O_RDWR|O_CREAT,S_IRUSR|S_IWUSR);
-		if(path_swap==-1){
+		char* path_swap=config_get_string_value(config, "PATH_SWAP");
+		int archivo_swap=open(path_swap,O_RDWR|O_CREAT,S_IRUSR|S_IWUSR);
+		if(archivo_swap==-1){
 			log_error(logger,"Error al abrir el archivo de swap");
 			return EXIT_FAILURE;
 		}
-		ftruncate(path_swap,tamanio_swap);
-		void* inicio_memoria_virtual=mmap(NULL,tamanio_swap,PROT_READ|PROT_WRITE,MAP_SHARED,path_swap,0);
+		ftruncate(archivo_swap,tamanio_swap);
+		void* inicio_memoria_virtual=mmap(NULL,tamanio_swap,PROT_READ|PROT_WRITE,MAP_SHARED,archivo_swap,0);
 		if(inicio_memoria_virtual==MAP_FAILED){
 			log_error(logger,"Error al mapear en memoria el archivo de swap");
 			return EXIT_FAILURE;

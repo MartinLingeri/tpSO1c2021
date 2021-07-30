@@ -91,10 +91,10 @@ t_frame *encontrar_frame_vacio(){
 	}
 	t_list *framesVacios=list_filter(listaDeFrames,_frame_vacio);
 	if(framesVacios==NULL){
-		/*saco de memoria la pag de OTRO proceso, la guardo en mv y devuelvo el frame libre
-		 * para que se pueda guardar la nueva.
-		 * Si no puedo sacar de otro proceso, directamente deberia sacar una del mismo proceso
-		 * guardarla en mv y devolver el frame libre para que se pueda guardar la nueva*/
+		t_list*pagsEnMemoria=paginas_en_memoria();
+		t_pagina*paginaARemover=pagina_a_remover(pagsEnMemoria);
+		cargar_a_swap(paginaARemover,paginaARemover->frame);
+		return paginaARemover->frame;
 	}
 	return list_get(framesVacios,0);
 }
@@ -462,11 +462,11 @@ uint32_t clock_algoritmo(t_pagina* t){
 	}
     return t->bitUso;
 }
-/*
+
 t_pagina* buscar_pagina(int numero){
 	t_pagina* pagina = buscar_en_swap(numero);
 	t_list* contenido = remover_de_swap(pagina);
-	t_pagina* objetivo = pagina_a_remover(lista_en_memoria);
+	t_pagina* objetivo = pagina_a_remover(paginas_en_memoria());
 	t_frame* frame = objetivo->frame;
 
 	pagina->frame = objetivo->frame;
@@ -478,11 +478,10 @@ t_pagina* buscar_pagina(int numero){
 	//list_remove(lista_en_memoria,objetivo);
 	logear(A_MEMORIA,pagina->nroPagina);
 	cargar_a_memoria(contenido, frame);
-	list_add(lista_en_memoria,pagina);
 
 	return pagina;
 }
-*/
+
 t_pagina* buscar_en_swap(t_pagina* t){
 	return t;
 }
@@ -514,12 +513,12 @@ void cargar_a_memoria(t_list* c, t_frame* f){
 void cargar_a_swap(t_pagina* p, t_frame* f){
 	while(list_size(f->datos) != 0){
 		t_dato_en_frame* d = list_get(f->datos,0);
-		if(d->tipoContenido == 0){
+		if(d->tipoContenido == PCB){
 			cargar_pcb_a_swap(f,d->pcb);
-		}else if(d->tipoContenido == 1){
-			cargar_tareas_a_swap(f,d->pcb);
+		}else if(d->tipoContenido == TAREAS){
+			cargar_tareas_a_swap(f,d->tareas);
 		}else{
-			cargar_tcb_a_swap(f,d->pcb);
+			cargar_tcb_a_swap(f,d->tcb);
 		}
 		list_remove(f->datos,0);
 	}
