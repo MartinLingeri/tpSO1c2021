@@ -53,16 +53,29 @@ int main(void) {
 
 	int conexion = crear_conexion("127.0.0.1", "5002");
 	if(strcmp(esquema_memoria,"PAGINACION")==0){
+		int tamanio_swap=config_get_int_value(config, "TAMANIO_SWAP");
+		char* path_swap=open(config_get_string_value(config, "PATH_SWAP"),O_RDWR|O_CREAT,S_IRUSR|S_IWUSR);
+		if(path_swap==-1){
+			log_error(logger,"Error al abrir el archivo de swap");
+			return EXIT_FAILURE;
+		}
+		ftruncate(path_swap,tamanio_swap);
+		void* inicio_memoria_virtual=mmap(NULL,tamanio_swap+1,PROT_READ|PROT_WRITE,MAP_SHARED,path_swap,0);
+		if(inicio_memoria_virtual==MAP_FAILED){
+			log_error(logger,"Error al mapear en memoria el archivo de swap");
+			return EXIT_FAILURE;
+		}
 		uint32_t tamanio_pagina = config_get_int_value(config,"TAMANIO_PAGINA");
 		listaDeTablasDePaginas=list_create();
 		crear_lista_de_frames(inicio_memoria, listaDeFrames, tamanio_memoria, tamanio_pagina);
+		crear_lista_de_frames_swap(inicio_memoria_virtual,listaDeFramesSwap,tamanio_swap,tamanio_pagina);
 		while(1){
 			int cod_op = recibir_operacion(cliente_fd);
 			switch(cod_op){
 				case TCB_MENSAJE:
 					tripulante = recibir_tcb(cliente_fd);
 					pthread_mutex_lock(&cargar);
-					cargar_tripulante_paginacion(listaDeFrames, listaDeTablasDePaginas, tamanio_pagina, tripulante);
+					cargar_tripulante_paginacion(listaDeFrames, listaDeFramesSwap, listaDeTablasDePaginas, tamanio_pagina, tripulante);
 					pthread_mutex_unlock(&cargar);
 					break;
 
@@ -73,8 +86,8 @@ int main(void) {
 						paquete=crear_mensaje(buffer,1);
 						enviar_paquete(paquete,conexion);
 						pthread_mutex_lock(&cargar);
-						cargar_pcb_paginacion(listaDeFrames, listaDeTablasDePaginas, tamanio_pagina, iniciarPatota->pid);
-						cargar_tareas_paginacion(listaDeFrames, listaDeTablasDePaginas, tamanio_pagina, iniciarPatota->pid, iniciarPatota->tareas);
+						cargar_pcb_paginacion(listaDeFrames, listaDeFramesSwap, listaDeTablasDePaginas, tamanio_pagina, iniciarPatota->pid);
+						cargar_tareas_paginacion(listaDeFrames, listaDeFramesSwap, listaDeTablasDePaginas, tamanio_pagina, iniciarPatota->pid, iniciarPatota->tareas);
 						pthread_mutex_unlock(&cargar);
 					}else{
 						buffer=serializar_hay_lugar_memoria(0);
@@ -117,6 +130,7 @@ int main(void) {
 				}
 			}
 		vaciar_lista_de_frames(listaDeFrames);
+		vaciar_lista_de_frames(listaDeFramesSwap);
 	}else if(strcmp(esquema_memoria,"SEGMENTACION")==0){
 		while(1){
 			int cod_op = recibir_operacion(cliente_fd);

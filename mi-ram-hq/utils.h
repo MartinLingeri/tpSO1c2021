@@ -13,6 +13,9 @@
 #include<semaphore.h>
 #include<stdbool.h>
 #include<pthread.h>
+#include<sys/mman.h>
+#include<unistd.h>
+#include<fcntl.h>
 
 typedef struct{
 	uint32_t size;
@@ -103,9 +106,11 @@ typedef struct{
 
 t_list *listaDeTablasDePaginas;
 t_list *listaDeFrames;
+t_list *listaDeFramesSwap;
 t_list *lista_en_memoria;
 
-void *puntero_memoria_principal;
+void *inicio_memoria;
+void *inicio_memoria_virtual;
 sem_t* sem_ocupar_frame;
 sem_t* sem_mutex_eliminar_pagina;
 sem_t* sem_mutex_liberar_frame;

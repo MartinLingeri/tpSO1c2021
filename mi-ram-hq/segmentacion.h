@@ -8,7 +8,6 @@
 #ifndef SEGMENTACION_H_
 #define SEGMENTACION_H_
 
-void* inicio_memoria;
 /*
 segmento* crear_segmento(int, int);
 void* check_for_space(t_list*, int);
