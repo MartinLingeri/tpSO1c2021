@@ -16,6 +16,8 @@
 #include<sys/mman.h>
 #include<unistd.h>
 #include<fcntl.h>
+#include<signal.h>
+
 
 typedef struct{
 	uint32_t size;
@@ -41,6 +43,13 @@ typedef enum
 	PEDIR_BITACORA,
 	INVOCAR_FSCK,
 }op_code;
+
+typedef enum
+{
+	PCB,
+	TAREAS,
+	TCB,
+}tipo_contenido;
 
 typedef struct{
 	uint32_t pid;
@@ -68,52 +77,8 @@ typedef struct{
 	char *tareas;
 }t_iniciar_patota;
 
-typedef struct{
-	uint32_t idPatota;
-	uint32_t cantPaginas;
-	t_list *paginas;
-}t_tabla_de_paginas;
-
-typedef struct{
-	uint32_t nroFrame;
-	uint32_t espacioLibre;
-	void *inicio;
-	t_list *datos;
-}t_frame;
-
-typedef struct{
-	uint32_t nroPagina;
-	uint32_t bitPresencia;
-	uint32_t bitUso;
-	uint32_t bitModificado;
-	uint32_t ultimoUso;
-	t_frame *frame;
-}t_pagina;
-
-typedef enum
-{
-	PCB,
-	TAREAS,
-	TCB,
-}tipo_contenido;
-
-typedef struct{
-	tipo_contenido tipoContenido;
-	t_pcb *pcb;
-	char *tareas;
-	t_tcb *tcb;
-}t_dato_en_frame;
-
-t_list *listaDeTablasDePaginas;
-t_list *listaDeFrames;
-t_list *listaDeFramesSwap;
-t_list *lista_en_memoria;
-
 void *inicio_memoria;
-void *inicio_memoria_virtual;
-sem_t* sem_ocupar_frame;
-sem_t* sem_mutex_eliminar_pagina;
-sem_t* sem_mutex_liberar_frame;
+
 pthread_mutex_t cargar;
 
 t_log* logger;
@@ -133,6 +98,7 @@ t_list* recibir_paquete(int);
 void recibir_mensaje(int);
 int recibir_operacion(int);
 t_iniciar_patota* recibir_pcb(int socket_cliente);
+t_tcb* recibir_tcb(int socket_cliente);
 uint32_t recibir_pedir_tarea(int socket_cliente);
 t_tcb* recibir_cambio_estado(int socket_cliente);
 t_tcb* recibir_desplazamiento(int socket_cliente);

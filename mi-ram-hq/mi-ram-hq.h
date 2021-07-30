@@ -5,7 +5,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <curses.h>
-
+#include <signal.h>
+#include <unistd.h>
 #include <commons/log.h>
 #include <commons/config.h>
 #include <commons/collections/list.h>
@@ -16,6 +17,7 @@
 #include "utils.h"
 #include "segmentacion.h"
 #include "pags.h"
+#include "mlogs.h"
 
 /*
 #define ASSERT_CREATE(nivel, id, err)                                                   \

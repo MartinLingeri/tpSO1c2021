@@ -6,6 +6,7 @@
 #include<commons/string.h>
 #include<commons/config.h>
 #include<commons/collections/list.h>
+#include<commons/temporal.h>
 #include<readline/readline.h>
 #include<pthread.h>
 #include<time.h>
