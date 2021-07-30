@@ -52,7 +52,8 @@ int main(void) {
 	t_paquete* paquete;
 	t_buffer* buffer;
 
-	int conexion = crear_conexion("127.0.0.1", "5002");
+	int conexion = crear_conexion("127.0.0.1", "5002"); //IP Y PUERTO DS PONER EN CONFIG
+
 	if(strcmp(esquema_memoria,"PAGINACION")==0){
 		uint32_t tamanio_pagina = config_get_int_value(config,"TAMANIO_PAGINA");
 		listaDeTablasDePaginas=list_create();
@@ -179,6 +180,7 @@ int main(void) {
 	free(tripulante);
 	free(iniciarPatota);
 	free(inicio_memoria);
+	close(conexion);
 	logear(FIN_HQ,0);
 	terminar_programa();
 
@@ -265,42 +267,6 @@ t_buffer* serializar_tarea(uint32_t id, char* tarea)
 
 	memcpy(stream + desplazamiento, tarea, strlen(tarea) + 1);
 	desplazamiento += strlen(tarea) + 1;
-
-	buffer->size = desplazamiento;
-	buffer->stream = stream;
-	return buffer;
-}
-
-t_buffer* serializar_sabotaje(uint32_t x, uint32_t y)
-{
-	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(2*sizeof(uint32_t));
-
-	int desplazamiento = 0;
-
-	memcpy(stream + desplazamiento, (void*)(&x), sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	memcpy(stream + desplazamiento, (void*)(&y), sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	buffer->size = desplazamiento;
-	buffer->stream = stream;
-	return buffer;
-}
-
-t_buffer* serializar_bitacora(char* reporte)
-{
-	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t) + sizeof(uint32_t) + strlen(reporte) + 1);
-	int desplazamiento = 0;
-
-	uint32_t  reporte_len;
-	reporte_len = strlen(reporte) + 1;
-	memcpy(stream + desplazamiento, (void*)(&reporte_len), sizeof(uint32_t));
-	desplazamiento += sizeof(strlen(reporte) + 1);
-	memcpy(stream + desplazamiento, reporte, strlen(reporte) + 1);
-	desplazamiento += strlen(reporte) + 1;
 
 	buffer->size = desplazamiento;
 	buffer->stream = stream;

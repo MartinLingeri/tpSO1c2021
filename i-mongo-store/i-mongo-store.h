@@ -5,7 +5,6 @@
 #include<stdlib.h>
 #include<string.h>
 #include<commons/log.h>
-#include "utils.h"
 #include<commons/bitarray.h>
 #include<commons/string.h>
 #include<stdint.h>
@@ -14,6 +13,9 @@
 #include<fcntl.h>
 #include<readline/readline.h>
 #include<unistd.h>
+
+#include "utils.h"
+#include "fscoms.h"
 
 	char* punto_montaje;
 	int puerto;

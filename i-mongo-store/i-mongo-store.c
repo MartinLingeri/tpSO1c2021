@@ -20,30 +20,52 @@ int main(void)
 	int cliente_fd = esperar_cliente(server_fd);
 
 	t_list* lista;
+	uint32_t tid;
+	t_hacer_tarea* tarea = malloc(sizeof(t_hacer_tarea));
+	t_rlog* log = malloc(sizeof(t_log));
+
+	int conexion = crear_conexion("127.0.0.1", "5002"); //IP Y PUERTO DS AGREGAR A CONFIG
+	t_paquete* paquete;
+	t_buffer* buffer;
+
 	while(1)
 	{
 		int cod_op = recibir_operacion(cliente_fd);
 		switch(cod_op)
 		{
-		case MENSAJE:
-			recibir_mensaje(cliente_fd);
+		case REPORTE_BITACORA:
+			log = recibir_rbitacora(cliente_fd);
 			break;
-		case PAQUETE:
-			lista = recibir_paquete(cliente_fd);
-			printf("Me llegaron los siguientes valores:\n");
-			list_iterate(lista, (void*) iterator);
+
+		case HACER_TAREA:
+			tarea = recibir_hacer_tarea(cliente_fd);
 			break;
+
+		case PEDIR_BITACORA:
+			tid = recibir_pedir_bitacora(cliente_fd);
+			buffer=serializar_bitacora("Aca iría la bitacora pedida");
+			paquete=crear_mensaje(buffer,BITACORA);
+			enviar_paquete(paquete,conexion);
+			break;
+
+		case INVOCAR_FSCK:
+			tid = recibir_invocar_fsck(cliente_fd);
+			break;
+
 		case -1:
 			log_error(logger, "el cliente se desconecto. Terminando servidor");
 			return EXIT_FAILURE;
+
 		default:
 			log_warning(logger, "Operacion desconocida. No quieras meter la pata");
 			break;
 		}
 	}
+	free(tarea);
+	free(log);
+	close(conexion);
 
 	log_destroy(logger);
-
 	return EXIT_SUCCESS;
 }
 
