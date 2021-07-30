@@ -7,7 +7,7 @@
 
 #include "pags.h"
 
-void crear_lista_de_frames(void *memoria, t_list *listaDeFrames, uint32_t tamanioMemoria, uint32_t tamanioPagina){
+void crear_lista_de_frames(void *memoria, uint32_t tamanioMemoria){
 	listaDeFrames=list_create();
 	void *p=memoria;
 	t_frame *frameVacio = malloc(sizeof(t_frame));
@@ -21,7 +21,7 @@ void crear_lista_de_frames(void *memoria, t_list *listaDeFrames, uint32_t tamani
 	}
 }
 
-void crear_lista_de_frames_swap(void *memoriaSwap, t_list *listaDeFramesSwap, uint32_t tamanioSwap, uint32_t tamanioPagina){
+void crear_lista_de_frames_swap(void *memoriaSwap, uint32_t tamanioSwap){
 	listaDeFramesSwap=list_create();
 		void *p=memoriaSwap;
 		t_frame *frameVacio = malloc(sizeof(t_frame));
@@ -66,7 +66,7 @@ void cargar_tcb_a_frame(t_frame *frame, t_tcb *tcb){
 	list_add(frame->datos, datotcb);
 }
 
-int crear_tabla_de_paginas(t_list *listaDeTablasDePaginas, uint32_t idPatota){
+int crear_tabla_de_paginas(uint32_t idPatota){
 	t_tabla_de_paginas *tablaDePaginas = malloc(sizeof(t_tabla_de_paginas));
 	tablaDePaginas->idPatota=idPatota;
 	tablaDePaginas->cantPaginas=0;
@@ -85,18 +85,21 @@ void crear_pagina(t_tabla_de_paginas *tablaDePaginas, t_frame *frame){
 	tablaDePaginas->cantPaginas+=1;
 }
 
-t_frame *encontrar_frame_vacio(t_list *listaDeFrames, uint32_t tamanioPagina){
+t_frame *encontrar_frame_vacio(){
 	bool _frame_vacio(void *frame){
 		return ((t_frame *)frame)->espacioLibre==tamanioPagina;
 	}
 	t_list *framesVacios=list_filter(listaDeFrames,_frame_vacio);
 	if(framesVacios==NULL){
-
+		/*saco de memoria la pag de OTRO proceso, la guardo en mv y devuelvo el frame libre
+		 * para que se pueda guardar la nueva.
+		 * Si no puedo sacar de otro proceso, directamente deberia sacar una del mismo proceso
+		 * guardarla en mv y devolver el frame libre para que se pueda guardar la nueva*/
 	}
 	return list_get(framesVacios,0);
 }
 
-t_frame *encontrar_frame_disponible(t_tabla_de_paginas *tablaDePaginas, t_list *listaDeFrames, uint32_t tamanioPagina, uint32_t tamanioNecesario){
+t_frame *encontrar_frame_disponible(t_tabla_de_paginas *tablaDePaginas, uint32_t tamanioNecesario){
 	for(int i=0; i<tablaDePaginas->cantPaginas;i++){
 		t_pagina *pagina=list_get(tablaDePaginas->paginas,i);
 		t_frame *frame=pagina->frame;
@@ -107,10 +110,10 @@ t_frame *encontrar_frame_disponible(t_tabla_de_paginas *tablaDePaginas, t_list *
 	return NULL;
 }
 
-void cargar_pcb_paginacion(t_list *listaDeFrames, t_list* listaDeFramesSwap, t_list *listaDeTablaDePaginas, uint32_t tamanioPagina, uint32_t pid){
-	int indiceTabla = crear_tabla_de_paginas(listaDeTablaDePaginas, pid);
-	t_tabla_de_paginas *tabla=list_get(listaDeTablaDePaginas, indiceTabla);
-	t_frame *frame = encontrar_frame_vacio(listaDeFrames, tamanioPagina);
+void cargar_pcb_paginacion(uint32_t pid){
+	int indiceTabla = crear_tabla_de_paginas(pid);
+	t_tabla_de_paginas *tabla=list_get(listaDeTablasDePaginas, indiceTabla);
+	t_frame *frame = encontrar_frame_vacio();
 	void *p=frame->inicio;
 	t_pcb *pcb=malloc(sizeof(t_pcb));
 	uint32_t *ppid=p;
@@ -126,18 +129,18 @@ void cargar_pcb_paginacion(t_list *listaDeFrames, t_list* listaDeFramesSwap, t_l
 	logear(LLEGA_PCB,pid);
 }
 
-t_tabla_de_paginas *encontrar_pid_lista_tablas(t_list *listaDetablasDePaginas, uint32_t pid){
+t_tabla_de_paginas *encontrar_pid_lista_tablas(uint32_t pid){
 	bool _criterio_igual_pid_lista_tablas(void *tabla){
 		return ((t_tabla_de_paginas *)tabla)->idPatota==pid;
 	}
 	return list_find(listaDeTablasDePaginas, _criterio_igual_pid_lista_tablas);
 }
 
-void cargar_tareas_paginacion(t_list *listaDeFrames, t_list *listaDeFramesSwap, t_list *listaDeTablasDePaginas, uint32_t tamanioPagina, uint32_t pid, char*tareas){
-	t_tabla_de_paginas *tabla = encontrar_pid_lista_tablas(listaDeTablasDePaginas, pid);
-	t_frame *frame = encontrar_frame_disponible(tabla, listaDeFrames, tamanioPagina, strlen(tareas));
+void cargar_tareas_paginacion(uint32_t pid, char*tareas){
+	t_tabla_de_paginas *tabla = encontrar_pid_lista_tablas(pid);
+	t_frame *frame = encontrar_frame_disponible(tabla, strlen(tareas));
 	if(frame==NULL){
-		frame=encontrar_frame_vacio(listaDeFrames, tamanioPagina);
+		frame=encontrar_frame_vacio();
 		nroPagGlobal+=1;
 		crear_pagina(tabla, frame);
 	}
@@ -147,11 +150,11 @@ void cargar_tareas_paginacion(t_list *listaDeFrames, t_list *listaDeFramesSwap, 
 	cargar_tareas_a_frame(frame, t);
 }
 
-void cargar_tripulante_paginacion(uint32_t tamanioPagina, t_tcb *tripulante){
-	t_tabla_de_paginas *tabla = encontrar_pid_lista_tablas(listaDeTablasDePaginas, tripulante->pcb);
-	t_frame *frame = encontrar_frame_disponible(tabla, listaDeFrames, tamanioPagina, sizeof(tripulante));
+void cargar_tripulante_paginacion(t_tcb *tripulante){
+	t_tabla_de_paginas *tabla = encontrar_pid_lista_tablas(tripulante->pcb);
+	t_frame *frame = encontrar_frame_disponible(tabla, sizeof(tripulante));
 	if(frame==NULL){
-		frame=encontrar_frame_vacio(listaDeFrames, tamanioPagina);
+		frame=encontrar_frame_vacio();
 		nroPagGlobal+=1;
 		crear_pagina(tabla, frame);
 	}
@@ -246,7 +249,7 @@ char* proxima_instruccion_tripulante_paginacion(uint32_t tid){
 	return 0;
 }
 
-void eliminar_tripulante_paginacion(t_list *listaDeTablasDePaginas, uint32_t tamanioPagina, uint32_t tid){
+void eliminar_tripulante_paginacion(uint32_t tid){
 	bool _dato_TCB(void *datoTCB){
 		return ((t_dato_en_frame *)datoTCB)->tipoContenido==TCB;
 	}
@@ -284,7 +287,7 @@ void eliminar_tripulante_paginacion(t_list *listaDeTablasDePaginas, uint32_t tam
 	free(pagina);
 }
 
-void modificar_posicion_tripulante(t_list *listaDeTablasDePaginas, uint32_t tid, uint32_t pos_x, uint32_t pos_y){
+void modificar_posicion_tripulante(uint32_t tid, uint32_t pos_x, uint32_t pos_y){
 	bool _dato_TCB(void *datoTCB){
 		return ((t_dato_en_frame *)datoTCB)->tipoContenido==TCB;
 	}
@@ -319,7 +322,7 @@ void modificar_posicion_tripulante(t_list *listaDeTablasDePaginas, uint32_t tid,
 	free(pagina);
 }
 
-void modificar_estado_tripulante(t_list *listaDeTablasDePaginas, uint32_t tid, char estado){
+void modificar_estado_tripulante(uint32_t tid, char estado){
 	bool _dato_TCB(void *datoTCB){
 		return ((t_dato_en_frame *)datoTCB)->tipoContenido==TCB;
 	}
@@ -392,7 +395,7 @@ void dump_memoria(){ //NO TESTEADO
 	free(time);
 }
 
-bool hay_espacio_disponible(t_list *listaDeFrames, t_list *listaDeFramesSwap, uint32_t tamanioPagina, uint32_t cantTripulantes, uint32_t tareasLen){
+bool hay_espacio_disponible(uint32_t cantTripulantes, uint32_t tareasLen){
 	pthread_mutex_lock(&cargar);
 	uint32_t tamanioDatos = sizeof(t_pcb)+cantTripulantes*sizeof(t_tcb)+tareasLen;
 	int cantPagsNecesarias=1; //CONSIDERAR TAMAÑO DEL SWAP
@@ -411,7 +414,7 @@ bool hay_espacio_disponible(t_list *listaDeFrames, t_list *listaDeFramesSwap, ui
 	return false;
 }
 
-t_list* paginas_en_memoria(t_list* listaDeTablasDePaginas){
+t_list* paginas_en_memoria(){
 	bool _esta_en_memoria(void*elemento){
 		return ((t_pagina *)elemento)->bitPresencia==1;
 	}
@@ -459,7 +462,7 @@ uint32_t clock_algoritmo(t_pagina* t){
 	}
     return t->bitUso;
 }
-
+/*
 t_pagina* buscar_pagina(int numero){
 	t_pagina* pagina = buscar_en_swap(numero);
 	t_list* contenido = remover_de_swap(pagina);
@@ -479,8 +482,7 @@ t_pagina* buscar_pagina(int numero){
 
 	return pagina;
 }
-
-
+*/
 t_pagina* buscar_en_swap(t_pagina* t){
 	return t;
 }

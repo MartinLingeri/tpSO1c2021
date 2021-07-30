@@ -66,10 +66,10 @@ int main(void) {
 			log_error(logger,"Error al mapear en memoria el archivo de swap");
 			return EXIT_FAILURE;
 		}
-		uint32_t tamanio_pagina = config_get_int_value(config,"TAMANIO_PAGINA");
+		tamanioPagina = config_get_int_value(config,"TAMANIO_PAGINA");
 		listaDeTablasDePaginas=list_create();
-		crear_lista_de_frames(inicio_memoria, listaDeFrames, tamanio_memoria, tamanio_pagina);
-		crear_lista_de_frames_swap(inicio_memoria_virtual,listaDeFramesSwap,tamanio_swap,tamanio_pagina);
+		crear_lista_de_frames(inicio_memoria, tamanio_memoria);
+		crear_lista_de_frames_swap(inicio_memoria_virtual,tamanio_swap);
 		nroPagGlobal=0;
 		while(1){
 			int cod_op = recibir_operacion(cliente_fd);
@@ -77,19 +77,19 @@ int main(void) {
 				case TCB_MENSAJE:
 					tripulante = recibir_tcb(cliente_fd);
 					pthread_mutex_lock(&cargar);
-					cargar_tripulante_paginacion(listaDeFrames, listaDeFramesSwap, listaDeTablasDePaginas, tamanio_pagina, tripulante);
+					cargar_tripulante_paginacion(tripulante);
 					pthread_mutex_unlock(&cargar);
 					break;
 
 				case PCB_MENSAJE:
 					iniciarPatota = recibir_pcb(cliente_fd);
-					if(hay_espacio_disponible(listaDeFrames, listaDeFramesSwap, tamanio_pagina, iniciarPatota->cantTripulantes,strlen(iniciarPatota->tareas))){
+					if(hay_espacio_disponible(iniciarPatota->cantTripulantes,strlen(iniciarPatota->tareas))){
 						buffer=serializar_hay_lugar_memoria(1);
 						paquete=crear_mensaje(buffer,1);
 						enviar_paquete(paquete,conexion);
 						pthread_mutex_lock(&cargar);
-						cargar_pcb_paginacion(listaDeFrames, listaDeFramesSwap, listaDeTablasDePaginas, tamanio_pagina, iniciarPatota->pid);
-						cargar_tareas_paginacion(listaDeFrames, listaDeFramesSwap, listaDeTablasDePaginas, tamanio_pagina, iniciarPatota->pid, iniciarPatota->tareas);
+						cargar_pcb_paginacion(iniciarPatota->pid);
+						cargar_tareas_paginacion(iniciarPatota->pid, iniciarPatota->tareas);
 						pthread_mutex_unlock(&cargar);
 					}else{
 						buffer=serializar_hay_lugar_memoria(0);
@@ -101,7 +101,7 @@ int main(void) {
 
 				case PEDIR_SIGUIENTE_TAREA:
 					tid = recibir_pedir_tarea(cliente_fd);
-					char *proximaTarea=proxima_instruccion_tripulante_paginacion(listaDeTablasDePaginas, tid);
+					char *proximaTarea=proxima_instruccion_tripulante_paginacion(tid);
 					buffer=serializar_tarea(tid,proximaTarea);
 					paquete=crear_mensaje(buffer,3);
 					enviar_paquete(paquete,conexion);
@@ -110,18 +110,18 @@ int main(void) {
 
 				case CAMBIO_ESTADO_MENSAJE:
 					tripulante = recibir_cambio_estado(cliente_fd);
-					modificar_estado_tripulante(listaDeTablasDePaginas,tripulante->tid, tripulante->estado);
+					modificar_estado_tripulante(tripulante->tid, tripulante->estado);
 					break;
 
 				case DESPLAZAMIENTO:
 					tripulante=recibir_desplazamiento(cliente_fd);
-					modificar_posicion_tripulante(listaDeTablasDePaginas, tripulante->tid, tripulante->pos_x, tripulante->pos_y);
+					modificar_posicion_tripulante(tripulante->tid, tripulante->pos_x, tripulante->pos_y);
 					break;
 
 				case ELIMINAR_TRIPULANTE:
 					tid=recibir_eliminar_tripulante(cliente_fd);
 					pthread_mutex_lock(&cargar);
-					eliminar_tripulante_paginacion(listaDeTablasDePaginas, tamanio_pagina, tid);
+					eliminar_tripulante_paginacion(tid);
 					pthread_mutex_unlock(&cargar);
 					logear(ELIMINAR_TRIP,tid);
 					break;
