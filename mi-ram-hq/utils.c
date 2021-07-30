@@ -1,5 +1,7 @@
 #include"utils.h"
 
+int conexion = -1;
+
 t_config* leer_config(void)
 {
 	return config_create("mi-ram-hq.config");

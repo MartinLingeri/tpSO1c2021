@@ -1,6 +1,8 @@
 #include "mi-ram-hq.h"
 
 pthread_mutex_t discordiador;
+char* esquema_memoria;
+int tamanio_memoria;
 
 int main(void) {
 
@@ -13,11 +15,10 @@ int main(void) {
 	sig.sa_handler = &dump_memoria;
 	sigaction(SIGUSR1, &sig, NULL);
 
-	char* esquema_memoria = config_get_string_value(config, "ESQUEMA_MEMORIA");
-	int tamanio_memoria = config_get_int_value(config, "TAMANIO_MEMORIA");
+	esquema_memoria = config_get_string_value(config, "ESQUEMA_MEMORIA");
+	tamanio_memoria = config_get_int_value(config, "TAMANIO_MEMORIA");
 
-	inicio_memoria = malloc(tamanio_memoria); //Puntero la primer ubicacion de memoria
-													//del segmento reservado para memoria
+	inicio_memoria = malloc(tamanio_memoria); //Puntero la primer ubicacion de memoria /del segmento reservado para memoria
 
 	t_list* lista_de_segmentos = list_create();
 	//mostrar_lista_de_segmentos(lista_de_segmentos);
@@ -34,24 +35,6 @@ int main(void) {
 
 	nivel = nivel_crear("A-MongOs");
 */
-
-	//Conecta con el servidor
-
-	void iterator(char* value)
-	{
-		printf("%s\n", value);
-	}
-
-	int server_fd = iniciar_servidor();
-	log_info(logger, "Servidor listo para recibir al cliente");
-	int cliente_fd = esperar_cliente(server_fd);
-
-	t_tcb* tripulante = malloc(sizeof(t_tcb));
-	t_iniciar_patota* iniciarPatota = malloc(sizeof(t_iniciar_patota));
-	uint32_t tid;
-	t_paquete* paquete;
-	t_buffer* buffer;
-
 	int conexion = crear_conexion("127.0.0.1", "5002"); //IP Y PUERTO DS PONER EN CONFIG
 
 	if(strcmp(esquema_memoria,"PAGINACION")==0){
@@ -73,6 +56,33 @@ int main(void) {
 		crear_lista_de_frames(inicio_memoria, tamanio_memoria);
 		crear_lista_de_frames_swap(inicio_memoria_virtual,tamanio_swap);
 		nroPagGlobal=0;
+	}else if(strcmp(esquema_memoria,"SEGMENTACION")==0){
+		//PREPARACIÓN SEGMENTACION
+	}else{
+		log_error(logger,"Esquema de memoria no valido");
+		return EXIT_FAILURE;
+	}
+
+	atender_pedidos();
+
+	logear(FIN_HQ,0);
+	terminar_programa();
+
+	return EXIT_SUCCESS;
+}
+
+void atender_pedidos(){
+	t_tcb* tripulante = malloc(sizeof(t_tcb));
+	t_iniciar_patota* iniciarPatota = malloc(sizeof(t_iniciar_patota));
+	uint32_t tid;
+	t_paquete* paquete;
+	t_buffer* buffer;
+
+	int server_fd = iniciar_servidor();
+	log_info(logger, "Servidor listo para recibir al cliente");
+	int cliente_fd = esperar_cliente(server_fd);
+
+	if(strcmp(esquema_memoria,"PAGINACION")==0){
 		while(1){
 			int cod_op = recibir_operacion(cliente_fd);
 			switch(cod_op){
@@ -130,7 +140,7 @@ int main(void) {
 
 				case -1:
 					log_error(logger, "El cliente se desconecto. Terminando servidor");
-					return EXIT_FAILURE;
+					return;
 
 				default:
 					break;
@@ -184,7 +194,7 @@ int main(void) {
 
 				case -1:
 					log_error(logger, "El cliente se desconecto. Terminando servidor");
-					return EXIT_FAILURE;
+					return;
 
 				default:
 					break;
@@ -197,10 +207,6 @@ int main(void) {
 	free(iniciarPatota);
 	free(inicio_memoria);
 	close(conexion);
-	logear(FIN_HQ,0);
-	terminar_programa();
-
-	return EXIT_SUCCESS;
 }
 
 int crear_conexion(char *ip, char* puerto)

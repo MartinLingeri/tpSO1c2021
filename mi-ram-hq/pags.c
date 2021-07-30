@@ -170,7 +170,7 @@ void cargar_tripulante_paginacion(t_tcb *tripulante){
 	p+=sizeof(char);
 	uint32_t *pos_x=p;
 	(*pos_x)=tripulante->pos_x;
-	tcb->pos_x;
+	tcb->pos_x; //QUE HACE ESTO?
 	p+=sizeof(uint32_t);
 	uint32_t *pos_y=p;
 	(*pos_y)=tripulante->pos_y;
@@ -392,7 +392,7 @@ void dump_memoria(){ //NO TESTEADO
 
 	fclose(dump);
 	free(path);
-	free(time);
+	free(tiempo);
 }
 
 bool hay_espacio_disponible(uint32_t cantTripulantes, uint32_t tareasLen){

@@ -18,6 +18,7 @@
 #include<fcntl.h>
 #include<signal.h>
 
+extern int conexion;
 
 typedef struct{
 	uint32_t size;

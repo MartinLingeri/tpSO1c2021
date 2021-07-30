@@ -13,6 +13,10 @@
 
 #include<time.h>
 #include<locale.h>
+#include<locale.h>
+#include<commons/string.h>
+#include<commons/temporal.h>
+
 
 typedef struct{
 	uint32_t idPatota;
