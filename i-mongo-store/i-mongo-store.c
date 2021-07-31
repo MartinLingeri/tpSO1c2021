@@ -24,7 +24,7 @@ int main(void)
 	t_hacer_tarea* tarea = malloc(sizeof(t_hacer_tarea));
 	t_rlog* log = malloc(sizeof(t_log));
 
-	int conexion = crear_conexion("127.0.0.1", "5002"); //IP Y PUERTO DS AGREGAR A CONFIG
+	int conexion = crear_conexion(config_get_string_value(config, "IP_DS"), config_get_string_value(config, "PUERTO_DS"));
 	t_paquete* paquete;
 	t_buffer* buffer;
 

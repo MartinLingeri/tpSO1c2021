@@ -132,11 +132,13 @@ void cargar_pcb_paginacion(t_iniciar_patota* patota){
 	t_pcb *pcb=malloc(sizeof(t_pcb));
 	uint32_t *ppid=p;
 	(*ppid)=patota->pid;
-	pcb->pid=ppid;
+	pcb->pid= patota->pid;
+
 	p+=sizeof(uint32_t);
 	uint32_t *dirTareas=p;
 	(*dirTareas)=0;
-	pcb->tareas=dirTareas;
+	pcb->tareas= patota->tareas;
+
 	nroPagGlobal+=1;
 	crear_pagina(tabla, frame);
 	cargar_pcb_a_frame(frame, pcb);
@@ -170,50 +172,48 @@ void cargar_tareas_paginacion(uint32_t pid, char*tareas){
 
 void cargar_tripulante_paginacion(t_tcb *tripulante){
 	puts("Guardando tripulante");
-	puts("1");
+
 	printf("PID: %d\n", tripulante->pcb);
 	t_tabla_de_paginas *tabla = encontrar_pid_lista_tablas(tripulante->pcb);
-	puts("2");
 	t_frame *frame = encontrar_frame_disponible(tabla, sizeof(tripulante));
-	puts("3");
 	if(frame==NULL){
-		puts("3.1");
 		frame=encontrar_frame_vacio();
-		puts("3.2");
 		nroPagGlobal+=1;
-		puts("3.3");
 		crear_pagina(tabla, frame);
 	}
-	puts("4");
 	void *p = frame->inicio+(tamanioPagina-frame->espacioLibre);
-	puts("5");
 	t_tcb *tcb = malloc(sizeof(t_tcb));
+
 	uint32_t *tid = p;
 	(*tid) = tripulante->tid;
-	tcb->tid = tid;
+	tcb->tid = tripulante->tid;
 	p+=sizeof(uint32_t);
-	puts("6");
+    printf("TID: %d \n", tcb->tid);
+
 	char *estado=p;
 	(*estado)=tripulante->estado;
-	tcb->estado=estado;
+	tcb->estado= tripulante->estado;
 	p+=sizeof(char);
-	puts("7");
+    printf("ESTADO: %c \n", tcb->estado);
+
 	uint32_t *pos_x=p;
 	(*pos_x)=tripulante->pos_x;
-	tcb->pos_x = pos_x; //QUE HACE ESTO? ESTABA SIN EL POS X
+	tcb->pos_x = tripulante->pos_x;
 	p+=sizeof(uint32_t);
-	puts("8");
+    printf("X: %d \n", tcb->pos_x);
+
 	uint32_t *pos_y=p;
 	(*pos_y)=tripulante->pos_y;
-	tcb->pos_y=pos_y;
+	tcb->pos_y= tripulante->pos_y;
 	p+=sizeof(uint32_t);
-	puts("9");
+    printf("Y: %d \n", tcb->pos_y);
+
 	uint32_t *proximaInstruccion=p;
 	(*proximaInstruccion)=0;
-	tcb->proxima_instruccion=proximaInstruccion;
+	tcb->proxima_instruccion=0;
 	uint32_t *pcb=p;
 	(*pcb)=0;
-	puts("10");
+
 	cargar_tcb_a_frame(frame, tcb);
 	puts("Tripulante guardado");
 	logear(LLEGA_TCB,tripulante->tid);
@@ -419,12 +419,23 @@ void dump_memoria(){ //NO TESTEADO
 
 	pthread_mutex_lock(&cargar);
 	if(strcmp(esquema_memoria, "PAGINACION") == 0){
-
+		puts("antes for tabla pags");
+		if(list_size(listaDeTablasDePaginas) == 0){
+			fprintf(dump,"No hay tablas páginas iniciadas");
+			return;
+		}
 		for(int i=0; i<listaDeTablasDePaginas->elements_count; i++){
 			t_tabla_de_paginas *tabla=list_get(listaDeTablasDePaginas, i);
 			fprintf(dump,"\n-----------------------------\n");
-			for(int j=0; j<tabla->cantPaginas;i++){
-				t_pagina *pagina=list_get(tabla->paginas, i);
+			puts("antes for pags");
+
+			if(list_size(tabla->cantPaginas) == 0){
+				fprintf(dump,"No hay páginas iniciadas");
+				return;
+			}
+			for(int j=0; j<tabla->cantPaginas;j++){
+				puts("antes list get paginas");
+				t_pagina *pagina=list_get(tabla->paginas, j);
 				if(pagina->frame->espacioLibre==tamanioPagina){
 					fprintf(dump,"Marco:%2d Estado:%2s Proceso:-		Pagina:-\n", pagina->frame->nroFrame, "Libre");
 				}else{

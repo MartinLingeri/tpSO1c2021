@@ -1,11 +1,5 @@
-#include "utils.h"
-#include "mi-ram-hq.h"
 #include "segmentacion.h"
-/*
-typedef struct{
-	int locacion_inicio;
-	int tamanio;
-} segmento;
+
 
 segmento* crear_segmento(int locacion, int tamanio){
 	segmento* nuevo_segmento = malloc(sizeof(segmento));
@@ -13,7 +7,7 @@ segmento* crear_segmento(int locacion, int tamanio){
 	nuevo_segmento->tamanio = tamanio;
 	return nuevo_segmento;
 }
-
+/*
 void* check_for_space(t_list* lista_de_segmentos, int tamanio){
 	t_link_element* aux = lista_de_segmentos->head;
 
@@ -44,9 +38,9 @@ void* check_for_space(t_list* lista_de_segmentos, int tamanio){
 	}
 }
 
-void agregar_segmento_FF(t_list* lista_de_segmentos, int tamanio){
+void agregar_segmento_FF(t_list* lista_de_segmentos, int tamanio, int locacion){
 	int exists = check_for_space(lista_de_segmentos, tamanio);
-	int locacion;
+	//int locacion;
 	segmento* nuevo_segmento = crear_segmento(locacion, tamanio);
 	t_link_element* aux = lista_de_segmentos->head;
 	while(aux->data < nuevo_segmento->locacion_inicio){
@@ -71,9 +65,9 @@ void mostrar_lista_de_segmentos(t_list* lista_de_segmentos){
 		}
 	}
 }
-
+*/
 void compactar(t_list* lista_de_segmentos){
-	t_link_element* aux = lista_de_segmentos->head;
+	/*t_link_element* aux = lista_de_segmentos->head;
 	void* siguiente_espacio_libre = inicio_memoria;
 
 	//Si el primer segmento no esta al principio, acomodamos para eso.
@@ -105,7 +99,7 @@ void compactar(t_list* lista_de_segmentos){
 			siguiente_espacio_libre += (((segmento*)(aux->data))->tamanio);
 			aux = aux->next;
 		}
-	}
+	}*/
 	printf("Se ha terminado de compactar.");
-}*/
+}
 

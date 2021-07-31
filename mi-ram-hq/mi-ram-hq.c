@@ -15,6 +15,11 @@ int main(void) {
 	sig.sa_handler = &dump_memoria;
 	sigaction(SIGUSR1, &sig, NULL);
 
+	struct sigaction sg = {0};
+	sg.sa_flags = SA_RESTART;
+	sg.sa_handler = &compactar;
+	sigaction(SIGUSR2, &sg, NULL);
+
 	esquema_memoria = config_get_string_value(config, "ESQUEMA_MEMORIA");
 	tamanio_memoria = config_get_int_value(config, "TAMANIO_MEMORIA");
 
@@ -35,7 +40,7 @@ int main(void) {
 
 	nivel = nivel_crear("A-MongOs");
 */
-	conexion = crear_conexion("127.0.0.1", "5002"); //IP Y PUERTO DS PONER EN CONFIG
+	conexion = crear_conexion(config_get_string_value(config, "IP_DS"), config_get_string_value(config, "PUERTO_DS"));
 
 	if(strcmp(esquema_memoria,"PAGINACION")==0){
 		int tamanio_swap=config_get_int_value(config, "TAMANIO_SWAP");

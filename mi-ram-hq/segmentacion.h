@@ -8,13 +8,18 @@
 #ifndef SEGMENTACION_H_
 #define SEGMENTACION_H_
 
-/*
+#include "utils.h"
+
+typedef struct{
+	int locacion_inicio;
+	int tamanio;
+}segmento;
+
 segmento* crear_segmento(int, int);
 void* check_for_space(t_list*, int);
 void agregar_segmento_FF(t_list*, int);
 void expulsar_tripulante(t_list*);
 void mostrar_lista_de_segmentos(t_list*);
 void compactar(t_list*);
-*/
 
 #endif /* SEGMENTACION_H_ */
