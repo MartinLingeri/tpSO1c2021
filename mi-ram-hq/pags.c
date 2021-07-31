@@ -75,13 +75,16 @@ int crear_tabla_de_paginas(uint32_t idPatota){
 }
 
 void crear_pagina(t_tabla_de_paginas *tablaDePaginas, t_frame *frame){
+	puts("3.4");
 	t_pagina *pagina = malloc(sizeof(t_pagina));
 	pagina->nroPagina=nroPagGlobal;
 	pagina->bitPresencia=1;
 	pagina->bitUso=0;
 	pagina->bitModificado=0;
 	pagina->frame=frame;
+	puts("3.5");
 	list_add(tablaDePaginas->paginas, pagina);
+	puts("3.6");
 	tablaDePaginas->cantPaginas+=1;
 }
 
@@ -100,24 +103,35 @@ t_frame *encontrar_frame_vacio(){
 }
 
 t_frame *encontrar_frame_disponible(t_tabla_de_paginas *tablaDePaginas, uint32_t tamanioNecesario){
+	puts("2.1");
 	for(int i=0; i<tablaDePaginas->cantPaginas;i++){
+		puts("2.2");
 		t_pagina *pagina=list_get(tablaDePaginas->paginas,i);
+		puts("2.3");
 		t_frame *frame=pagina->frame;
 		if(tamanioNecesario<=frame->espacioLibre){
+			puts("2.5");
 			return frame;
 		}
+		puts("2.4");
 	}
+	puts("2.5");
 	return NULL;
 }
 
-void cargar_pcb_paginacion(uint32_t pid){
-	int indiceTabla = crear_tabla_de_paginas(pid);
+void cargar_pcb_paginacion(t_iniciar_patota* patota){
+	puts("Guardando patota");
+	t_buffer* buffer = serializar_hay_lugar_memoria(1);
+	t_paquete* paquete = crear_mensaje(buffer,1);
+	enviar_paquete(paquete,conexion);
+
+	int indiceTabla = crear_tabla_de_paginas(patota->pid);
 	t_tabla_de_paginas *tabla=list_get(listaDeTablasDePaginas, indiceTabla);
 	t_frame *frame = encontrar_frame_vacio();
 	void *p=frame->inicio;
 	t_pcb *pcb=malloc(sizeof(t_pcb));
 	uint32_t *ppid=p;
-	(*ppid)=pid;
+	(*ppid)=patota->pid;
 	pcb->pid=ppid;
 	p+=sizeof(uint32_t);
 	uint32_t *dirTareas=p;
@@ -126,7 +140,9 @@ void cargar_pcb_paginacion(uint32_t pid){
 	nroPagGlobal+=1;
 	crear_pagina(tabla, frame);
 	cargar_pcb_a_frame(frame, pcb);
-	logear(LLEGA_PCB,pid);
+	logear(LLEGA_PCB,patota->pid);
+	puts("Patota guardada");
+	cargar_tareas_paginacion(patota->pid,patota->tareas);
 }
 
 t_tabla_de_paginas *encontrar_pid_lista_tablas(uint32_t pid){
@@ -137,6 +153,7 @@ t_tabla_de_paginas *encontrar_pid_lista_tablas(uint32_t pid){
 }
 
 void cargar_tareas_paginacion(uint32_t pid, char*tareas){
+	puts("Guardando tareas");
 	t_tabla_de_paginas *tabla = encontrar_pid_lista_tablas(pid);
 	t_frame *frame = encontrar_frame_disponible(tabla, strlen(tareas));
 	if(frame==NULL){
@@ -148,40 +165,57 @@ void cargar_tareas_paginacion(uint32_t pid, char*tareas){
 	char*t=p;
 	strcpy(t,tareas);
 	cargar_tareas_a_frame(frame, t);
+	puts("tareas guardadas");
 }
 
 void cargar_tripulante_paginacion(t_tcb *tripulante){
+	puts("Guardando tripulante");
+	puts("1");
+	printf("PID: %d\n", tripulante->pcb);
 	t_tabla_de_paginas *tabla = encontrar_pid_lista_tablas(tripulante->pcb);
+	puts("2");
 	t_frame *frame = encontrar_frame_disponible(tabla, sizeof(tripulante));
+	puts("3");
 	if(frame==NULL){
+		puts("3.1");
 		frame=encontrar_frame_vacio();
+		puts("3.2");
 		nroPagGlobal+=1;
+		puts("3.3");
 		crear_pagina(tabla, frame);
 	}
+	puts("4");
 	void *p = frame->inicio+(tamanioPagina-frame->espacioLibre);
+	puts("5");
 	t_tcb *tcb = malloc(sizeof(t_tcb));
 	uint32_t *tid = p;
 	(*tid) = tripulante->tid;
 	tcb->tid = tid;
 	p+=sizeof(uint32_t);
+	puts("6");
 	char *estado=p;
 	(*estado)=tripulante->estado;
 	tcb->estado=estado;
 	p+=sizeof(char);
+	puts("7");
 	uint32_t *pos_x=p;
 	(*pos_x)=tripulante->pos_x;
-	tcb->pos_x; //QUE HACE ESTO?
+	tcb->pos_x = pos_x; //QUE HACE ESTO? ESTABA SIN EL POS X
 	p+=sizeof(uint32_t);
+	puts("8");
 	uint32_t *pos_y=p;
 	(*pos_y)=tripulante->pos_y;
 	tcb->pos_y=pos_y;
 	p+=sizeof(uint32_t);
+	puts("9");
 	uint32_t *proximaInstruccion=p;
 	(*proximaInstruccion)=0;
 	tcb->proxima_instruccion=proximaInstruccion;
 	uint32_t *pcb=p;
 	(*pcb)=0;
+	puts("10");
 	cargar_tcb_a_frame(frame, tcb);
+	puts("Tripulante guardado");
 	logear(LLEGA_TCB,tripulante->tid);
 }
 
@@ -196,7 +230,7 @@ char* tarea_indice(char *tareas, uint32_t indice){
 	return p;
 }
 
-char* proxima_instruccion_tripulante_paginacion(uint32_t tid){
+void proxima_instruccion_tripulante_paginacion(uint32_t tid){
 	bool _dato_TCB(void *datoTCB){
 		return ((t_dato_en_frame *)datoTCB)->tipoContenido == 2;
 	}
@@ -239,14 +273,23 @@ char* proxima_instruccion_tripulante_paginacion(uint32_t tid){
 						datoEncontrado->tcb->proxima_instruccion+=1;
 						pagina->ultimoUso = tiempo;
 						free(pagina);
-						return tarea_indice(datoTareas->tareas, datoEncontrado->tcb->proxima_instruccion);
+						char* proximaTarea = tarea_indice(datoTareas->tareas, datoEncontrado->tcb->proxima_instruccion);
+						t_buffer* buffer=serializar_tarea(tid,proximaTarea);
+						t_paquete* paquete=crear_mensaje(buffer,3);
+						enviar_paquete(paquete,conexion);
+						logear(SOLICITA_TAREA,tid);
+					}else{
+						t_buffer* buffer=serializar_tarea(tid,"");
+						t_paquete* paquete=crear_mensaje(buffer,3);
+						enviar_paquete(paquete,conexion);
+						logear(SOLICITA_TAREA,tid);
 					}
 				}
 			}
 		}
 	}
 	free(pagina);
-	return 0;
+	return;
 }
 
 void eliminar_tripulante_paginacion(uint32_t tid){
@@ -279,6 +322,7 @@ void eliminar_tripulante_paginacion(uint32_t tid){
 				if(pagina->frame->espacioLibre==tamanioPagina){
 					list_remove(tabla->paginas,i);
 				}
+				logear(ELIMINAR_TRIP,tid);
 				free(pagina);
 				break;
 			}
@@ -287,12 +331,12 @@ void eliminar_tripulante_paginacion(uint32_t tid){
 	free(pagina);
 }
 
-void modificar_posicion_tripulante(uint32_t tid, uint32_t pos_x, uint32_t pos_y){
+void modificar_posicion_tripulante(t_tcb* tripulante){
 	bool _dato_TCB(void *datoTCB){
 		return ((t_dato_en_frame *)datoTCB)->tipoContenido==TCB;
 	}
 	bool _igual_tid_en_dato(void *datotid){
-		return ((t_dato_en_frame *)datotid)->tcb->tid==tid;
+		return ((t_dato_en_frame *)datotid)->tcb->tid==tripulante->tid;
 	}
 	t_pagina* pagina = malloc(sizeof(t_pagina));
 
@@ -312,8 +356,8 @@ void modificar_posicion_tripulante(uint32_t tid, uint32_t pos_x, uint32_t pos_y)
 				if(pagina->bitPresencia == 0){ //NO ESTÁ CARGADA
 					pagina = buscar_pagina(i);
 				}
-				datoEncontrado->tcb->pos_x=pos_x;
-				datoEncontrado->tcb->pos_y=pos_y;
+				datoEncontrado->tcb->pos_x=tripulante->pos_x;
+				datoEncontrado->tcb->pos_y=tripulante->pos_y;
 				free(pagina);
 				break;
 			}
@@ -322,13 +366,15 @@ void modificar_posicion_tripulante(uint32_t tid, uint32_t pos_x, uint32_t pos_y)
 	free(pagina);
 }
 
-void modificar_estado_tripulante(uint32_t tid, char estado){
+void modificar_estado_tripulante(t_tcb* tripulante){
 	bool _dato_TCB(void *datoTCB){
 		return ((t_dato_en_frame *)datoTCB)->tipoContenido==TCB;
 	}
 	bool _igual_tid_en_dato(void *datotid){
-		return ((t_dato_en_frame *)datotid)->tcb->tid==tid;
+		return ((t_dato_en_frame *)datotid)->tcb->tid==tripulante->tid;
 	}
+
+	puts("inicia modificar estado");
 	t_pagina* pagina = malloc(sizeof(t_pagina));
 	for(int i=0; i<listaDeTablasDePaginas->elements_count; i++){
 		t_tabla_de_paginas *tabla = list_get(listaDeTablasDePaginas, i);
@@ -347,12 +393,14 @@ void modificar_estado_tripulante(uint32_t tid, char estado){
 				if(pagina->bitPresencia == 0){ //NO ESTÁ CARGADA
 					pagina = buscar_pagina(j);
 				}
-				datoEncontrado->tcb->estado=estado;
+				datoEncontrado->tcb->estado=tripulante->estado;
 				free(pagina);
+				puts("fin modificar estado");
 				break;
 			}
 		}
 	}
+	puts("fin modificar estado");
 	free(pagina);
 }
 

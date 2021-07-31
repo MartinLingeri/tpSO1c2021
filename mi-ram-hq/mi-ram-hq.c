@@ -20,7 +20,7 @@ int main(void) {
 
 	inicio_memoria = malloc(tamanio_memoria); //Puntero la primer ubicacion de memoria /del segmento reservado para memoria
 
-	t_list* lista_de_segmentos = list_create();
+	//t_list* lista_de_segmentos = list_create();
 	//mostrar_lista_de_segmentos(lista_de_segmentos);
 /*
 	//Dibuja el mapa inicial vacío
@@ -35,7 +35,7 @@ int main(void) {
 
 	nivel = nivel_crear("A-MongOs");
 */
-	int conexion = crear_conexion("127.0.0.1", "5002"); //IP Y PUERTO DS PONER EN CONFIG
+	conexion = crear_conexion("127.0.0.1", "5002"); //IP Y PUERTO DS PONER EN CONFIG
 
 	if(strcmp(esquema_memoria,"PAGINACION")==0){
 		int tamanio_swap=config_get_int_value(config, "TAMANIO_SWAP");
@@ -63,9 +63,10 @@ int main(void) {
 		return EXIT_FAILURE;
 	}
 
-	atender_pedidos();
+    pthread_t hilo_discordiador;
+    pthread_create(&hilo_discordiador, NULL, (void*) atender_pedidos, NULL);
+    pthread_join((pthread_t) hilo_discordiador, NULL);
 
-	logear(FIN_HQ,0);
 	terminar_programa();
 
 	return EXIT_SUCCESS;
@@ -84,25 +85,22 @@ void atender_pedidos(){
 
 	if(strcmp(esquema_memoria,"PAGINACION")==0){
 		while(1){
+			puts("Esperando discordiador");
 			int cod_op = recibir_operacion(cliente_fd);
 			switch(cod_op){
 				case TCB_MENSAJE:
 					tripulante = recibir_tcb(cliente_fd);
-					pthread_mutex_lock(&cargar);
-					cargar_tripulante_paginacion(tripulante);
-					pthread_mutex_unlock(&cargar);
+	                pthread_t hilo_tr;
+	                pthread_create(&hilo_tr, NULL, (void*) cargar_tripulante_paginacion, tripulante);
+	                pthread_detach((pthread_t) hilo_tr);
 					break;
 
 				case PCB_MENSAJE:
 					iniciarPatota = recibir_pcb(cliente_fd);
 					if(hay_espacio_disponible(iniciarPatota->cantTripulantes,strlen(iniciarPatota->tareas))){
-						buffer=serializar_hay_lugar_memoria(1);
-						paquete=crear_mensaje(buffer,1);
-						enviar_paquete(paquete,conexion);
-						pthread_mutex_lock(&cargar);
-						cargar_pcb_paginacion(iniciarPatota->pid);
-						cargar_tareas_paginacion(iniciarPatota->pid, iniciarPatota->tareas);
-						pthread_mutex_unlock(&cargar);
+                        pthread_t hilo_p;
+                        pthread_create(&hilo_p, NULL, (void*) cargar_pcb_paginacion, iniciarPatota);
+                        pthread_detach((pthread_t) hilo_p);
 					}else{
 						buffer=serializar_hay_lugar_memoria(0);
 						paquete=crear_mensaje(buffer,1);
@@ -113,29 +111,30 @@ void atender_pedidos(){
 
 				case PEDIR_SIGUIENTE_TAREA:
 					tid = recibir_pedir_tarea(cliente_fd);
-					char *proximaTarea=proxima_instruccion_tripulante_paginacion(tid);
-					buffer=serializar_tarea(tid,proximaTarea);
-					paquete=crear_mensaje(buffer,3);
-					enviar_paquete(paquete,conexion);
-					logear(SOLICITA_TAREA,tid);
+                    pthread_t hilo_tar;
+	                pthread_create(&hilo_tar, NULL, (void*) proxima_instruccion_tripulante_paginacion, tid);
+	                pthread_detach((pthread_t) hilo_tar);
 					break;
 
 				case CAMBIO_ESTADO_MENSAJE:
 					tripulante = recibir_cambio_estado(cliente_fd);
-					modificar_estado_tripulante(tripulante->tid, tripulante->estado);
+                    pthread_t hilo_ce;
+                    pthread_create(&hilo_ce, NULL, (void*) modificar_estado_tripulante, tripulante);
+                    pthread_detach((pthread_t) hilo_ce);
 					break;
 
 				case DESPLAZAMIENTO:
 					tripulante=recibir_desplazamiento(cliente_fd);
-					modificar_posicion_tripulante(tripulante->tid, tripulante->pos_x, tripulante->pos_y);
+                    pthread_t hilo_des;
+                    pthread_create(&hilo_des, NULL, (void*) modificar_posicion_tripulante, tripulante);
+                    pthread_detach((pthread_t) hilo_des);
 					break;
 
 				case ELIMINAR_TRIPULANTE:
 					tid=recibir_eliminar_tripulante(cliente_fd);
-					pthread_mutex_lock(&cargar);
-					eliminar_tripulante_paginacion(tid);
-					pthread_mutex_unlock(&cargar);
-					logear(ELIMINAR_TRIP,tid);
+                    pthread_t hilo_e;
+	                pthread_create(&hilo_e, NULL, (void*) eliminar_tripulante_paginacion, tid);
+	                pthread_detach((pthread_t) hilo_e);
 					break;
 
 				case -1:
@@ -146,8 +145,6 @@ void atender_pedidos(){
 					break;
 				}
 			}
-		vaciar_lista_de_frames(listaDeFrames);
-		vaciar_lista_de_frames(listaDeFramesSwap);
 	}else if(strcmp(esquema_memoria,"SEGMENTACION")==0){
 		while(1){
 			int cod_op = recibir_operacion(cliente_fd);
@@ -194,7 +191,7 @@ void atender_pedidos(){
 
 				case -1:
 					log_error(logger, "El cliente se desconecto. Terminando servidor");
-					return;
+					break;
 
 				default:
 					break;
@@ -205,8 +202,6 @@ void atender_pedidos(){
 		}
 	free(tripulante);
 	free(iniciarPatota);
-	free(inicio_memoria);
-	close(conexion);
 }
 
 int crear_conexion(char *ip, char* puerto)
@@ -231,19 +226,6 @@ int crear_conexion(char *ip, char* puerto)
 	return socket_cliente;
 }
 
-t_buffer* serializar_hay_lugar_memoria(uint32_t dato)
-{
-	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(sizeof(uint32_t));
-	int desplazamiento = 0;
-	memcpy(stream + desplazamiento, &dato, sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	buffer->size = desplazamiento;
-	buffer->stream = stream;
-	return buffer;
-}
-
 void* serializar_paquete(t_paquete* paquete, int bytes)
 {
 	void * msg = malloc(bytes);
@@ -261,6 +243,13 @@ void* serializar_paquete(t_paquete* paquete, int bytes)
 
 void terminar_programa()
 {
+	if(strcmp(esquema_memoria,"PAGINACION")==0){
+		vaciar_lista_de_frames(listaDeFrames);
+		vaciar_lista_de_frames(listaDeFramesSwap);
+	}
+	free(inicio_memoria);
+	close(conexion);
+	logear(FIN_HQ,0);
 	log_destroy(logger);
 	config_destroy(config);
 }
@@ -270,27 +259,4 @@ void eliminar_paquete(t_paquete* paquete)
 	free(paquete->buffer->stream);
 	free(paquete->buffer);
 	free(paquete);
-}
-
-t_buffer* serializar_tarea(uint32_t id, char* tarea)
-{
-	t_buffer* buffer = malloc(sizeof(t_buffer));
-	void* stream = malloc(2*sizeof(uint32_t) + sizeof(tarea) + 1);
-
-	int desplazamiento = 0;
-	uint32_t tareas_len;
-	tareas_len = strlen(tarea) + 1;
-
-	memcpy(stream + desplazamiento, (void*)(&id), sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	memcpy(stream + desplazamiento, (void*)(&tareas_len), sizeof(uint32_t));
-	desplazamiento += sizeof(uint32_t);
-
-	memcpy(stream + desplazamiento, tarea, strlen(tarea) + 1);
-	desplazamiento += strlen(tarea) + 1;
-
-	buffer->size = desplazamiento;
-	buffer->stream = stream;
-	return buffer;
 }

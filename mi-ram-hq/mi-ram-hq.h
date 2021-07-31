@@ -10,6 +10,7 @@
 #include <commons/log.h>
 #include <commons/config.h>
 #include <commons/collections/list.h>
+#include <pthread.h>
 /*
 #include <nivel-gui/nivel-gui.h>
 #include <nivel-gui/tad_nivel.h>*/
@@ -27,11 +28,10 @@
         fprintf(stderr, "Error al crear '%c': %s\n", id, nivel_gui_string_error(err));  \
         return EXIT_FAILURE;                                                            \
 }*/
+void atender_pedidos();
 int crear_conexion(char *ip, char* puerto);
-t_buffer* serializar_hay_lugar_memoria(uint32_t id);
 void* serializar_paquete(t_paquete* paquete, int bytes);
 void eliminar_paquete(t_paquete* paquete);
 void enviar_mensaje(char* mensaje, int socket_cliente);
-t_buffer* serializar_tarea(uint32_t id, char* tarea);
 void terminar_programa();
 #endif /* MI-RAM-HQ_H_ */

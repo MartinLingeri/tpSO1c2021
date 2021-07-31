@@ -97,7 +97,6 @@ void logear(int situacion, int dato){
 			break;
 
 		case TRIPULANTE_ELIMINADO:
-
 			log_info(logger,"%d - Tripulante expulsado ", dato);
 			break;
 
@@ -106,11 +105,11 @@ void logear(int situacion, int dato){
 			break;
 
 		case FINALIZANDO_PROGRAMA:
-			log_info(logger,"%d - Finalizando discordiador", dato);
+			log_info(logger,"Finalizando discordiador");
 			break;
 
 		case PROGRAMA_FINALIZADO:
-			log_info(logger,"%d - Discordiador finalizado correctamente", dato);
+			log_info(logger,"Discordiador finalizado correctamente");
 			break;
 
 		default:

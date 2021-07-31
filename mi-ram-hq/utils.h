@@ -104,5 +104,6 @@ uint32_t recibir_pedir_tarea(int socket_cliente);
 t_tcb* recibir_cambio_estado(int socket_cliente);
 t_tcb* recibir_desplazamiento(int socket_cliente);
 uint32_t recibir_eliminar_tripulante(int socket_cliente);
-
+t_buffer* serializar_hay_lugar_memoria(uint32_t id);
+t_buffer* serializar_tarea(uint32_t id, char* tarea);
 #endif /* CONEXIONES_H_ */

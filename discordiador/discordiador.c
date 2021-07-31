@@ -193,9 +193,9 @@ void leer_consola(t_log* logger)
 			free(data);
 
 		} else if (strcmp(instruccion[0], "SERIALIZAR") == 0) { //PARA TESTEAR
-			char* reporte = "Genera oxigeno";
-			t_buffer* buffer1 = serializar_reporte_bitacora(2,reporte);
-			t_paquete* paquete_cambio_estado1 = crear_mensaje(buffer1, REPORTE_BITACORA);
+			//char* reporte = "Genera oxigeno";
+			t_buffer* buffer1 = serializar_pedir_tarea(1);
+			t_paquete* paquete_cambio_estado1 = crear_mensaje(buffer1, PEDIR_SIGUIENTE_TAREA);
 			pthread_mutex_lock(&hq);
 			enviar_paquete(paquete_cambio_estado1, conexion_hq);
 			pthread_mutex_unlock(&hq);
@@ -261,6 +261,9 @@ void iniciar_patota(char** instruccion, char* leido) {
 
 	int longitud = longitud_instr(instruccion);
 	uint32_t id_patota = id_ultima_patota;
+
+	contenido_tareas = "SOY UNA TAREA CARGUENME A MEMORIA";
+	printf("TAREAS: %s\n", contenido_tareas);
 
 	t_buffer* buffer = serializar_patota(id_patota, contenido_tareas, cantidad);
 	t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);
