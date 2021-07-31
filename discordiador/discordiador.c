@@ -234,11 +234,11 @@ void planificador(void* args) {
 
 void iniciar_patota(char** instruccion, char* leido) {
 	//INICIAR_PATOTA 3 /home/utnso/tareas.txt
-	//INICIAR_PATOTA 1 home/utnso/tareas.txt
+	//INICIAR_PATOTA 1 /home/utnso/tareas.txt
 	uint32_t cantidad = atoi(instruccion[1]);
 	char* tareas = instruccion[2];
 
-	if(cantidad == 0 || !string_ends_with(tareas,".txt")){
+	if(cantidad == 0 || !string_ends_with(tareas,".txt") || !string_starts_with(tareas,"/")){
 		logear_error(INST_FALTA_PAR);
 		return;
 	}
@@ -256,14 +256,11 @@ void iniciar_patota(char** instruccion, char* leido) {
 		fclose(archivo_tareas);
 	}/*else{
 		log_error(logger, "Archivo de tareas no encontrado");
-		break;
-	}*/
-
+		return;
+	}
+*/
 	int longitud = longitud_instr(instruccion);
 	uint32_t id_patota = id_ultima_patota;
-
-	contenido_tareas = "SOY UNA TAREA CARGUENME A MEMORIA";
-	printf("TAREAS: %s\n", contenido_tareas);
 
 	t_buffer* buffer = serializar_patota(id_patota, contenido_tareas, cantidad);
 	t_paquete* paquete_pcb = crear_mensaje(buffer, PCB_MENSAJE);

@@ -886,3 +886,58 @@
 [INFO] 23:30:21:621 discordiador/(16050:16050): 0 - Patota iniciada 
 [INFO] 23:33:03:130 discordiador/(16050:16050): Finalizando discordiador
 [INFO] 23:33:03:130 discordiador/(16050:16050): Discordiador finalizado correctamente
+[INFO] 23:35:45:273 discordiador/(16423:16423): Iniciando Discordiador
+[INFO] 23:35:45:281 discordiador/(16423:16423): Discordiador iniciado correctamente
+[INFO] 23:35:45:281 discordiador/(16423:16423): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 23:35:45:284 discordiador/(16423:16431): Servidor listo para recibir al store
+[INFO] 23:35:46:802 discordiador/(16423:16423): 0 - Iniciando Patota
+[ERROR] 23:35:46:802 discordiador/(16423:16423): Archivo de tareas no encontrado
+[INFO] 23:36:31:880 discordiador/(16491:16491): Iniciando Discordiador
+[INFO] 23:36:31:883 discordiador/(16491:16491): Discordiador iniciado correctamente
+[INFO] 23:36:31:883 discordiador/(16491:16491): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 23:36:31:884 discordiador/(16491:16498): Servidor listo para recibir al store
+[INFO] 23:36:34:011 discordiador/(16491:16491): 0 - Iniciando Patota
+[ERROR] 23:36:34:012 discordiador/(16491:16491): Archivo de tareas no encontrado
+[ERROR] 23:36:38:087 discordiador/(16491:16491): Instrucción no reconocida
+[INFO] 23:37:45:155 discordiador/(16605:16605): Iniciando Discordiador
+[INFO] 23:37:45:155 discordiador/(16605:16605): Discordiador iniciado correctamente
+[INFO] 23:37:45:155 discordiador/(16605:16605): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 23:37:45:155 discordiador/(16605:16612): Servidor listo para recibir al store
+[ERROR] 23:37:46:854 discordiador/(16605:16605): Instrucción no reconocida
+[INFO] 23:37:52:258 discordiador/(16605:16605): 0 - Iniciando Patota
+[ERROR] 23:37:52:258 discordiador/(16605:16605): Archivo de tareas no encontrado
+[INFO] 23:38:07:024 discordiador/(16631:16631): Iniciando Discordiador
+[INFO] 23:38:07:029 discordiador/(16631:16631): Discordiador iniciado correctamente
+[INFO] 23:38:07:032 discordiador/(16631:16631): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 23:38:07:035 discordiador/(16631:16638): Servidor listo para recibir al store
+[INFO] 23:38:09:350 discordiador/(16631:16631): 0 - Iniciando Patota
+[ERROR] 23:38:09:350 discordiador/(16631:16631): Archivo de tareas no encontrado
+[INFO] 23:38:19:935 discordiador/(16656:16656): Iniciando Discordiador
+[INFO] 23:38:19:941 discordiador/(16656:16656): Discordiador iniciado correctamente
+[INFO] 23:38:19:941 discordiador/(16656:16656): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 23:38:19:941 discordiador/(16656:16663): Servidor listo para recibir al store
+[INFO] 23:38:21:165 discordiador/(16656:16656): 0 - Iniciando Patota
+[INFO] 23:38:23:195 discordiador/(16656:16656): 0 - Tripulante iniciado 
+[INFO] 23:38:23:195 discordiador/(16656:16656): 0 - Patota iniciada 
+[INFO] 23:38:36:516 discordiador/(16686:16686): Iniciando Discordiador
+[INFO] 23:38:36:517 discordiador/(16686:16686): Discordiador iniciado correctamente
+[INFO] 23:38:36:517 discordiador/(16686:16686): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 23:38:36:520 discordiador/(16686:16693): Servidor listo para recibir al store
+[INFO] 23:38:38:018 discordiador/(16686:16686): 0 - Iniciando Patota
+[INFO] 23:38:40:018 discordiador/(16686:16686): 0 - Tripulante iniciado 
+[INFO] 23:38:40:018 discordiador/(16686:16686): 0 - Patota iniciada 
+[INFO] 23:39:25:102 discordiador/(16737:16737): Iniciando Discordiador
+[INFO] 23:39:25:103 discordiador/(16737:16737): Discordiador iniciado correctamente
+[INFO] 23:39:25:103 discordiador/(16737:16737): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 23:39:25:106 discordiador/(16737:16744): Servidor listo para recibir al store
+[INFO] 23:39:33:009 discordiador/(16737:16737): 0 - Iniciando Patota
+[INFO] 23:39:35:009 discordiador/(16737:16737): 0 - Tripulante iniciado 
+[INFO] 23:39:35:010 discordiador/(16737:16737): 0 - Patota iniciada 
+[INFO] 23:39:50:193 discordiador/(16778:16778): Iniciando Discordiador
+[INFO] 23:39:50:196 discordiador/(16778:16778): Discordiador iniciado correctamente
+[INFO] 23:39:50:196 discordiador/(16778:16778): Ingrese instrucción por consola. *FIN* para terminar
+[INFO] 23:39:50:201 discordiador/(16778:16785): Servidor listo para recibir al store
+[ERROR] 23:39:51:497 discordiador/(16778:16778): Algún dato de la instrucción falta o es incorrecto
+[INFO] 23:39:55:074 discordiador/(16778:16778): 0 - Iniciando Patota
+[INFO] 23:39:57:074 discordiador/(16778:16778): 0 - Tripulante iniciado 
+[INFO] 23:39:57:074 discordiador/(16778:16778): 0 - Patota iniciada 
